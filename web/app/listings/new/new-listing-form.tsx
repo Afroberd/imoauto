@@ -176,6 +176,51 @@ export function NewListingForm({ userId }: { userId: string }) {
             className={inputClass}
           />
         </Field>
+
+        <div className="rounded-md border border-shell bg-paper-soft/50 p-3">
+          <div className="flex items-baseline justify-between gap-2">
+            <span className="text-[13px] font-medium uppercase tracking-[0.12em] text-text-3">
+              Coordenadas <span className="normal-case tracking-normal text-text-3">(opcional)</span>
+            </span>
+            <a
+              href="https://www.google.com/maps"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-[11px] text-ink-soft underline-offset-2 hover:underline"
+            >
+              Como copiar do Google Maps ↗
+            </a>
+          </div>
+          <p className="mt-1 text-[12px] text-text-3">
+            Sem coordenadas o pino aparece no centro da ilha. Para mostrar a localização exacta no mapa, cola aqui valores do Google Maps (clica no local → copia o par de números).
+          </p>
+          <div className="mt-3 grid grid-cols-2 gap-3">
+            <Field id="latitude" label="Latitude">
+              <input
+                id="latitude"
+                name="latitude"
+                type="number"
+                step="any"
+                min={-90}
+                max={90}
+                placeholder="14.917"
+                className={`${inputClass} tnum`}
+              />
+            </Field>
+            <Field id="longitude" label="Longitude">
+              <input
+                id="longitude"
+                name="longitude"
+                type="number"
+                step="any"
+                min={-180}
+                max={180}
+                placeholder="-23.508"
+                className={`${inputClass} tnum`}
+              />
+            </Field>
+          </div>
+        </div>
       </Section>
 
       {/* 03 — Características */}

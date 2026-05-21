@@ -49,6 +49,23 @@ export async function createListing(
   if (!(CV_ISLANDS as readonly string[]).includes(island))
     return { ok: false, error: 'Ilha inválida.' }
 
+  const latRaw = String(formData.get('latitude') ?? '').trim()
+  const lngRaw = String(formData.get('longitude') ?? '').trim()
+  let latitude: number | null = null
+  let longitude: number | null = null
+  if (latRaw) {
+    const n = Number(latRaw)
+    if (!Number.isFinite(n) || n < -90 || n > 90)
+      return { ok: false, error: 'Latitude inválida (entre -90 e 90).' }
+    latitude = n
+  }
+  if (lngRaw) {
+    const n = Number(lngRaw)
+    if (!Number.isFinite(n) || n < -180 || n > 180)
+      return { ok: false, error: 'Longitude inválida (entre -180 e 180).' }
+    longitude = n
+  }
+
   const attributes: ListingAttributes = {}
   if (kindRaw === 'property') {
     const property_type = String(formData.get('property_type') ?? '').trim()
@@ -87,6 +104,8 @@ export async function createListing(
       price_cve: priceNum,
       location_island: island,
       location_city: city,
+      latitude,
+      longitude,
       attributes,
       status: 'draft',
     })

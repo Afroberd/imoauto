@@ -30,6 +30,8 @@ export type Listing = {
   price_cve: number
   location_island: string
   location_city: string | null
+  latitude: number | null
+  longitude: number | null
   attributes: ListingAttributes
   status: ListingStatus
   cover_image_url: string | null
