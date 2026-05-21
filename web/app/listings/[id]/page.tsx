@@ -7,6 +7,14 @@ import {
   PinIcon, BedIcon, BathIcon, AreaIcon,
   CalendarIcon, GaugeIcon, FuelIcon, HouseIcon, CarIcon,
 } from '@/components/icons'
+import { ShareButton } from '@/components/share-button'
+
+function buildWhatsAppLink(phone: string, listingTitle: string): string {
+  // Strip everything that's not a digit. Wa.me expects E.164 without `+`.
+  const digits = phone.replace(/\D/g, '')
+  const msg = `Olá, vi o teu anúncio no IMOAUTO: "${listingTitle}". Continua disponível?`
+  return `https://wa.me/${digits}?text=${encodeURIComponent(msg)}`
+}
 
 export const dynamic = 'force-dynamic'
 
@@ -145,18 +153,23 @@ export default async function ListingDetailPage({
               {isProperty ? 'Imóvel' : 'Automóvel'} · {isRent ? 'Aluguer' : 'Venda'}
             </div>
 
-            <button
-              type="button"
-              className="mt-6 w-full rounded-full bg-ink px-5 py-3 text-sm font-medium text-paper transition-colors hover:bg-ink-deep"
-            >
-              Contactar anunciante
-            </button>
-            <button
-              type="button"
-              className="mt-2 w-full rounded-full border border-shell px-5 py-3 text-sm font-medium text-ink transition-colors hover:border-ink"
-            >
-              Guardar nos favoritos
-            </button>
+            {l.contact_phone ? (
+              <a
+                href={buildWhatsAppLink(l.contact_phone, l.title)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-full bg-ink px-5 py-3 text-sm font-medium text-paper transition-colors hover:bg-ink-deep"
+              >
+                <span aria-hidden>💬</span> Contactar via WhatsApp
+              </a>
+            ) : (
+              <div className="mt-6 rounded-full border border-shell bg-paper-soft px-5 py-3 text-center text-[13px] text-text-3">
+                Sem contacto disponível
+              </div>
+            )}
+            <div className="mt-2">
+              <ShareButton title={l.title} />
+            </div>
 
             <p className="mt-4 text-[12px] leading-relaxed text-text-3">
               Contacto direto. Sem comissões intermédias do IMOAUTO.

@@ -32,6 +32,7 @@ export type Listing = {
   location_city: string | null
   latitude: number | null
   longitude: number | null
+  contact_phone: string | null
   attributes: ListingAttributes
   status: ListingStatus
   cover_image_url: string | null

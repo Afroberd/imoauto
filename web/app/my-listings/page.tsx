@@ -2,9 +2,9 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { formatCVE } from '@/lib/listings/constants'
-import { deleteListing } from '@/app/actions/listings'
 import type { Listing } from '@/lib/listings/types'
 import { PlusIcon, PinIcon, HouseIcon, CarIcon } from '@/components/icons'
+import { DeleteListingButton } from '@/components/delete-listing-button'
 
 export const dynamic = 'force-dynamic'
 
@@ -150,15 +150,7 @@ function ListingRow({ listing }: { listing: Listing }) {
         >
           Ver
         </Link>
-        <form action={deleteListing}>
-          <input type="hidden" name="id" value={l.id} />
-          <button
-            type="submit"
-            className="rounded-full border border-shell px-3 py-1.5 text-[12px] text-coral-deep transition-colors hover:border-coral hover:bg-coral-soft"
-          >
-            Apagar
-          </button>
-        </form>
+        <DeleteListingButton id={l.id} title={l.title} />
       </div>
     </li>
   )

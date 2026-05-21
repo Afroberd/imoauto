@@ -177,6 +177,21 @@ export function NewListingForm({ userId }: { userId: string }) {
           />
         </Field>
 
+        <Field id="contact_phone" label="Contacto WhatsApp / Telefone">
+          <input
+            id="contact_phone"
+            name="contact_phone"
+            type="tel"
+            inputMode="tel"
+            placeholder="+238 9XX XX XX"
+            className={inputClass}
+          />
+          <p className="mt-1 text-[12px] text-text-3">
+            Se preencheres, aparece no anúncio um botão que abre o WhatsApp com
+            mensagem pré-pronta. Recomendado.
+          </p>
+        </Field>
+
         <div className="rounded-md border border-shell bg-paper-soft/50 p-3">
           <div className="flex items-baseline justify-between gap-2">
             <span className="text-[13px] font-medium uppercase tracking-[0.12em] text-text-3">

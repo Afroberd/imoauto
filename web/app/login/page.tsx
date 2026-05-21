@@ -8,6 +8,7 @@ export default async function LoginPage({
   searchParams: Promise<{ registered?: string; error?: string; next?: string }>
 }) {
   const sp = await searchParams
+  const next = sp.next && sp.next.startsWith('/') && !sp.next.startsWith('//') ? sp.next : '/profile'
 
   return (
     <main className="min-h-screen bg-paper">
@@ -58,7 +59,7 @@ export default async function LoginPage({
             )}
 
             <div className="mt-8">
-              <LoginForm />
+              <LoginForm next={next} />
             </div>
 
             <p className="mt-8 text-center text-sm text-text-2">

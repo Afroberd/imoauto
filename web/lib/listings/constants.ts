@@ -13,20 +13,21 @@ export const CV_ISLANDS = [
 export type CVIsland = (typeof CV_ISLANDS)[number]
 
 /**
- * Approximate centre coordinates for each island. Used as a fallback when a
- * listing has no precise lat/long. Source: rough geographic centres taken from
- * publicly known island centroids.
+ * Fallback coordinates for each island — pinned to the main population centre
+ * (capital city or busiest town), not the geometric centroid. Most listings
+ * will be at or near these cities, so this gives sensible pin positions when
+ * a listing has no precise lat/long.
  */
 export const ISLAND_CENTERS: Record<CVIsland, { lat: number; lng: number }> = {
-  Santiago:      { lat: 15.10, lng: -23.62 },
-  'São Vicente': { lat: 16.83, lng: -24.99 },
-  Sal:           { lat: 16.73, lng: -22.93 },
-  'Boa Vista':   { lat: 16.10, lng: -22.82 },
-  Fogo:          { lat: 14.92, lng: -24.39 },
-  'Santo Antão': { lat: 17.07, lng: -25.16 },
-  'São Nicolau': { lat: 16.60, lng: -24.30 },
-  Maio:          { lat: 15.20, lng: -23.16 },
-  Brava:         { lat: 14.85, lng: -24.71 },
+  Santiago:      { lat: 14.9177, lng: -23.5092 },  // Praia
+  'São Vicente': { lat: 16.8866, lng: -24.9956 },  // Mindelo
+  Sal:           { lat: 16.6028, lng: -22.9097 },  // Santa Maria
+  'Boa Vista':   { lat: 16.1797, lng: -22.9170 },  // Sal Rei
+  Fogo:          { lat: 14.8965, lng: -24.4956 },  // São Filipe
+  'Santo Antão': { lat: 17.1969, lng: -25.0942 },  // Ponta do Sol
+  'São Nicolau': { lat: 16.6175, lng: -24.3036 },  // Ribeira Brava
+  Maio:          { lat: 15.1372, lng: -23.2128 },  // Vila do Maio
+  Brava:         { lat: 14.8672, lng: -24.7103 },  // Nova Sintra
 }
 
 /** Centre of Cabo Verde for the default map view. */

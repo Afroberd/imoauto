@@ -2,7 +2,13 @@ import Link from 'next/link'
 import { RegisterForm } from './register-form'
 import { Wordmark } from '@/components/wordmark'
 
-export default function RegisterPage() {
+export default async function RegisterPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ next?: string }>
+}) {
+  const sp = await searchParams
+  const next = sp.next && sp.next.startsWith('/') && !sp.next.startsWith('//') ? sp.next : '/profile'
   return (
     <main className="min-h-screen bg-paper">
       <div className="mx-auto grid min-h-screen max-w-6xl grid-cols-1 lg:grid-cols-[1.1fr_1fr]">
@@ -19,12 +25,15 @@ export default function RegisterPage() {
             </p>
 
             <div className="mt-8">
-              <RegisterForm />
+              <RegisterForm next={next} />
             </div>
 
             <p className="mt-8 text-center text-sm text-text-2">
               Já tens conta?{' '}
-              <Link href="/login" className="font-medium text-ink underline-offset-4 hover:underline">
+              <Link
+                href={`/login${next !== '/profile' ? `?next=${encodeURIComponent(next)}` : ''}`}
+                className="font-medium text-ink underline-offset-4 hover:underline"
+              >
                 Entrar
               </Link>
             </p>

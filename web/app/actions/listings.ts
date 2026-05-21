@@ -51,8 +51,16 @@ export async function createListing(
 
   const latRaw = String(formData.get('latitude') ?? '').trim()
   const lngRaw = String(formData.get('longitude') ?? '').trim()
+  const contactPhoneRaw = String(formData.get('contact_phone') ?? '').trim()
   let latitude: number | null = null
   let longitude: number | null = null
+  // Light normalisation — keep digits, +, spaces, dashes. Reject if too short.
+  let contact_phone: string | null = null
+  if (contactPhoneRaw.length > 0) {
+    const cleaned = contactPhoneRaw.replace(/[^\d+]/g, '')
+    if (cleaned.length < 7) return { ok: false, error: 'Contacto demasiado curto.' }
+    contact_phone = contactPhoneRaw // store as user typed (visual), wa.me normalises later
+  }
   if (latRaw) {
     const n = Number(latRaw)
     if (!Number.isFinite(n) || n < -90 || n > 90)
@@ -106,6 +114,7 @@ export async function createListing(
       location_city: city,
       latitude,
       longitude,
+      contact_phone,
       attributes,
       status: 'draft',
     })
@@ -176,12 +185,31 @@ export async function deleteListing(formData: FormData) {
   } = await supabase.auth.getUser()
   if (!user) throw new Error('Não autenticado.')
 
+  // First fetch storage paths of all attached photos so we can purge them from Storage.
+  // RLS guarantees we only see photos of listings we own — and we filter by listing_id
+  // matching the listing whose owner is auth.uid().
+  const { data: photoRows } = await supabase
+    .from('listing_photos')
+    .select('storage_path')
+    .eq('listing_id', id)
+
+  const photoPaths = (photoRows ?? [])
+    .map((p) => p.storage_path)
+    .filter((p): p is string => typeof p === 'string' && p.length > 0)
+
+  // Delete the listing row — cascade removes listing_photos rows.
   const { error } = await supabase
     .from('listings')
     .delete()
     .eq('id', id)
     .eq('owner_id', user.id)
   if (error) throw new Error(error.message)
+
+  // Best-effort: purge orphaned files from Storage. If this fails we don't roll back
+  // the listing deletion — the row is already gone and that's what matters for UX.
+  if (photoPaths.length > 0) {
+    await supabase.storage.from('listings').remove(photoPaths)
+  }
 
   revalidatePath('/listings')
   revalidatePath('/my-listings')

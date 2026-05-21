@@ -4,7 +4,7 @@ import { useActionState } from 'react'
 import { signIn, signInWithGoogle, type AuthState } from '@/app/actions/auth'
 import { GoogleIcon } from '@/components/icons'
 
-export function LoginForm() {
+export function LoginForm({ next = '/profile' }: { next?: string }) {
   const [state, formAction, pending] = useActionState<AuthState, FormData>(
     signIn,
     undefined,
@@ -13,6 +13,7 @@ export function LoginForm() {
   return (
     <div className="space-y-5">
       <form action={signInWithGoogle}>
+        <input type="hidden" name="next" value={next} />
         <button
           type="submit"
           className="inline-flex w-full items-center justify-center gap-2.5 rounded-full border border-shell bg-white px-4 py-3 text-sm font-medium text-ink shadow-[var(--shadow-card)] transition-all hover:border-line-strong hover:shadow-[var(--shadow-card-hover)]"
@@ -29,6 +30,7 @@ export function LoginForm() {
       </div>
 
       <form action={formAction} className="space-y-4">
+        <input type="hidden" name="next" value={next} />
         <div className="space-y-1.5">
           <label htmlFor="email" className="text-[12px] font-medium uppercase tracking-[0.12em] text-text-3">
             Email
