@@ -1,7 +1,7 @@
 import Link from 'next/link'
-import nextDynamic from 'next/dynamic'
 import { createClient } from '@/lib/supabase/server'
 import { ListingCard } from '@/components/listing-card'
+import ListingsMap from '@/components/listings-map-client'
 import { ArrowRightIcon, PlusIcon, SearchIcon } from '@/components/icons'
 import {
   CV_ISLANDS,
@@ -9,15 +9,6 @@ import {
   type ListingKind,
 } from '@/lib/listings/constants'
 import type { Listing } from '@/lib/listings/types'
-
-const ListingsMap = nextDynamic(() => import('@/components/listings-map'), {
-  ssr: false,
-  loading: () => (
-    <div className="flex h-[68vh] min-h-[480px] w-full items-center justify-center rounded-[var(--radius-card)] border border-shell bg-paper-soft text-sm text-text-3">
-      A carregar mapa…
-    </div>
-  ),
-})
 
 export const dynamic = 'force-dynamic'
 
