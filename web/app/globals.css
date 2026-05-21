@@ -1,0 +1,153 @@
+@import "tailwindcss";
+
+@theme {
+  /* — Palette: Atlantic Editorial — */
+  --color-paper: #FAF7F0;          /* warm off-white background, like sun-bleached sand */
+  --color-paper-soft: #F4EFE3;     /* slightly deeper sand */
+  --color-shell: #E5DCC4;          /* sand border */
+  --color-shell-soft: #EFE9D7;     /* faint sand divider */
+  --color-ink: #0B2E40;            /* deep Atlantic blue (primary) */
+  --color-ink-soft: #1E445C;       /* secondary blue */
+  --color-ink-deep: #061C29;       /* darkest blue, used sparingly */
+  --color-sky: #2B6B8C;            /* mid Atlantic sky blue, for accents */
+  --color-sky-soft: #DCE9F0;       /* faint blue surface */
+  --color-coral: #E76B4F;          /* sunset coral — accent / "Aluguer" */
+  --color-coral-deep: #C9482B;     /* coral hover */
+  --color-coral-soft: #FBE4DC;     /* coral tint background */
+  --color-text-1: #14202B;
+  --color-text-2: #4A5A66;
+  --color-text-3: #8290A0;
+  --color-line: #E5DCC4;
+  --color-line-strong: #C9BFA8;
+  --color-success: #2F7A55;
+  --color-success-soft: #DCEEE3;
+  --color-warn: #C58A1A;
+  --color-warn-soft: #F6ECCF;
+
+  /* — Type — */
+  --font-display: var(--font-fraunces);
+  --font-sans: var(--font-outfit);
+  --font-mono: var(--font-mono-default);
+
+  /* — Radii — */
+  --radius-card: 14px;
+  --radius-pill: 9999px;
+
+  /* — Shadows — */
+  --shadow-card: 0 1px 0 rgb(11 46 64 / 0.04), 0 4px 18px -8px rgb(11 46 64 / 0.12);
+  --shadow-card-hover: 0 2px 0 rgb(11 46 64 / 0.05), 0 12px 28px -12px rgb(11 46 64 / 0.22);
+  --shadow-pop: 0 24px 60px -24px rgb(11 46 64 / 0.32);
+}
+
+:root {
+  color-scheme: light;
+}
+
+html {
+  background: var(--color-paper);
+}
+
+body {
+  background: var(--color-paper);
+  color: var(--color-text-1);
+  font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+  font-feature-settings: "ss01", "ss02", "cv11";
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background: var(--color-ink);
+  color: var(--color-paper);
+}
+
+/* Display font defaults */
+.font-display {
+  font-family: var(--font-display), ui-serif, Georgia, serif;
+  font-feature-settings: "ss01", "salt", "kern";
+  letter-spacing: -0.02em;
+}
+
+/* — Decorative utilities — */
+
+/* Hairline divider with sand tone */
+.hairline {
+  border-top: 1px solid var(--color-line);
+}
+
+/* Topographic line texture — used as subtle background detail */
+.bg-topo {
+  background-image:
+    radial-gradient(circle at 15% 20%, rgba(11, 46, 64, 0.045) 1px, transparent 1px),
+    radial-gradient(circle at 80% 60%, rgba(11, 46, 64, 0.035) 1px, transparent 1px);
+  background-size: 36px 36px, 48px 48px;
+}
+
+/* Sun rays gradient mesh — used in hero */
+.bg-atlantic {
+  background:
+    radial-gradient(120% 80% at 80% 0%, rgba(231, 107, 79, 0.10) 0%, transparent 55%),
+    radial-gradient(60% 80% at 50% 100%, rgba(43, 107, 140, 0.16) 0%, transparent 60%),
+    radial-gradient(80% 60% at 0% 100%, rgba(11, 46, 64, 0.10) 0%, transparent 60%),
+    linear-gradient(180deg, var(--color-paper) 0%, var(--color-paper-soft) 100%);
+}
+
+/* Deep Atlantic ribbon — bold blue section background */
+.bg-deep-atlantic {
+  background:
+    radial-gradient(80% 100% at 100% 0%, rgba(231, 107, 79, 0.18) 0%, transparent 55%),
+    radial-gradient(60% 80% at 10% 100%, rgba(43, 107, 140, 0.35) 0%, transparent 60%),
+    linear-gradient(160deg, var(--color-ink) 0%, var(--color-ink-deep) 100%);
+  color: var(--color-paper);
+}
+
+/* Ink card surface — used for the dark hero island chip */
+.surface-ink {
+  background: var(--color-ink);
+  color: var(--color-paper);
+}
+
+/* Tabular numerals for prices, areas, etc. */
+.tnum {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Capital number — used as design element ("01", "02"…) */
+.numeral {
+  font-family: var(--font-display), serif;
+  font-feature-settings: "lnum";
+  font-weight: 300;
+  letter-spacing: -0.04em;
+}
+
+/* Subtle focus ring (used on inputs / buttons) */
+*:focus-visible {
+  outline: 2px solid var(--color-ink);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* Smooth photo zoom on cards */
+.photo-hover {
+  transition: transform 700ms cubic-bezier(0.2, 0.65, 0.2, 1);
+}
+.group:hover .photo-hover {
+  transform: scale(1.04);
+}
+
+/* Page-load fade-up used on hero elements */
+@keyframes rise {
+  from { opacity: 0; transform: translate3d(0, 12px, 0); }
+  to   { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+.rise {
+  animation: rise 700ms cubic-bezier(0.2, 0.65, 0.2, 1) both;
+}
+.rise-delay-1 { animation-delay: 80ms; }
+.rise-delay-2 { animation-delay: 180ms; }
+.rise-delay-3 { animation-delay: 300ms; }
+.rise-delay-4 { animation-delay: 420ms; }
+
+@media (prefers-reduced-motion: reduce) {
+  .rise, .photo-hover { animation: none; transition: none; }
+}
