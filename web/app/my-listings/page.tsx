@@ -120,7 +120,7 @@ function ListingRow({ listing }: { listing: Listing }) {
       <div className="flex items-center gap-4 px-4 py-4">
         <div className="relative h-16 w-20 flex-shrink-0 overflow-hidden rounded-md bg-paper-soft">
           {l.cover_image_url ? (
-            <Image src={l.cover_image_url} alt="" fill sizes="80px" className="object-cover" />
+            <Image src={l.cover_image_url} alt="" fill unoptimized sizes="80px" className="object-cover" />
           ) : (
             <div className="flex h-full w-full items-center justify-center text-ink-soft">
               {l.kind === 'property' ? <HouseIcon className="h-6 w-6" /> : <CarIcon className="h-6 w-6" />}

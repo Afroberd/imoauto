@@ -357,6 +357,7 @@ function PhotoGallery({
           src={hero.url}
           alt="Foto principal"
           fill
+          unoptimized
           sizes="(max-width: 640px) 100vw, 50vw"
           className="object-cover"
           priority
@@ -374,6 +375,7 @@ function PhotoGallery({
                 src={t.url}
                 alt={`Foto ${i + 2}`}
                 fill
+                unoptimized
                 sizes="(max-width: 640px) 50vw, 25vw"
                 className="object-cover"
               />

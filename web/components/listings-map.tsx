@@ -107,6 +107,7 @@ export default function ListingsMap({ listings }: { listings: Listing[] }) {
                       src={l.cover_image_url}
                       alt=""
                       fill
+                      unoptimized
                       sizes="220px"
                       className="object-cover"
                     />
