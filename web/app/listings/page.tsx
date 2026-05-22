@@ -12,6 +12,20 @@ import type { Listing } from '@/lib/listings/types'
 
 export const dynamic = 'force-dynamic'
 
+/**
+ * Clean a free-text search term before it goes into a PostgREST `.or()` filter.
+ * Commas and parentheses are PostgREST syntax separators; `%`, `_`, `*` and `\`
+ * are LIKE wildcards/escapes. Left raw, a query like "T2, Praia" would break the
+ * filter (400 error). We replace them with spaces and cap the length.
+ */
+function sanitizeSearch(raw: string): string {
+  return raw
+    .replace(/[,()%_*\\]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .slice(0, 80)
+}
+
 type Params = {
   kind?: string
   island?: string
@@ -37,7 +51,7 @@ export default async function ListingsPage({
   const purposeFilter = ['sale', 'rent_monthly', 'rent_daily'].includes(sp.purpose ?? '')
     ? sp.purpose
     : null
-  const q = (sp.q ?? '').trim()
+  const q = sanitizeSearch(sp.q ?? '')
   const minPrice = sp.min ? Number(sp.min) : null
   const maxPrice = sp.max ? Number(sp.max) : null
   const view = sp.view === 'map' ? 'map' : 'grid'

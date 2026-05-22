@@ -77,6 +77,7 @@ export type Listing = {
   description: string | null
   price_cve: number
   location_island: string
+  location_municipality: string | null
   location_city: string | null
   latitude: number | null
   longitude: number | null
@@ -107,6 +108,7 @@ export type ListingInput = {
   description: string
   price_cve: number
   location_island: string
+  location_municipality: string
   location_city: string
   latitude: number | null
   longitude: number | null

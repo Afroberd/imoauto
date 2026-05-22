@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import Image from 'next/image'
 import { formatCVE, isRent, purposeShort, priceSuffix } from '@/lib/listings/constants'
 import type { Listing } from '@/lib/listings/types'
 import {
@@ -19,12 +20,12 @@ export function ListingCard({ listing }: { listing: Listing }) {
     >
       <div className="relative aspect-[4/3] w-full overflow-hidden bg-paper-soft">
         {listing.cover_image_url ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
+          <Image
             src={listing.cover_image_url}
             alt={listing.title}
-            className="photo-hover h-full w-full object-cover"
-            loading="lazy"
+            fill
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+            className="photo-hover object-cover"
           />
         ) : (
           <PlaceholderArt kind={listing.kind} />
@@ -50,7 +51,9 @@ export function ListingCard({ listing }: { listing: Listing }) {
         <div className="flex items-center gap-1.5 text-[12px] text-text-3">
           <PinIcon className="h-3.5 w-3.5 text-text-3" />
           <span>
-            {listing.location_island}
+            {listing.location_municipality
+              ? `${listing.location_municipality}, ${listing.location_island}`
+              : listing.location_island}
             {listing.location_city ? ` · ${listing.location_city}` : ''}
           </span>
         </div>

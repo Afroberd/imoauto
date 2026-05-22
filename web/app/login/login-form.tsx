@@ -1,6 +1,7 @@
 'use client'
 
 import { useActionState } from 'react'
+import Link from 'next/link'
 import { signIn, signInWithGoogle, type AuthState } from '@/app/actions/auth'
 import { GoogleIcon } from '@/components/icons'
 
@@ -46,9 +47,17 @@ export function LoginForm({ next = '/profile' }: { next?: string }) {
           />
         </div>
         <div className="space-y-1.5">
-          <label htmlFor="password" className="text-[12px] font-medium uppercase tracking-[0.12em] text-text-3">
-            Password
-          </label>
+          <div className="flex items-center justify-between">
+            <label htmlFor="password" className="text-[12px] font-medium uppercase tracking-[0.12em] text-text-3">
+              Password
+            </label>
+            <Link
+              href="/forgot-password"
+              className="text-[12px] text-text-3 underline-offset-2 transition-colors hover:text-ink hover:underline"
+            >
+              Esqueci-me
+            </Link>
+          </div>
           <input
             id="password"
             name="password"

@@ -8,6 +8,7 @@ import {
   CV_ISLANDS,
   LISTING_KINDS,
   LISTING_PURPOSES,
+  municipalitiesOf,
   type ListingKind,
   type ListingPurpose,
 } from '@/lib/listings/constants'
@@ -15,6 +16,9 @@ import {
 export type SaveListingResult =
   | { ok: true; listingId: string }
   | { ok: false; error: string }
+
+/** Anti-spam: maximum listings a single account may hold at once. */
+const MAX_LISTINGS_PER_USER = 25
 
 function isKind(v: string): v is ListingKind {
   return (LISTING_KINDS as readonly string[]).includes(v)
@@ -150,6 +154,11 @@ function validate(input: ListingInput):
   if (!(CV_ISLANDS as readonly string[]).includes(island))
     return { ok: false, error: 'Ilha inválida.' }
 
+  const municipality = (input.location_municipality ?? '').trim()
+  if (!municipality) return { ok: false, error: 'Escolhe o concelho.' }
+  if (!(municipalitiesOf(island) as readonly string[]).includes(municipality))
+    return { ok: false, error: 'O concelho não pertence à ilha escolhida.' }
+
   let latitude: number | null = null
   let longitude: number | null = null
   if (input.latitude != null) {
@@ -184,6 +193,7 @@ function validate(input: ListingInput):
       description: (input.description ?? '').trim() || null,
       price_cve: Math.round(price),
       location_island: island,
+      location_municipality: municipality,
       location_city: (input.location_city ?? '').trim() || null,
       latitude,
       longitude,
@@ -202,6 +212,18 @@ export async function createListing(input: ListingInput): Promise<SaveListingRes
 
   const v = validate(input)
   if (!v.ok) return v
+
+  // Anti-spam: cap how many listings one account can hold.
+  const { count } = await supabase
+    .from('listings')
+    .select('id', { count: 'exact', head: true })
+    .eq('owner_id', user.id)
+  if ((count ?? 0) >= MAX_LISTINGS_PER_USER) {
+    return {
+      ok: false,
+      error: `Atingiste o limite de ${MAX_LISTINGS_PER_USER} anúncios. Apaga ou arquiva alguns antes de criar mais.`,
+    }
+  }
 
   const { data, error } = await supabase
     .from('listings')

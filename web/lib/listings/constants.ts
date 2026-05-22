@@ -31,6 +31,94 @@ export const ISLAND_CENTERS: Record<CVIsland, { lat: number; lng: number }> = {
 export const CV_CENTER = { lat: 15.85, lng: -23.85 }
 export const CV_DEFAULT_ZOOM = 7
 
+/**
+ * The 22 municipalities (concelhos) of Cabo Verde, grouped by island.
+ * Powers the structured location dropdown when publishing a listing.
+ */
+export const CV_MUNICIPALITIES: Record<CVIsland, readonly string[]> = {
+  Santiago: [
+    'Praia',
+    'Ribeira Grande de Santiago',
+    'Santa Catarina',
+    'Santa Cruz',
+    'São Domingos',
+    'São Lourenço dos Órgãos',
+    'São Miguel',
+    'São Salvador do Mundo',
+    'Tarrafal',
+  ],
+  'São Vicente': ['São Vicente'],
+  Sal: ['Sal'],
+  'Boa Vista': ['Boa Vista'],
+  Fogo: ['Mosteiros', 'Santa Catarina do Fogo', 'São Filipe'],
+  'Santo Antão': ['Paul', 'Porto Novo', 'Ribeira Grande'],
+  'São Nicolau': ['Ribeira Brava', 'Tarrafal de São Nicolau'],
+  Maio: ['Maio'],
+  Brava: ['Brava'],
+}
+
+/** Municipalities available on a given island ([] if the island is unknown). */
+export function municipalitiesOf(island: string | undefined | null): readonly string[] {
+  if (!island) return []
+  return CV_MUNICIPALITIES[island as CVIsland] ?? []
+}
+
+/**
+ * Approximate centre of each municipality — used to pre-position the
+ * "Marcar no mapa" picker so the owner starts zoomed near the right area.
+ * Keys are unique across all 22 municipalities.
+ */
+export const MUNICIPALITY_CENTERS: Record<string, { lat: number; lng: number }> = {
+  // Santiago
+  Praia: { lat: 14.9177, lng: -23.5092 },
+  'Ribeira Grande de Santiago': { lat: 14.9153, lng: -23.6033 },
+  'Santa Catarina': { lat: 15.11, lng: -23.68 },
+  'Santa Cruz': { lat: 15.1339, lng: -23.5667 },
+  'São Domingos': { lat: 15.0297, lng: -23.5483 },
+  'São Lourenço dos Órgãos': { lat: 15.05, lng: -23.6 },
+  'São Miguel': { lat: 15.1833, lng: -23.6 },
+  'São Salvador do Mundo': { lat: 15.0833, lng: -23.6333 },
+  Tarrafal: { lat: 15.2772, lng: -23.7547 },
+  // São Vicente
+  'São Vicente': { lat: 16.8866, lng: -24.9956 },
+  // Sal
+  Sal: { lat: 16.7356, lng: -22.9472 },
+  // Boa Vista
+  'Boa Vista': { lat: 16.1797, lng: -22.917 },
+  // Fogo
+  Mosteiros: { lat: 15.0333, lng: -24.3333 },
+  'Santa Catarina do Fogo': { lat: 14.9167, lng: -24.3167 },
+  'São Filipe': { lat: 14.8965, lng: -24.4956 },
+  // Santo Antão
+  Paul: { lat: 17.1667, lng: -25.0167 },
+  'Porto Novo': { lat: 17.0186, lng: -25.0656 },
+  'Ribeira Grande': { lat: 17.1833, lng: -25.0667 },
+  // São Nicolau
+  'Ribeira Brava': { lat: 16.6175, lng: -24.3036 },
+  'Tarrafal de São Nicolau': { lat: 16.5667, lng: -24.3556 },
+  // Maio
+  Maio: { lat: 15.1372, lng: -23.2128 },
+  // Brava
+  Brava: { lat: 14.8672, lng: -24.7103 },
+}
+
+/**
+ * Best starting coordinates for the map picker, given an island + municipality.
+ * Falls back: municipality centre → island centre → archipelago centre.
+ */
+export function locationCenter(
+  island: string | undefined | null,
+  municipality?: string | null,
+): { lat: number; lng: number } {
+  if (municipality && MUNICIPALITY_CENTERS[municipality]) {
+    return MUNICIPALITY_CENTERS[municipality]
+  }
+  if (island && ISLAND_CENTERS[island as CVIsland]) {
+    return ISLAND_CENTERS[island as CVIsland]
+  }
+  return CV_CENTER
+}
+
 /* — Listing kind — */
 export const LISTING_KINDS = ['property', 'vehicle'] as const
 export type ListingKind = (typeof LISTING_KINDS)[number]

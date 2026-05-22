@@ -2,16 +2,16 @@
 
 import { useMemo } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { MapContainer, TileLayer, Marker, Popup, ZoomControl } from 'react-leaflet'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import {
   CV_CENTER,
   CV_DEFAULT_ZOOM,
-  ISLAND_CENTERS,
+  locationCenter,
   formatCVE,
   purposeLabel,
-  type CVIsland,
 } from '@/lib/listings/constants'
 import type { Listing } from '@/lib/listings/types'
 
@@ -49,9 +49,9 @@ function resolveCoords(l: Listing) {
   if (l.latitude != null && l.longitude != null) {
     return { lat: l.latitude, lng: l.longitude, approx: false }
   }
-  const center = ISLAND_CENTERS[l.location_island as CVIsland]
-  if (center) return { lat: center.lat, lng: center.lng, approx: true }
-  return { lat: CV_CENTER.lat, lng: CV_CENTER.lng, approx: true }
+  // No exact pin — fall back to the municipality (then island) centre.
+  const center = locationCenter(l.location_island, l.location_municipality)
+  return { lat: center.lat, lng: center.lng, approx: true }
 }
 
 // Spread pins that share the same approximate island centre so they don't overlap
@@ -102,12 +102,15 @@ export default function ListingsMap({ listings }: { listings: Listing[] }) {
             <Popup>
               <div className="min-w-[200px]">
                 {l.cover_image_url && (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={l.cover_image_url}
-                    alt=""
-                    className="mb-2 h-24 w-full rounded object-cover"
-                  />
+                  <div className="relative mb-2 h-24 w-full overflow-hidden rounded">
+                    <Image
+                      src={l.cover_image_url}
+                      alt=""
+                      fill
+                      sizes="220px"
+                      className="object-cover"
+                    />
+                  </div>
                 )}
                 <div className="text-[11px] uppercase tracking-[0.15em] text-neutral-500">
                   {l.kind === 'property' ? 'Imóvel' : 'Automóvel'} ·{' '}
@@ -118,8 +121,10 @@ export default function ListingsMap({ listings }: { listings: Listing[] }) {
                   {formatCVE(l.price_cve)}
                 </div>
                 <div className="mt-0.5 text-[11px] text-neutral-500">
-                  {l.location_island}
-                  {l.location_city ? `, ${l.location_city}` : ''}
+                  {l.location_municipality
+                    ? `${l.location_municipality}, ${l.location_island}`
+                    : l.location_island}
+                  {l.location_city ? ` · ${l.location_city}` : ''}
                   {approx && ' · localização aproximada'}
                 </div>
                 <Link

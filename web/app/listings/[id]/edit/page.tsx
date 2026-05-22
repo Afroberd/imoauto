@@ -35,6 +35,7 @@ export default async function EditListingPage({
     description: l.description ?? '',
     price_cve: l.price_cve ?? '',
     location_island: l.location_island ?? '',
+    location_municipality: l.location_municipality ?? '',
     location_city: l.location_city ?? '',
     latitude: l.latitude ?? '',
     longitude: l.longitude ?? '',

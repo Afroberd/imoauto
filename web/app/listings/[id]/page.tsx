@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
+import Image from 'next/image'
 import { createClient } from '@/lib/supabase/server'
 import {
   formatCVE, isRent, purposeLabel, priceSuffix, labelOf,
@@ -90,8 +91,10 @@ export default async function ListingDetailPage({
         <div className="mt-3 flex items-center gap-2 text-sm text-text-2">
           <PinIcon className="h-4 w-4 text-text-3" />
           <span>
-            {l.location_island}
-            {l.location_city ? `, ${l.location_city}` : ''}
+            {l.location_municipality
+              ? `${l.location_municipality}, ${l.location_island}`
+              : l.location_island}
+            {l.location_city ? ` · ${l.location_city}` : ''}
           </span>
         </div>
       </header>
@@ -349,23 +352,32 @@ function PhotoGallery({
   if (!hero) return <GalleryPlaceholder kind={kind} />
   return (
     <div className="grid gap-2 sm:grid-cols-2">
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        src={hero.url}
-        alt="Foto principal"
-        className="aspect-[4/3] w-full rounded-[var(--radius-card)] object-cover"
-      />
+      <div className="relative aspect-[4/3] w-full overflow-hidden rounded-[var(--radius-card)]">
+        <Image
+          src={hero.url}
+          alt="Foto principal"
+          fill
+          sizes="(max-width: 640px) 100vw, 50vw"
+          className="object-cover"
+          priority
+        />
+      </div>
       <div className="grid grid-cols-2 gap-2">
         {Array.from({ length: 4 }).map((_, i) => {
           const t = thumbs[i]
           return t ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
+            <div
               key={t.id}
-              src={t.url}
-              alt={`Foto ${i + 2}`}
-              className="aspect-square w-full rounded-[calc(var(--radius-card)/1.4)] object-cover"
-            />
+              className="relative aspect-square w-full overflow-hidden rounded-[calc(var(--radius-card)/1.4)]"
+            >
+              <Image
+                src={t.url}
+                alt={`Foto ${i + 2}`}
+                fill
+                sizes="(max-width: 640px) 50vw, 25vw"
+                className="object-cover"
+              />
+            </div>
           ) : (
             <div
               key={i}

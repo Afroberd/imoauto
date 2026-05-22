@@ -9,7 +9,7 @@
 export type WizardData = Record<string, unknown>
 export type Setter = (name: string, value: unknown) => void
 
-const inputClass =
+export const inputClass =
   'w-full rounded-lg border border-shell bg-white px-4 py-2.5 text-[15px] text-text-1 placeholder-text-3 outline-none transition-colors focus:border-ink'
 
 export function Field({

@@ -7,17 +7,18 @@ import {
   createListing, updateListing, attachPhoto, publishListing,
 } from '@/app/actions/listings'
 import {
-  CV_ISLANDS, PROPERTY_TYPES, VEHICLE_TYPES,
+  PROPERTY_TYPES, VEHICLE_TYPES,
   purposeLabel, formatCVE,
   type ListingKind, type ListingPurpose,
 } from '@/lib/listings/constants'
 import type { ListingInput } from '@/lib/listings/types'
 import {
-  Field, TextField, TextArea, NumberField, SelectField, ToggleField, FieldGrid,
+  Field, TextField, TextArea, NumberField, ToggleField, FieldGrid,
   type WizardData, type Setter,
 } from '@/components/wizard/fields'
 import { PropertyFields } from '@/components/wizard/property-fields'
 import { VehicleFields } from '@/components/wizard/vehicle-fields'
+import { LocationPicker } from '@/components/wizard/location-picker'
 import { HouseIcon, CarIcon, CheckIcon, ArrowRightIcon } from '@/components/icons'
 
 type Mode = 'create' | 'edit'
@@ -30,7 +31,8 @@ type Initial = {
 
 const TOP_LEVEL = new Set([
   'title', 'description', 'price_cve',
-  'location_island', 'location_city', 'latitude', 'longitude', 'contact_phone',
+  'location_island', 'location_municipality', 'location_city',
+  'latitude', 'longitude', 'contact_phone',
 ])
 
 const PURPOSES_FOR: Record<ListingKind, { value: ListingPurpose; label: string; sub: string }[]> = {
@@ -96,6 +98,8 @@ export function ListingWizard({
         return 'O título precisa de pelo menos 3 caracteres.'
       if (!(data.location_island as string))
         return 'Escolhe a ilha.'
+      if (!(data.location_municipality as string))
+        return 'Escolhe o concelho.'
     }
     if (step === 'detalhes') {
       if (kind === 'property' && !(data.property_type as string))
@@ -132,6 +136,7 @@ export function ListingWizard({
       description: ((data.description as string) ?? '').trim(),
       price_cve: Number(data.price_cve) || 0,
       location_island: (data.location_island as string) ?? '',
+      location_municipality: ((data.location_municipality as string) ?? '').trim(),
       location_city: ((data.location_city as string) ?? '').trim(),
       latitude: data.latitude ? Number(data.latitude) : null,
       longitude: data.longitude ? Number(data.longitude) : null,
@@ -238,28 +243,7 @@ export function ListingWizard({
               data={data} set={set} name="description" label="Descrição"
               placeholder="Estado, localização aproximada, condições, motivações…"
             />
-            <FieldGrid>
-              <SelectField
-                data={data} set={set} name="location_island" label="Ilha" required
-                options={CV_ISLANDS.map((i) => ({ value: i, label: i }))}
-              />
-              <TextField
-                data={data} set={set} name="location_city" label="Cidade / Localidade"
-                placeholder="Praia, Mindelo, Santa Maria…"
-              />
-            </FieldGrid>
-            <div className="rounded-md border border-shell bg-paper-soft/50 p-3">
-              <p className="text-[12px] text-text-3">
-                Coordenadas (opcional) — sem elas o pino aparece no centro da ilha.
-                Copia do Google Maps clicando no local.
-              </p>
-              <div className="mt-3">
-                <FieldGrid>
-                  <NumberField data={data} set={set} name="latitude" label="Latitude" placeholder="14.917" />
-                  <NumberField data={data} set={set} name="longitude" label="Longitude" placeholder="-23.508" />
-                </FieldGrid>
-              </div>
-            </div>
+            <LocationPicker data={data} set={set} />
           </div>
         )}
 
@@ -566,8 +550,13 @@ function StepRever({
         <Row
           label="Localização"
           value={
-            (data.location_island as string) +
-            ((data.location_city as string) ? `, ${data.location_city}` : '')
+            [
+              data.location_island as string,
+              data.location_municipality as string,
+              data.location_city as string,
+            ]
+              .filter(Boolean)
+              .join(' · ') || '—'
           }
         />
         <Row label="Preço" value={price > 0 ? formatCVE(price) : '—'} />

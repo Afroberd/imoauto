@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
+import Image from 'next/image'
 import { createClient } from '@/lib/supabase/server'
 import { formatCVE, purposeLabel } from '@/lib/listings/constants'
 import type { Listing } from '@/lib/listings/types'
@@ -117,10 +118,9 @@ function ListingRow({ listing }: { listing: Listing }) {
   return (
     <li className="overflow-hidden rounded-[var(--radius-card)] border border-shell bg-white shadow-[var(--shadow-card)] transition-colors hover:border-line-strong">
       <div className="flex items-center gap-4 px-4 py-4">
-        <div className="h-16 w-20 flex-shrink-0 overflow-hidden rounded-md bg-paper-soft">
+        <div className="relative h-16 w-20 flex-shrink-0 overflow-hidden rounded-md bg-paper-soft">
           {l.cover_image_url ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={l.cover_image_url} alt="" className="h-full w-full object-cover" />
+            <Image src={l.cover_image_url} alt="" fill sizes="80px" className="object-cover" />
           ) : (
             <div className="flex h-full w-full items-center justify-center text-ink-soft">
               {l.kind === 'property' ? <HouseIcon className="h-6 w-6" /> : <CarIcon className="h-6 w-6" />}
@@ -137,7 +137,7 @@ function ListingRow({ listing }: { listing: Listing }) {
             <span className="text-text-3">·</span>
             <span className="inline-flex items-center gap-1 text-text-2">
               <PinIcon className="h-3 w-3 text-text-3" />
-              {l.location_island}
+              {l.location_municipality || l.location_island}
             </span>
             <span className="text-text-3">·</span>
             <span className="text-text-3">{purposeLabel(l.purpose)}</span>
