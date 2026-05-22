@@ -34,7 +34,9 @@ export default async function ListingsPage({
   const islandFilter = (CV_ISLANDS as readonly string[]).includes(sp.island ?? '')
     ? sp.island
     : null
-  const purposeFilter = ['sale', 'rent'].includes(sp.purpose ?? '') ? sp.purpose : null
+  const purposeFilter = ['sale', 'rent_monthly', 'rent_daily'].includes(sp.purpose ?? '')
+    ? sp.purpose
+    : null
   const q = (sp.q ?? '').trim()
   const minPrice = sp.min ? Number(sp.min) : null
   const maxPrice = sp.max ? Number(sp.max) : null
@@ -178,7 +180,8 @@ export default async function ListingsPage({
             options={[
               { value: 'all', label: 'Todas', paramValue: null },
               { value: 'sale', label: 'Venda', paramValue: 'sale' },
-              { value: 'rent', label: 'Aluguer', paramValue: 'rent' },
+              { value: 'rent_monthly', label: 'Mensal', paramValue: 'rent_monthly' },
+              { value: 'rent_daily', label: 'Diário', paramValue: 'rent_daily' },
             ]}
             paramName="purpose"
           />

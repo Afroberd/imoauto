@@ -14,9 +14,7 @@ export type CVIsland = (typeof CV_ISLANDS)[number]
 
 /**
  * Fallback coordinates for each island — pinned to the main population centre
- * (capital city or busiest town), not the geometric centroid. Most listings
- * will be at or near these cities, so this gives sensible pin positions when
- * a listing has no precise lat/long.
+ * (capital city or busiest town), not the geometric centroid.
  */
 export const ISLAND_CENTERS: Record<CVIsland, { lat: number; lng: number }> = {
   Santiago:      { lat: 14.9177, lng: -23.5092 },  // Praia
@@ -30,22 +28,63 @@ export const ISLAND_CENTERS: Record<CVIsland, { lat: number; lng: number }> = {
   Brava:         { lat: 14.8672, lng: -24.7103 },  // Nova Sintra
 }
 
-/** Centre of Cabo Verde for the default map view. */
 export const CV_CENTER = { lat: 15.85, lng: -23.85 }
 export const CV_DEFAULT_ZOOM = 7
 
+/* — Listing kind — */
+export const LISTING_KINDS = ['property', 'vehicle'] as const
+export type ListingKind = (typeof LISTING_KINDS)[number]
+
+/* — Listing purpose (3 values) — */
+export const LISTING_PURPOSES = ['sale', 'rent_monthly', 'rent_daily'] as const
+export type ListingPurpose = (typeof LISTING_PURPOSES)[number]
+
+export function purposeLabel(p: string): string {
+  switch (p) {
+    case 'sale': return 'Venda'
+    case 'rent_monthly': return 'Aluguer mensal'
+    case 'rent_daily': return 'Aluguer diário'
+    default: return 'Aluguer'
+  }
+}
+export function purposeShort(p: string): string {
+  switch (p) {
+    case 'sale': return 'Venda'
+    case 'rent_monthly': return 'Mensal'
+    case 'rent_daily': return 'Diário'
+    default: return '—'
+  }
+}
+export function isRent(p: string): boolean {
+  return p === 'rent_monthly' || p === 'rent_daily'
+}
+/** Unit suffix shown next to a price for a given purpose. */
+export function priceSuffix(p: string): string {
+  if (p === 'rent_monthly') return '/ mês'
+  if (p === 'rent_daily') return '/ noite'
+  return ''
+}
+
+/* — Listing status — */
+export const LISTING_STATUSES = ['draft', 'published', 'paused', 'sold', 'rented', 'archived'] as const
+export type ListingStatus = (typeof LISTING_STATUSES)[number]
+
+/* — Property types — */
 export const PROPERTY_TYPES = [
   { value: 'apartamento', label: 'Apartamento' },
   { value: 'moradia', label: 'Moradia' },
+  { value: 'quarto', label: 'Quarto' },
   { value: 'terreno', label: 'Terreno' },
   { value: 'comercial', label: 'Espaço comercial' },
   { value: 'escritorio', label: 'Escritório' },
   { value: 'outro', label: 'Outro' },
 ] as const
 
+/* — Vehicle types — */
 export const VEHICLE_TYPES = [
   { value: 'carro', label: 'Carro' },
   { value: 'mota', label: 'Mota' },
+  { value: 'scooter', label: 'Scooter' },
   { value: 'comercial', label: 'Comercial / Pickup' },
   { value: 'camiao', label: 'Camião' },
   { value: 'outro', label: 'Outro' },
@@ -64,18 +103,99 @@ export const TRANSMISSION_TYPES = [
   { value: 'automatica', label: 'Automática' },
 ] as const
 
-export const LISTING_KINDS = ['property', 'vehicle'] as const
-export type ListingKind = (typeof LISTING_KINDS)[number]
+/* — Conditions — */
+export const PROPERTY_CONDITIONS = [
+  { value: 'novo', label: 'Novo' },
+  { value: 'bom', label: 'Bom estado' },
+  { value: 'obras', label: 'A precisar de obras' },
+] as const
 
-export const LISTING_PURPOSES = ['sale', 'rent'] as const
-export type ListingPurpose = (typeof LISTING_PURPOSES)[number]
+export const VEHICLE_CONDITIONS = [
+  { value: 'novo', label: 'Novo' },
+  { value: 'semi-novo', label: 'Semi-novo' },
+  { value: 'usado', label: 'Usado' },
+  { value: 'pecas', label: 'Para peças' },
+] as const
 
-export const LISTING_STATUSES = ['draft', 'published', 'sold', 'rented', 'archived'] as const
-export type ListingStatus = (typeof LISTING_STATUSES)[number]
+/* — Furnished (rent) — */
+export const FURNISHED_OPTIONS = [
+  { value: 'yes', label: 'Mobilado' },
+  { value: 'partial', label: 'Parcialmente mobilado' },
+  { value: 'no', label: 'Sem mobília' },
+] as const
 
-export function formatCVE(cents: number): string {
-  return new Intl.NumberFormat('pt-PT', {
-    style: 'decimal',
-    maximumFractionDigits: 0,
-  }).format(cents) + ' CVE'
+/* — Amenities (property rent_daily) — */
+export const AMENITIES = [
+  { value: 'wifi', label: 'WiFi' },
+  { value: 'ac', label: 'Ar condicionado' },
+  { value: 'kitchen', label: 'Cozinha equipada' },
+  { value: 'washer', label: 'Máquina de lavar' },
+  { value: 'pool', label: 'Piscina' },
+  { value: 'parking', label: 'Estacionamento' },
+  { value: 'sea_view', label: 'Vista mar' },
+  { value: 'tv', label: 'TV' },
+  { value: 'workspace', label: 'Zona de trabalho' },
+  { value: 'generator', label: 'Gerador' },
+  { value: 'balcony', label: 'Varanda' },
+  { value: 'elevator', label: 'Elevador' },
+] as const
+
+/* — House rules (property rent) — */
+export const HOUSE_RULES = [
+  { value: 'no_smoking', label: 'Proibido fumar' },
+  { value: 'no_pets', label: 'Sem animais' },
+  { value: 'no_parties', label: 'Sem festas' },
+  { value: 'family_friendly', label: 'Adequado a famílias' },
+] as const
+
+/* — Utilities included (property rent_monthly) — */
+export const UTILITIES = [
+  { value: 'agua', label: 'Água' },
+  { value: 'luz', label: 'Eletricidade' },
+  { value: 'internet', label: 'Internet' },
+  { value: 'condominio', label: 'Condomínio' },
+] as const
+
+/* — Vehicle extras — */
+export const VEHICLE_EXTRAS = [
+  { value: 'ac', label: 'Ar condicionado' },
+  { value: 'bluetooth', label: 'Bluetooth' },
+  { value: 'gps', label: 'GPS' },
+  { value: 'parking_sensors', label: 'Sensores de estacionamento' },
+  { value: 'rear_camera', label: 'Câmara traseira' },
+  { value: 'alloy_wheels', label: 'Jantes de liga' },
+  { value: 'electric_windows', label: 'Vidros elétricos' },
+  { value: 'leather_seats', label: 'Bancos em pele' },
+] as const
+
+/* — Delivery options (vehicle rent_daily) — */
+export const DELIVERY_OPTIONS = [
+  { value: 'balcao', label: 'Levantamento no balcão' },
+  { value: 'aeroporto', label: 'Entrega no aeroporto' },
+  { value: 'domicilio', label: 'Entrega ao domicílio' },
+] as const
+
+/* — Cancellation policy (rent_daily) — */
+export const CANCELLATION_POLICIES = [
+  { value: 'flexible', label: 'Flexível — reembolso total até 24h antes' },
+  { value: 'moderate', label: 'Moderada — reembolso total até 5 dias antes' },
+  { value: 'strict', label: 'Rigorosa — sem reembolso' },
+] as const
+
+/** Look up a human label from one of the {value,label} option lists. */
+export function labelOf(
+  list: readonly { value: string; label: string }[],
+  value: string | undefined | null,
+): string {
+  if (!value) return '—'
+  return list.find((o) => o.value === value)?.label ?? value
+}
+
+export function formatCVE(amount: number): string {
+  return (
+    new Intl.NumberFormat('pt-PT', {
+      style: 'decimal',
+      maximumFractionDigits: 0,
+    }).format(amount) + ' CVE'
+  )
 }

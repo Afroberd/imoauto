@@ -10,6 +10,7 @@ import {
   CV_DEFAULT_ZOOM,
   ISLAND_CENTERS,
   formatCVE,
+  purposeLabel,
   type CVIsland,
 } from '@/lib/listings/constants'
 import type { Listing } from '@/lib/listings/types'
@@ -96,7 +97,7 @@ export default function ListingsMap({ listings }: { listings: Listing[] }) {
           <Marker
             key={l.id}
             position={[lat, lng]}
-            icon={l.purpose === 'rent' ? coralPin : inkPin}
+            icon={l.purpose === 'sale' ? inkPin : coralPin}
           >
             <Popup>
               <div className="min-w-[200px]">
@@ -110,7 +111,7 @@ export default function ListingsMap({ listings }: { listings: Listing[] }) {
                 )}
                 <div className="text-[11px] uppercase tracking-[0.15em] text-neutral-500">
                   {l.kind === 'property' ? 'Imóvel' : 'Automóvel'} ·{' '}
-                  {l.purpose === 'rent' ? 'Aluguer' : 'Venda'}
+                  {purposeLabel(l.purpose)}
                 </div>
                 <div className="mt-1 font-medium text-neutral-900">{l.title}</div>
                 <div className="mt-1 text-sm text-neutral-700 tnum">

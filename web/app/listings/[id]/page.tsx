@@ -1,8 +1,14 @@
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
-import { formatCVE } from '@/lib/listings/constants'
-import type { Listing, ListingPhoto } from '@/lib/listings/types'
+import {
+  formatCVE, isRent, purposeLabel, priceSuffix, labelOf,
+  PROPERTY_TYPES, VEHICLE_TYPES, FUEL_TYPES, TRANSMISSION_TYPES,
+  PROPERTY_CONDITIONS, VEHICLE_CONDITIONS, FURNISHED_OPTIONS,
+  AMENITIES, HOUSE_RULES, UTILITIES, VEHICLE_EXTRAS, DELIVERY_OPTIONS,
+  CANCELLATION_POLICIES,
+} from '@/lib/listings/constants'
+import type { Listing, ListingPhoto, ListingAttributes } from '@/lib/listings/types'
 import {
   PinIcon, BedIcon, BathIcon, AreaIcon,
   CalendarIcon, GaugeIcon, FuelIcon, HouseIcon, CarIcon,
@@ -10,7 +16,6 @@ import {
 import { ShareButton } from '@/components/share-button'
 
 function buildWhatsAppLink(phone: string, listingTitle: string): string {
-  // Strip everything that's not a digit. Wa.me expects E.164 without `+`.
   const digits = phone.replace(/\D/g, '')
   const msg = `Olá, vi o teu anúncio no IMOAUTO: "${listingTitle}". Continua disponível?`
   return `https://wa.me/${digits}?text=${encodeURIComponent(msg)}`
@@ -49,9 +54,11 @@ export default async function ListingDetailPage({
   const photos = (photoData ?? []) as ListingPhoto[]
 
   const isProperty = l.kind === 'property'
-  const isRent = l.purpose === 'rent'
+  const rent = isRent(l.purpose)
+  const a = l.attributes ?? {}
   const hero = photos[0]
   const thumbs = photos.slice(1, 5)
+  const rows = detailRows(l)
 
   return (
     <main className="bg-paper">
@@ -69,9 +76,13 @@ export default async function ListingDetailPage({
         <div className="flex items-center gap-2 text-[12px] uppercase tracking-[0.18em] text-text-3">
           <span>{isProperty ? 'Imóvel' : 'Automóvel'}</span>
           <span>·</span>
-          <span className={isRent ? 'text-coral' : 'text-ink'}>
-            {isRent ? 'Aluguer' : 'Venda'}
-          </span>
+          <span className={rent ? 'text-coral' : 'text-ink'}>{purposeLabel(l.purpose)}</span>
+          {a.negotiable && (
+            <>
+              <span>·</span>
+              <span className="text-ink">Negociável</span>
+            </>
+          )}
         </div>
         <h1 className="mt-3 font-display text-[40px] font-medium leading-[1.04] tracking-[-0.022em] text-ink sm:text-[52px]">
           {l.title}
@@ -92,9 +103,7 @@ export default async function ListingDetailPage({
 
       {/* Body */}
       <section className="mx-auto mt-12 grid max-w-6xl gap-12 px-5 pb-20 md:grid-cols-[1.6fr_1fr]">
-        {/* Left */}
         <div>
-          {/* Highlights */}
           <Highlights listing={l} />
 
           {/* Description */}
@@ -111,46 +120,72 @@ export default async function ListingDetailPage({
           </div>
 
           {/* Attributes */}
-          <div className="mt-12 border-t border-shell pt-10">
-            <div className="flex items-center gap-3 text-[12px] uppercase tracking-[0.22em] text-text-3">
-              <span className="numeral text-[14px] tnum">02</span>
-              Características
+          {rows.length > 0 && (
+            <div className="mt-12 border-t border-shell pt-10">
+              <div className="flex items-center gap-3 text-[12px] uppercase tracking-[0.22em] text-text-3">
+                <span className="numeral text-[14px] tnum">02</span>
+                Características
+              </div>
+              <dl className="mt-6 grid grid-cols-2 gap-x-6 gap-y-3 text-sm sm:grid-cols-3">
+                {rows.map((r) => (
+                  <div
+                    key={r.label}
+                    className="flex items-baseline justify-between gap-2 border-b border-shell/70 py-2"
+                  >
+                    <dt className="text-text-3">{r.label}</dt>
+                    <dd className="text-right text-ink">{r.value}</dd>
+                  </div>
+                ))}
+              </dl>
             </div>
-            <dl className="mt-6 grid grid-cols-2 gap-x-6 gap-y-3 text-sm sm:grid-cols-3">
-              {isProperty ? (
-                <>
-                  <AttrRow label="Tipo" value={l.attributes.property_type} />
-                  <AttrRow label="Área" value={l.attributes.area_sqm != null ? `${l.attributes.area_sqm} m²` : undefined} />
-                  <AttrRow label="Quartos" value={l.attributes.bedrooms != null ? String(l.attributes.bedrooms) : undefined} />
-                  <AttrRow label="Casas de banho" value={l.attributes.bathrooms != null ? String(l.attributes.bathrooms) : undefined} />
-                </>
-              ) : (
-                <>
-                  <AttrRow label="Tipo" value={l.attributes.vehicle_type} />
-                  <AttrRow label="Marca" value={l.attributes.brand} />
-                  <AttrRow label="Modelo" value={l.attributes.model} />
-                  <AttrRow label="Ano" value={l.attributes.year != null ? String(l.attributes.year) : undefined} />
-                  <AttrRow label="Quilometragem" value={l.attributes.km != null ? `${l.attributes.km.toLocaleString('pt-PT')} km` : undefined} />
-                  <AttrRow label="Combustível" value={l.attributes.fuel} />
-                  <AttrRow label="Caixa" value={l.attributes.transmission} />
-                </>
-              )}
-            </dl>
-          </div>
+          )}
+
+          {/* Chips: amenities / rules / extras */}
+          <ChipSection listing={l} />
+
+          {/* Daily-rental availability note (no booking system yet) */}
+          {l.purpose === 'rent_daily' && (
+            <div className="mt-12 border-t border-shell pt-10">
+              <div className="flex items-center gap-3 text-[12px] uppercase tracking-[0.22em] text-text-3">
+                <span className="numeral text-[14px] tnum">03</span>
+                Disponibilidade
+              </div>
+              <p className="mt-4 rounded-[var(--radius-card)] border border-sky/30 bg-sky-soft px-4 py-3 text-sm text-ink">
+                O calendário de reservas chega numa próxima fase. Por agora,
+                confirma as datas disponíveis diretamente com o anunciante via WhatsApp.
+              </p>
+            </div>
+          )}
         </div>
 
         {/* Right — sticky contact */}
         <aside className="md:sticky md:top-24 md:self-start">
           <div className="rounded-[var(--radius-card)] border border-shell bg-white p-6 shadow-[var(--shadow-card)]">
-            <div className="flex items-baseline justify-between gap-3">
+            <div className="flex items-baseline gap-1.5">
               <span className="font-display text-[32px] font-medium leading-none text-ink tnum">
                 {formatCVE(l.price_cve)}
               </span>
-              {isRent && <span className="text-sm text-text-3">/ aluguer</span>}
+              {priceSuffix(l.purpose) && (
+                <span className="text-sm text-text-3">{priceSuffix(l.purpose)}</span>
+              )}
             </div>
+
+            {/* Secondary prices */}
+            <dl className="mt-3 space-y-1 text-[13px]">
+              {a.price_weekly_cve != null && (
+                <PriceLine label="Por semana" value={formatCVE(a.price_weekly_cve)} />
+              )}
+              {a.cleaning_fee_cve != null && (
+                <PriceLine label="Taxa de limpeza" value={formatCVE(a.cleaning_fee_cve)} />
+              )}
+              {a.deposit_cve != null && (
+                <PriceLine label="Caução" value={formatCVE(a.deposit_cve)} />
+              )}
+            </dl>
+
             <div className="mt-4 flex items-center gap-2 text-[13px] text-text-2">
               {isProperty ? <HouseIcon className="h-4 w-4 text-text-3" /> : <CarIcon className="h-4 w-4 text-text-3" />}
-              {isProperty ? 'Imóvel' : 'Automóvel'} · {isRent ? 'Aluguer' : 'Venda'}
+              {isProperty ? 'Imóvel' : 'Automóvel'} · {purposeLabel(l.purpose)}
             </div>
 
             {l.contact_phone ? (
@@ -177,12 +212,22 @@ export default async function ListingDetailPage({
           </div>
 
           {isOwner && (
-            <div className="mt-4 rounded-[var(--radius-card)] border border-warn/40 bg-warn-soft px-4 py-3 text-[13px] text-text-1">
-              Este é o teu anúncio.{' '}
-              <Link href="/my-listings" className="font-medium underline underline-offset-4 hover:text-ink">
-                Ver na minha lista
-              </Link>
-              .
+            <div className="mt-4 rounded-[var(--radius-card)] border border-warn/40 bg-warn-soft p-4">
+              <p className="text-[13px] text-text-1">Este é o teu anúncio.</p>
+              <div className="mt-3 flex flex-wrap gap-2">
+                <Link
+                  href={`/listings/${l.id}/edit`}
+                  className="rounded-full bg-ink px-4 py-2 text-[13px] font-medium text-paper transition-colors hover:bg-ink-deep"
+                >
+                  Editar
+                </Link>
+                <Link
+                  href="/my-listings"
+                  className="rounded-full border border-shell bg-white px-4 py-2 text-[13px] text-text-2 transition-colors hover:border-ink hover:text-ink"
+                >
+                  Os meus anúncios
+                </Link>
+              </div>
             </div>
           )}
         </aside>
@@ -191,18 +236,117 @@ export default async function ListingDetailPage({
   )
 }
 
-function PhotoGallery({
-  hero,
-  thumbs,
-  kind,
-}: {
-  hero?: ListingPhoto
-  thumbs: ListingPhoto[]
-  kind: 'property' | 'vehicle'
-}) {
-  if (!hero) {
-    return <GalleryPlaceholder kind={kind} />
+/* — Build the attribute rows relevant to this listing's kind + purpose — */
+function detailRows(l: Listing): { label: string; value: string }[] {
+  const a: ListingAttributes = l.attributes ?? {}
+  const rows: { label: string; value: string }[] = []
+  const push = (label: string, value: string | number | null | undefined) => {
+    if (value === null || value === undefined || value === '') return
+    rows.push({ label, value: String(value) })
   }
+  const daily = l.purpose === 'rent_daily'
+  const monthly = l.purpose === 'rent_monthly'
+  const sale = l.purpose === 'sale'
+
+  if (l.kind === 'property') {
+    push('Tipo', labelOf(PROPERTY_TYPES, a.property_type))
+    push('Área', a.area_sqm != null ? `${a.area_sqm} m²` : undefined)
+    push('Quartos', a.bedrooms)
+    push('Casas de banho', a.bathrooms)
+    if (daily) {
+      push('Camas', a.beds)
+      push('Capacidade', a.guests != null ? `${a.guests} hóspedes` : undefined)
+      push('Estadia mínima', a.min_nights != null ? `${a.min_nights} noites` : undefined)
+      push('Estadia máxima', a.max_nights != null ? `${a.max_nights} noites` : undefined)
+      push('Check-in', a.checkin_time)
+      push('Check-out', a.checkout_time)
+      push('Cancelamento', labelOf(CANCELLATION_POLICIES, a.cancellation))
+    }
+    if (monthly) {
+      push('Mobília', labelOf(FURNISHED_OPTIONS, a.furnished))
+      push('Duração mínima', a.min_contract_months != null ? `${a.min_contract_months} meses` : undefined)
+      push('Disponível desde', a.available_from)
+    }
+    if (sale) {
+      push('Estado', labelOf(PROPERTY_CONDITIONS, a.property_condition))
+      push('Ano de construção', a.year_built)
+    }
+    push('Garagem', a.has_garage ? 'Sim' : undefined)
+  } else {
+    push('Tipo', labelOf(VEHICLE_TYPES, a.vehicle_type))
+    push('Marca', a.brand)
+    push('Modelo', a.model)
+    push('Ano', a.year)
+    if (sale) push('Quilometragem', a.km != null ? `${a.km.toLocaleString('pt-PT')} km` : undefined)
+    push('Combustível', labelOf(FUEL_TYPES, a.fuel))
+    push('Caixa', labelOf(TRANSMISSION_TYPES, a.transmission))
+    push('Lugares', a.seats)
+    push('Portas', a.doors)
+    push('Cor', a.color)
+    if (sale) {
+      push('Estado', labelOf(VEHICLE_CONDITIONS, a.vehicle_condition))
+      push('Documentos', a.docs_ok ? 'Em dia' : undefined)
+    }
+    if (!sale) {
+      push('Idade mín. condutor', a.min_driver_age != null ? `${a.min_driver_age} anos` : undefined)
+      push('KM incluídos / dia', a.daily_km_included != null ? `${a.daily_km_included} km` : 'Ilimitado')
+      push('Seguro', a.insurance_included ? 'Incluído' : undefined)
+    }
+  }
+  return rows
+}
+
+/* — Chip sections: amenities, house rules, vehicle extras, utilities, delivery — */
+function ChipSection({ listing }: { listing: Listing }) {
+  const a = listing.attributes ?? {}
+  const groups: { title: string; values: string[]; options: readonly { value: string; label: string }[] }[] = []
+
+  if (a.amenities?.length) groups.push({ title: 'Comodidades', values: a.amenities, options: AMENITIES })
+  if (a.rules?.length) groups.push({ title: 'Regras', values: a.rules, options: HOUSE_RULES })
+  if (a.utilities_included?.length) groups.push({ title: 'Incluído na renda', values: a.utilities_included, options: UTILITIES })
+  if (a.vehicle_extras?.length) groups.push({ title: 'Extras', values: a.vehicle_extras, options: VEHICLE_EXTRAS })
+  if (a.delivery_options?.length) groups.push({ title: 'Entrega', values: a.delivery_options, options: DELIVERY_OPTIONS })
+
+  if (groups.length === 0) return null
+
+  return (
+    <div className="mt-10 space-y-6">
+      {groups.map((g) => (
+        <div key={g.title}>
+          <h3 className="text-[12px] font-medium uppercase tracking-[0.15em] text-text-3">
+            {g.title}
+          </h3>
+          <ul className="mt-2.5 flex flex-wrap gap-2">
+            {g.values.map((v) => (
+              <li
+                key={v}
+                className="rounded-full border border-shell bg-paper-soft px-3 py-1 text-[13px] text-ink"
+              >
+                {labelOf(g.options, v)}
+              </li>
+            ))}
+          </ul>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+function PriceLine({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex items-baseline justify-between gap-2">
+      <dt className="text-text-3">{label}</dt>
+      <dd className="text-text-1 tnum">{value}</dd>
+    </div>
+  )
+}
+
+function PhotoGallery({
+  hero, thumbs, kind,
+}: {
+  hero?: ListingPhoto; thumbs: ListingPhoto[]; kind: 'property' | 'vehicle'
+}) {
+  if (!hero) return <GalleryPlaceholder kind={kind} />
   return (
     <div className="grid gap-2 sm:grid-cols-2">
       {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -238,18 +382,12 @@ function GalleryPlaceholder({ kind }: { kind: 'property' | 'vehicle' }) {
   return (
     <div className="relative aspect-[16/8] overflow-hidden rounded-[var(--radius-card)] border border-shell bg-paper-soft bg-topo">
       <div className="absolute inset-0 flex items-center justify-center">
-        <div className="text-center">
-          <span className="numeral text-[80px] text-coral tnum">{kind === 'property' ? '🏠' : '🚗'}</span>
-          <p className="mt-2 text-sm uppercase tracking-[0.22em] text-text-3">
-            Sem fotos ainda
-          </p>
+        <div className="text-center text-ink-soft">
+          {kind === 'property' ? <HouseIcon className="mx-auto h-12 w-12" /> : <CarIcon className="mx-auto h-12 w-12" />}
+          <p className="mt-2 text-sm uppercase tracking-[0.22em] text-text-3">Sem fotos ainda</p>
         </div>
       </div>
-      <svg
-        viewBox="0 0 600 80"
-        className="absolute bottom-0 left-0 w-full"
-        preserveAspectRatio="none"
-      >
+      <svg viewBox="0 0 600 80" className="absolute bottom-0 left-0 w-full" preserveAspectRatio="none">
         <path d="M0,40 Q150,10 300,40 T600,40 L600,80 L0,80 Z" fill="#1E445C" opacity="0.92" />
         <path d="M0,55 Q150,30 300,55 T600,55 L600,80 L0,80 Z" fill="#0B2E40" />
       </svg>
@@ -258,41 +396,39 @@ function GalleryPlaceholder({ kind }: { kind: 'property' | 'vehicle' }) {
 }
 
 function Highlights({ listing }: { listing: Listing }) {
-  const a = listing.attributes
+  const a = listing.attributes ?? {}
   const isProperty = listing.kind === 'property'
+  const daily = listing.purpose === 'rent_daily'
   const items: { icon: React.ReactNode; label: string; value: string }[] = []
 
   if (isProperty) {
-    if (a.bedrooms != null) items.push({ icon: <BedIcon />, label: 'Quartos', value: String(a.bedrooms) })
-    if (a.bathrooms != null) items.push({ icon: <BathIcon />, label: 'WC', value: String(a.bathrooms) })
-    if (a.area_sqm != null) items.push({ icon: <AreaIcon />, label: 'Área', value: `${a.area_sqm} m²` })
+    if (daily && a.guests != null)
+      items.push({ icon: <BedIcon />, label: 'Hóspedes', value: String(a.guests) })
+    if (a.bedrooms != null)
+      items.push({ icon: <BedIcon />, label: 'Quartos', value: String(a.bedrooms) })
+    if (a.bathrooms != null)
+      items.push({ icon: <BathIcon />, label: 'WC', value: String(a.bathrooms) })
+    if (a.area_sqm != null)
+      items.push({ icon: <AreaIcon />, label: 'Área', value: `${a.area_sqm} m²` })
   } else {
     if (a.year != null) items.push({ icon: <CalendarIcon />, label: 'Ano', value: String(a.year) })
     if (a.km != null) items.push({ icon: <GaugeIcon />, label: 'Km', value: a.km.toLocaleString('pt-PT') })
-    if (a.fuel) items.push({ icon: <FuelIcon />, label: 'Combustível', value: a.fuel })
+    if (a.fuel) items.push({ icon: <FuelIcon />, label: 'Combustível', value: labelOf(FUEL_TYPES, a.fuel) })
   }
 
   if (items.length === 0) return null
 
   return (
-    <div className="grid grid-cols-3 gap-px overflow-hidden rounded-[var(--radius-card)] border border-shell bg-shell">
-      {items.map((it) => (
+    <div className={`grid gap-px overflow-hidden rounded-[var(--radius-card)] border border-shell bg-shell ${
+      items.length === 4 ? 'grid-cols-2 sm:grid-cols-4' : 'grid-cols-3'
+    }`}>
+      {items.slice(0, 4).map((it) => (
         <div key={it.label} className="bg-white px-4 py-5">
           <div className="text-ink-soft">{it.icon}</div>
           <div className="mt-2 font-display text-[22px] font-medium text-ink tnum">{it.value}</div>
           <div className="text-[12px] uppercase tracking-[0.15em] text-text-3">{it.label}</div>
         </div>
       ))}
-    </div>
-  )
-}
-
-function AttrRow({ label, value }: { label: string; value?: string | null }) {
-  if (!value) return null
-  return (
-    <div className="flex items-baseline justify-between border-b border-shell/70 py-2">
-      <dt className="text-text-3">{label}</dt>
-      <dd className="text-ink capitalize">{value}</dd>
     </div>
   )
 }

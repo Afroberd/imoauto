@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { formatCVE } from '@/lib/listings/constants'
+import { formatCVE, isRent, purposeShort, priceSuffix } from '@/lib/listings/constants'
 import type { Listing } from '@/lib/listings/types'
 import {
   PinIcon, BedIcon, BathIcon, AreaIcon,
@@ -8,7 +8,8 @@ import {
 
 export function ListingCard({ listing }: { listing: Listing }) {
   const isProperty = listing.kind === 'property'
-  const isRent = listing.purpose === 'rent'
+  const rent = isRent(listing.purpose)
+  const suffix = priceSuffix(listing.purpose)
   const a = listing.attributes
 
   return (
@@ -32,12 +33,10 @@ export function ListingCard({ listing }: { listing: Listing }) {
         {/* Purpose badge */}
         <span
           className={`absolute left-3 top-3 inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-medium uppercase tracking-[0.12em] ${
-            isRent
-              ? 'bg-coral text-white'
-              : 'bg-ink text-paper'
+            rent ? 'bg-coral text-white' : 'bg-ink text-paper'
           }`}
         >
-          {isRent ? 'Aluguer' : 'Venda'}
+          {rent ? `Aluguer · ${purposeShort(listing.purpose)}` : 'Venda'}
         </span>
 
         {/* Kind chip — small, in corner */}
@@ -65,8 +64,8 @@ export function ListingCard({ listing }: { listing: Listing }) {
             <span className="font-display text-[22px] font-medium text-ink tnum">
               {formatCVE(listing.price_cve)}
             </span>
-            {isRent && (
-              <span className="ml-1 text-[12px] text-text-3">/ aluguer</span>
+            {suffix && (
+              <span className="ml-1 text-[12px] text-text-3">{suffix}</span>
             )}
           </div>
         </div>

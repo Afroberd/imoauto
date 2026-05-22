@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
-import { NewListingForm } from './new-listing-form'
+import { ListingWizard } from './listing-wizard'
 
 export default async function NewListingPage() {
   const supabase = await createClient()
@@ -21,12 +21,13 @@ export default async function NewListingPage() {
             Publicar é gratuito.
           </h1>
           <p className="mt-3 max-w-xl text-text-2">
-            Preenche os detalhes do teu imóvel ou automóvel. Podes adicionar fotos antes de publicar.
+            Seis passos curtos. O formulário adapta-se ao que estás a anunciar —
+            uma venda de carro não pede o mesmo que uma estadia.
           </p>
         </div>
       </section>
       <section className="mx-auto max-w-3xl px-5 py-12">
-        <NewListingForm userId={user.id} />
+        <ListingWizard userId={user.id} mode="create" />
       </section>
     </main>
   )

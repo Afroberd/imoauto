@@ -1,8 +1,9 @@
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
-import { formatCVE } from '@/lib/listings/constants'
+import { formatCVE, purposeLabel } from '@/lib/listings/constants'
 import type { Listing } from '@/lib/listings/types'
+import { setListingStatus } from '@/app/actions/listings'
 import { PlusIcon, PinIcon, HouseIcon, CarIcon } from '@/components/icons'
 import { DeleteListingButton } from '@/components/delete-listing-button'
 
@@ -139,16 +140,30 @@ function ListingRow({ listing }: { listing: Listing }) {
               {l.location_island}
             </span>
             <span className="text-text-3">·</span>
-            <span className="text-text-3 capitalize">
-              {l.purpose === 'rent' ? 'Aluguer' : 'Venda'}
-            </span>
+            <span className="text-text-3">{purposeLabel(l.purpose)}</span>
           </div>
         </div>
+        {(l.status === 'published' || l.status === 'paused') && (
+          <form action={setListingStatus} className="hidden sm:block">
+            <input type="hidden" name="id" value={l.id} />
+            <input
+              type="hidden"
+              name="status"
+              value={l.status === 'published' ? 'paused' : 'published'}
+            />
+            <button
+              type="submit"
+              className="rounded-full border border-shell px-3 py-1.5 text-[12px] text-text-2 transition-colors hover:border-ink hover:text-ink"
+            >
+              {l.status === 'published' ? 'Pausar' : 'Republicar'}
+            </button>
+          </form>
+        )}
         <Link
-          href={`/listings/${l.id}`}
-          className="hidden rounded-full border border-shell px-3 py-1.5 text-[12px] text-text-2 transition-colors hover:border-ink hover:text-ink sm:inline-block"
+          href={`/listings/${l.id}/edit`}
+          className="rounded-full border border-shell px-3 py-1.5 text-[12px] text-text-2 transition-colors hover:border-ink hover:text-ink"
         >
-          Ver
+          Editar
         </Link>
         <DeleteListingButton id={l.id} title={l.title} />
       </div>
