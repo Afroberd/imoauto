@@ -181,7 +181,7 @@ export async function blockDates(input: {
 
 /**
  * Fetch the set of unavailable date ranges (for the booking calendar UI).
- * Returns ranges of pending/confirmed/blocked bookings.
+ * Returns ranges of pending/confirmed/paid/in_progress/blocked bookings.
  */
 export async function getUnavailableRanges(listingId: string): Promise<
   { check_in: string; check_out: string; status: BookingStatus }[]
@@ -191,8 +191,78 @@ export async function getUnavailableRanges(listingId: string): Promise<
     .from('bookings')
     .select('check_in, check_out, status')
     .eq('listing_id', listingId)
-    .in('status', ['pending', 'confirmed', 'blocked'])
+    .in('status', ['pending', 'confirmed', 'paid', 'in_progress', 'blocked'])
     .order('check_in', { ascending: true })
 
   return (data ?? []) as { check_in: string; check_out: string; status: BookingStatus }[]
+}
+
+// ── Check-in / Check-out ─────────────────────────────────────────────────────
+
+/**
+ * Host marks the guest as checked in. Sets bookings.status='in_progress'
+ * and checked_in_at=now(). For vehicles, captures pickup_km/pickup_fuel/notes.
+ */
+export async function markCheckin(input: {
+  bookingId: string
+  pickupKm?: number
+  pickupFuel?: number
+  pickupNotes?: string
+}): Promise<{ ok: true } | { ok: false; error: string }> {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) return { ok: false, error: 'Não autenticado.' }
+
+  const update: Record<string, unknown> = {
+    status: 'in_progress',
+    checked_in_at: new Date().toISOString(),
+    status_changed_at: new Date().toISOString(),
+  }
+  if (input.pickupKm !== undefined) update.pickup_km = input.pickupKm
+  if (input.pickupFuel !== undefined) update.pickup_fuel = input.pickupFuel
+  if (input.pickupNotes !== undefined) update.pickup_notes = input.pickupNotes.trim() || null
+
+  const { error } = await supabase.from('bookings').update(update).eq('id', input.bookingId)
+  if (error) return { ok: false, error: error.message }
+
+  revalidatePath('/dashboard')
+  revalidatePath('/dashboard/stays')
+  return { ok: true }
+}
+
+/**
+ * Host marks the guest as checked out. Sets status='completed' and check-out
+ * timestamp. For vehicles, captures return_km/return_fuel/damage_notes.
+ */
+export async function markCheckout(input: {
+  bookingId: string
+  returnKm?: number
+  returnFuel?: number
+  returnNotes?: string
+  damageNotes?: string
+}): Promise<{ ok: true } | { ok: false; error: string }> {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) return { ok: false, error: 'Não autenticado.' }
+
+  const update: Record<string, unknown> = {
+    status: 'completed',
+    checked_out_at: new Date().toISOString(),
+    status_changed_at: new Date().toISOString(),
+  }
+  if (input.returnKm !== undefined) update.return_km = input.returnKm
+  if (input.returnFuel !== undefined) update.return_fuel = input.returnFuel
+  if (input.returnNotes !== undefined) update.return_notes = input.returnNotes.trim() || null
+  if (input.damageNotes !== undefined) update.damage_notes = input.damageNotes.trim() || null
+
+  const { error } = await supabase.from('bookings').update(update).eq('id', input.bookingId)
+  if (error) return { ok: false, error: error.message }
+
+  revalidatePath('/dashboard')
+  revalidatePath('/dashboard/stays')
+  return { ok: true }
 }

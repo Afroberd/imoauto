@@ -60,6 +60,12 @@ export async function SiteHeader() {
                 <CalendarIcon className="h-4 w-4" />
               </Link>
               <Link
+                href="/dashboard"
+                className="hidden rounded-full px-3 py-2 text-text-2 transition-colors hover:bg-shell-soft hover:text-ink md:inline-block"
+              >
+                Dashboard
+              </Link>
+              <Link
                 href="/my-listings"
                 className="hidden rounded-full px-3 py-2 text-text-2 transition-colors hover:bg-shell-soft hover:text-ink md:inline-block"
               >
