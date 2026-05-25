@@ -87,6 +87,77 @@ export type Listing = {
   cover_image_url: string | null
   rating_avg: number | null
   rating_count: number
+  // Phase 6.1 — host settings
+  instant_booking: boolean
+  require_verification: boolean
+  payment_window_hours: number
+  payout_iban: string | null
+  payout_holder_name: string | null
+  payout_instructions: string | null
+  created_at: string
+  updated_at: string
+}
+
+export type BookingStatus =
+  | 'pending'
+  | 'confirmed'
+  | 'paid'
+  | 'in_progress'
+  | 'completed'
+  | 'declined'
+  | 'cancelled'
+  | 'blocked'
+
+export type PaymentStatus = 'unpaid' | 'partial' | 'paid' | 'refunded'
+
+export type Booking = {
+  id: string
+  listing_id: string
+  guest_id: string
+  check_in: string  // YYYY-MM-DD
+  check_out: string
+  guests: number
+  status: BookingStatus
+  total_cve: number
+  message: string | null
+  // Phase 6.1
+  payment_status: PaymentStatus
+  paid_at: string | null
+  paid_amount_cve: number
+  checked_in_at: string | null
+  checked_out_at: string | null
+  status_changed_at: string
+  pickup_km: number | null
+  return_km: number | null
+  pickup_fuel: number | null
+  return_fuel: number | null
+  pickup_notes: string | null
+  return_notes: string | null
+  damage_notes: string | null
+  created_at: string
+}
+
+export type Payment = {
+  id: string
+  booking_id: string
+  amount_cve: number
+  method: 'manual_transfer' | 'cash' | 'vinti4' | 'stripe' | 'other'
+  reference: string | null
+  notes: string | null
+  recorded_by: string | null
+  paid_at: string
+  created_at: string
+}
+
+export type GuestVerification = {
+  user_id: string
+  id_type: 'bi' | 'passport' | null
+  id_number: string | null
+  id_photo_url: string | null
+  driver_license_number: string | null
+  driver_license_photo_url: string | null
+  phone: string | null
+  verified_at: string | null
   created_at: string
   updated_at: string
 }
