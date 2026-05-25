@@ -72,6 +72,12 @@ export async function SiteHeader() {
                 Os meus
               </Link>
               <Link
+                href="/verificacao"
+                className="hidden rounded-full px-3 py-2 text-text-2 transition-colors hover:bg-shell-soft hover:text-ink lg:inline-block"
+              >
+                Verificação
+              </Link>
+              <Link
                 href="/profile"
                 className="hidden rounded-full px-3 py-2 text-text-2 transition-colors hover:bg-shell-soft hover:text-ink sm:inline-block"
               >

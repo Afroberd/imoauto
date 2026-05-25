@@ -8,8 +8,8 @@ import { createClient } from '@/lib/supabase/server'
 export type BookingStatus = 'pending' | 'confirmed' | 'declined' | 'cancelled' | 'blocked'
 
 export type CreateBookingResult =
-  | { ok: true; bookingId: string }
-  | { ok: false; error: 'unauthenticated' | 'owner' | 'overlap' | 'invalid_dates' | string }
+  | { ok: true; bookingId: string; instant: boolean }
+  | { ok: false; error: 'unauthenticated' | 'owner' | 'overlap' | 'invalid_dates' | 'unverified' | string }
 
 export type UpdateBookingResult =
   | { ok: true }
@@ -49,17 +49,33 @@ export async function createBooking(input: {
   const nights = nightsBetween(input.checkIn, input.checkOut)
   if (nights < 1) return { ok: false, error: 'invalid_dates' }
 
-  // Fetch listing for owner check + price calc.
+  // Fetch listing for owner check + price calc + host settings.
   const { data: listing } = await supabase
     .from('listings')
-    .select('id, owner_id, price_cve, attributes, purpose')
+    .select('id, owner_id, price_cve, attributes, purpose, instant_booking, require_verification')
     .eq('id', input.listingId)
     .maybeSingle()
 
   if (!listing) return { ok: false, error: 'Anúncio não encontrado.' }
-  if (listing.owner_id === user.id) return { ok: false, error: 'owner' }
-  if (listing.purpose !== 'rent_daily') {
+  const lst = listing as {
+    id: string; owner_id: string; price_cve: number; attributes: { cleaning_fee_cve?: number } | null
+    purpose: string; instant_booking: boolean; require_verification: boolean
+  }
+  if (lst.owner_id === user.id) return { ok: false, error: 'owner' }
+  if (lst.purpose !== 'rent_daily') {
     return { ok: false, error: 'Este anúncio não aceita reservas ao dia.' }
+  }
+
+  // Verification check (Phase 6.1)
+  if (lst.require_verification) {
+    const { data: ver } = await supabase
+      .from('guest_verifications')
+      .select('verified_at')
+      .eq('user_id', user.id)
+      .maybeSingle()
+    if (!ver || !(ver as { verified_at: string | null }).verified_at) {
+      return { ok: false, error: 'unverified' }
+    }
   }
 
   // Pre-check overlap (best-effort; the DB exclusion constraint is the source of truth).
@@ -74,8 +90,11 @@ export async function createBooking(input: {
   if (clashes && clashes.length > 0) return { ok: false, error: 'overlap' }
 
   // Compute price: nights × nightly + cleaning fee.
-  const attr = (listing.attributes ?? {}) as { cleaning_fee_cve?: number }
-  const total = nights * (listing.price_cve as number) + (attr.cleaning_fee_cve ?? 0)
+  const attr = (lst.attributes ?? {}) as { cleaning_fee_cve?: number }
+  const total = nights * lst.price_cve + (attr.cleaning_fee_cve ?? 0)
+
+  // Instant booking? Goes straight to 'confirmed' (awaiting payment). Otherwise 'pending'.
+  const initialStatus = lst.instant_booking ? 'confirmed' : 'pending'
 
   const { data, error } = await supabase
     .from('bookings')
@@ -87,7 +106,7 @@ export async function createBooking(input: {
       guests: Math.max(1, input.guests),
       total_cve: total,
       message: input.message?.trim() || null,
-      status: 'pending',
+      status: initialStatus,
     })
     .select('id')
     .single()
@@ -101,7 +120,7 @@ export async function createBooking(input: {
 
   revalidatePath('/bookings')
   revalidatePath(`/listings/${input.listingId}`)
-  return { ok: true, bookingId: data.id as string }
+  return { ok: true, bookingId: data.id as string, instant: lst.instant_booking }
 }
 
 /**

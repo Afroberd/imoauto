@@ -14,8 +14,10 @@ interface BookingRow {
   check_in: string
   check_out: string
   guests: number
-  status: 'pending' | 'confirmed' | 'declined' | 'cancelled' | 'blocked'
+  status: 'pending' | 'confirmed' | 'paid' | 'in_progress' | 'completed' | 'declined' | 'cancelled' | 'blocked'
+  payment_status?: 'unpaid' | 'partial' | 'paid' | 'refunded'
   total_cve: number
+  paid_amount_cve?: number
   message: string | null
   created_at: string
   listing: {
@@ -24,6 +26,9 @@ interface BookingRow {
     cover_image_url: string | null
     owner_id: string
     location_island: string
+    payout_iban?: string | null
+    payout_holder_name?: string | null
+    payout_instructions?: string | null
   } | null
 }
 
@@ -33,11 +38,14 @@ function formatCVE(n: number): string {
 
 function statusLabel(s: BookingRow['status']): { label: string; cls: string } {
   switch (s) {
-    case 'pending':   return { label: 'Pendente',  cls: 'bg-warn-soft text-warn-strong border-warn/40' }
-    case 'confirmed': return { label: 'Confirmada', cls: 'bg-green-50 text-green-800 border-green-200' }
-    case 'declined':  return { label: 'Recusada',  cls: 'bg-shell-soft text-text-2 border-shell' }
-    case 'cancelled': return { label: 'Cancelada', cls: 'bg-shell-soft text-text-2 border-shell' }
-    case 'blocked':   return { label: 'Bloqueada (interno)', cls: 'bg-sky-soft text-ink border-sky/30' }
+    case 'pending':     return { label: 'Pendente',                cls: 'bg-warn-soft text-warn-strong border-warn/40' }
+    case 'confirmed':   return { label: 'Confirmada · paga já',    cls: 'bg-warn-soft text-warn-strong border-warn/40' }
+    case 'paid':        return { label: 'Paga',                    cls: 'bg-sky-soft text-ink border-sky/30' }
+    case 'in_progress': return { label: 'Em curso',                cls: 'bg-green-50 text-green-800 border-green-200' }
+    case 'completed':   return { label: 'Concluída',               cls: 'bg-shell-soft text-text-2 border-shell' }
+    case 'declined':    return { label: 'Recusada',                cls: 'bg-shell-soft text-text-2 border-shell' }
+    case 'cancelled':   return { label: 'Cancelada',               cls: 'bg-shell-soft text-text-2 border-shell' }
+    case 'blocked':     return { label: 'Bloqueada (interno)',     cls: 'bg-sky-soft text-ink border-sky/30' }
   }
 }
 
@@ -56,25 +64,24 @@ export default async function BookingsPage({
   if (!user) redirect(`/login?next=/bookings${view === 'owner' ? '?view=owner' : ''}`)
 
   let rows: BookingRow[] = []
+  const selectStr = `id, listing_id, guest_id, check_in, check_out, guests, status, payment_status,
+    total_cve, paid_amount_cve, message, created_at,
+    listing:listings(id, title, cover_image_url, owner_id, location_island, payout_iban, payout_holder_name, payout_instructions)`
   if (view === 'guest') {
     const { data } = await supabase
       .from('bookings')
-      .select('id, listing_id, guest_id, check_in, check_out, guests, status, total_cve, message, created_at, listing:listings(id, title, cover_image_url, owner_id, location_island)')
+      .select(selectStr)
       .eq('guest_id', user.id)
       .neq('status', 'blocked')
       .order('check_in', { ascending: false })
     rows = (data ?? []) as unknown as BookingRow[]
   } else {
-    // Owner view: bookings ON listings I own.
-    const { data: myListings } = await supabase
-      .from('listings')
-      .select('id')
-      .eq('owner_id', user.id)
+    const { data: myListings } = await supabase.from('listings').select('id').eq('owner_id', user.id)
     const ids = (myListings ?? []).map((l) => (l as { id: string }).id)
     if (ids.length > 0) {
       const { data } = await supabase
         .from('bookings')
-        .select('id, listing_id, guest_id, check_in, check_out, guests, status, total_cve, message, created_at, listing:listings(id, title, cover_image_url, owner_id, location_island)')
+        .select(selectStr)
         .in('listing_id', ids)
         .neq('status', 'blocked')
         .order('check_in', { ascending: false })
@@ -178,8 +185,29 @@ function BookingCard({ b, role }: { b: BookingRow; role: 'guest' | 'owner' }) {
             <p className="mt-2 text-[13px] italic text-text-2">"{b.message}"</p>
           )}
 
+          {/* Payment instructions (guest view, confirmed-awaiting-payment) */}
+          {role === 'guest' && b.status === 'confirmed' && (
+            <div className="mt-3 rounded-[var(--radius-card)] border border-warn/40 bg-warn-soft p-3 text-[13px]">
+              <p className="font-medium text-warn-strong">Como pagar</p>
+              {b.listing?.payout_iban ? (
+                <div className="mt-1 space-y-0.5 text-text-1">
+                  <p>IBAN: <span className="tnum font-medium">{b.listing.payout_iban}</span></p>
+                  {b.listing.payout_holder_name && <p>Titular: {b.listing.payout_holder_name}</p>}
+                  <p>Valor: <span className="tnum font-medium">{formatCVE(b.total_cve)}</span></p>
+                  {b.listing.payout_instructions && (
+                    <p className="mt-2 italic text-text-2">"{b.listing.payout_instructions}"</p>
+                  )}
+                </div>
+              ) : (
+                <p className="mt-1 text-text-2">
+                  Contacta o anfitrião por mensagem para combinar como pagar.
+                </p>
+              )}
+            </div>
+          )}
+
           <div className="mt-3">
-            <BookingActions bookingId={b.id} role={role} status={b.status} />
+            <BookingActions bookingId={b.id} role={role} status={b.status as 'pending' | 'confirmed' | 'declined' | 'cancelled' | 'blocked'} />
           </div>
         </div>
       </div>

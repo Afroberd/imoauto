@@ -121,6 +121,11 @@ export function BookingForm({
           setError('Datas inválidas.')
           return
         }
+        if (r.error === 'unverified') {
+          setError('Tens de verificar a tua identidade antes de reservar.')
+          setTimeout(() => router.push(`/verificacao`), 1500)
+          return
+        }
         setError(r.error)
         return
       }

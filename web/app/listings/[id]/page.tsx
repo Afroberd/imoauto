@@ -346,6 +346,12 @@ export default async function ListingDetailPage({
                   Editar
                 </Link>
                 <Link
+                  href={`/listings/${l.id}/settings`}
+                  className="rounded-full border border-shell bg-white px-4 py-2 text-[13px] text-text-2 transition-colors hover:border-ink hover:text-ink"
+                >
+                  Definições
+                </Link>
+                <Link
                   href="/my-listings"
                   className="rounded-full border border-shell bg-white px-4 py-2 text-[13px] text-text-2 transition-colors hover:border-ink hover:text-ink"
                 >
