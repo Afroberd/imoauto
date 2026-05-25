@@ -11,6 +11,10 @@ export type CreateBookingResult =
   | { ok: true; bookingId: string; instant: boolean }
   | { ok: false; error: 'unauthenticated' | 'owner' | 'overlap' | 'invalid_dates' | 'unverified' | string }
 
+export type BlockDatesResult =
+  | { ok: true; bookingId: string }
+  | { ok: false; error: 'unauthenticated' | 'invalid_dates' | 'overlap' | string }
+
 export type UpdateBookingResult =
   | { ok: true }
   | { ok: false; error: string }
@@ -155,7 +159,7 @@ export async function blockDates(input: {
   listingId: string
   checkIn: string
   checkOut: string
-}): Promise<CreateBookingResult> {
+}): Promise<BlockDatesResult> {
   const supabase = await createClient()
   const {
     data: { user },
