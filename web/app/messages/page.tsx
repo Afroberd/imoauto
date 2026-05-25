@@ -32,7 +32,9 @@ export default async function MessagesPage() {
     .or(`buyer_id.eq.${user.id},seller_id.eq.${user.id}`)
     .order('last_message_at', { ascending: false, nullsFirst: false })
 
-  const conversations = (rows ?? []) as {
+  // Supabase's TS inference can mark the joined relation as an array even
+  // though conversations.listing_id is many-to-one. Cast through unknown.
+  const conversations = (rows ?? []) as unknown as {
     id: string
     buyer_id: string
     seller_id: string

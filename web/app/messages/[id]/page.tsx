@@ -28,7 +28,9 @@ export default async function ConversationPage({ params }: PageProps) {
 
   if (!convRow) notFound()
 
-  const conv = convRow as {
+  // Supabase's TS inference can mark the joined relation as an array even
+  // though conversations.listing_id is many-to-one. Cast through unknown.
+  const conv = convRow as unknown as {
     id: string
     buyer_id: string
     seller_id: string
