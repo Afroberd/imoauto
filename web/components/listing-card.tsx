@@ -6,58 +6,64 @@ import {
   PinIcon, BedIcon, BathIcon, AreaIcon,
   CalendarIcon, GaugeIcon, FuelIcon,
 } from '@/components/icons'
+import { FavoriteButton } from '@/components/favorite-button'
 
-export function ListingCard({ listing }: { listing: Listing }) {
+export function ListingCard({
+  listing,
+  isFavorited = false,
+}: {
+  listing: Listing
+  isFavorited?: boolean
+}) {
   const isProperty = listing.kind === 'property'
   const rent = isRent(listing.purpose)
   const suffix = priceSuffix(listing.purpose)
   const a = listing.attributes
 
   return (
-    <Link
-      href={`/listings/${listing.id}`}
-      className="group relative block overflow-hidden rounded-[var(--radius-card)] border border-shell bg-white shadow-[var(--shadow-card)] transition-all duration-300 hover:-translate-y-0.5 hover:border-line-strong hover:shadow-[var(--shadow-card-hover)]"
-    >
-      <div className="relative aspect-[4/3] w-full overflow-hidden bg-paper-soft">
-        {listing.cover_image_url ? (
-          <Image
-            src={listing.cover_image_url}
-            alt={listing.title}
-            fill
-            unoptimized
-            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-            className="photo-hover object-cover"
-          />
-        ) : (
-          <PlaceholderArt kind={listing.kind} />
-        )}
+    // Outer div is `relative` so FavoriteButton can be positioned absolute
+    // as a SIBLING of the Link — avoids invalid nested interactive elements.
+    <div className="relative">
+      <Link
+        href={`/listings/${listing.id}`}
+        className="group block overflow-hidden rounded-[var(--radius-card)] border border-shell bg-white shadow-[var(--shadow-card)] transition-all duration-300 hover:-translate-y-0.5 hover:border-line-strong hover:shadow-[var(--shadow-card-hover)]"
+      >
+        <div className="relative aspect-[4/3] w-full overflow-hidden bg-paper-soft">
+          {listing.cover_image_url ? (
+            <Image
+              src={listing.cover_image_url}
+              alt={listing.title}
+              fill
+              unoptimized
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+              className="photo-hover object-cover"
+            />
+          ) : (
+            <PlaceholderArt kind={listing.kind} />
+          )}
 
-        {/* Purpose badge */}
-        <span
-          className={`absolute left-3 top-3 inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-medium uppercase tracking-[0.12em] ${
-            rent ? 'bg-coral text-white' : 'bg-ink text-paper'
-          }`}
-        >
-          {rent ? `Aluguer · ${purposeShort(listing.purpose)}` : 'Venda'}
-        </span>
-
-        {/* Kind chip — small, in corner */}
-        <span className="absolute right-3 top-3 inline-flex items-center gap-1.5 rounded-full bg-sky-soft px-2.5 py-1 text-[11px] font-medium text-ink shadow-sm ring-1 ring-ink/10">
-          <span className="h-1.5 w-1.5 rounded-full bg-sky" />
-          {isProperty ? 'Imóvel' : 'Automóvel'}
-        </span>
-      </div>
-
-      <div className="space-y-2.5 px-4 pb-4 pt-4">
-        <div className="flex items-center gap-1.5 text-[12px] text-text-3">
-          <PinIcon className="h-3.5 w-3.5 text-text-3" />
-          <span>
-            {listing.location_municipality
-              ? `${listing.location_municipality}, ${listing.location_island}`
-              : listing.location_island}
-            {listing.location_city ? ` · ${listing.location_city}` : ''}
+          {/* Purpose badge */}
+          <span
+            className={`absolute left-3 top-3 inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-medium uppercase tracking-[0.12em] ${
+              rent ? 'bg-coral text-white' : 'bg-ink text-paper'
+            }`}
+          >
+            {rent ? `Aluguer · ${purposeShort(listing.purpose)}` : 'Venda'}
           </span>
         </div>
+
+        <div className="space-y-2.5 px-4 pb-4 pt-4">
+          <div className="flex items-center gap-1.5 text-[12px] text-text-3">
+            <PinIcon className="h-3.5 w-3.5 text-text-3" />
+            <span>
+              {listing.location_municipality
+                ? `${listing.location_municipality}, ${listing.location_island}`
+                : listing.location_island}
+              {listing.location_city ? ` · ${listing.location_city}` : ''}
+            </span>
+            <span aria-hidden>·</span>
+            <span>{isProperty ? 'Imóvel' : 'Auto'}</span>
+          </div>
 
         <h3 className="font-display text-[19px] leading-[1.15] tracking-[-0.015em] text-text-1 line-clamp-2">
           {listing.title}
@@ -104,8 +110,17 @@ export function ListingCard({ listing }: { listing: Listing }) {
             </>
           )}
         </ul>
-      </div>
-    </Link>
+        </div>
+      </Link>
+
+      {/* FavoriteButton sits OUTSIDE the Link (sibling, not child) so it is
+          valid HTML and click events don't accidentally trigger navigation. */}
+      <FavoriteButton
+        listingId={listing.id}
+        initialFavorited={isFavorited}
+        className="absolute right-3 top-3 z-10"
+      />
+    </div>
   )
 }
 

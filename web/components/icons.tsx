@@ -111,9 +111,10 @@ export function ArrowRightIcon(props: SVGProps<SVGSVGElement>) {
     </svg>
   )
 }
-export function HeartIcon(props: SVGProps<SVGSVGElement>) {
+type HeartIconProps = SVGProps<SVGSVGElement> & { filled?: boolean }
+export function HeartIcon({ filled, ...props }: HeartIconProps) {
   return (
-    <svg {...base} {...props}>
+    <svg {...base} fill={filled ? 'currentColor' : 'none'} {...props}>
       <path d="M12 20s-7-4.5-7-10a4 4 0 0 1 7-2.5A4 4 0 0 1 19 10c0 5.5-7 10-7 10Z" />
     </svg>
   )

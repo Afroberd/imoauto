@@ -15,6 +15,7 @@ import {
   CalendarIcon, GaugeIcon, FuelIcon, HouseIcon, CarIcon,
 } from '@/components/icons'
 import { ShareButton } from '@/components/share-button'
+import { FavoriteButton } from '@/components/favorite-button'
 
 function buildWhatsAppLink(phone: string, listingTitle: string): string {
   const digits = phone.replace(/\D/g, '')
@@ -46,6 +47,18 @@ export default async function ListingDetailPage({
   } = await supabase.auth.getUser()
   const isOwner = user?.id === l.owner_id
   if (l.status !== 'published' && !isOwner) notFound()
+
+  // Check if the logged-in (non-owner) user has favorited this listing.
+  let isFavorited = false
+  if (user && !isOwner) {
+    const { data: fav } = await supabase
+      .from('favorites')
+      .select('listing_id')
+      .eq('user_id', user.id)
+      .eq('listing_id', id)
+      .maybeSingle()
+    isFavorited = !!fav
+  }
 
   const { data: photoData } = await supabase
     .from('listing_photos')
@@ -85,9 +98,18 @@ export default async function ListingDetailPage({
             </>
           )}
         </div>
-        <h1 className="mt-3 font-display text-[40px] font-medium leading-[1.04] tracking-[-0.022em] text-ink sm:text-[52px]">
-          {l.title}
-        </h1>
+        <div className="mt-3 flex items-start justify-between gap-4">
+          <h1 className="font-display text-[40px] font-medium leading-[1.04] tracking-[-0.022em] text-ink sm:text-[52px]">
+            {l.title}
+          </h1>
+          {!isOwner && (
+            <FavoriteButton
+              listingId={l.id}
+              initialFavorited={isFavorited}
+              className="mt-2 flex-shrink-0"
+            />
+          )}
+        </div>
         <div className="mt-3 flex items-center gap-2 text-sm text-text-2">
           <PinIcon className="h-4 w-4 text-text-3" />
           <span>

@@ -9,6 +9,7 @@ import {
   type ListingKind,
 } from '@/lib/listings/constants'
 import type { Listing } from '@/lib/listings/types'
+import { getFavoriteIds } from '@/app/actions/favorites'
 
 export const dynamic = 'force-dynamic'
 
@@ -75,6 +76,12 @@ export default async function ListingsPage({
 
   const { data, error } = await query
   const listings = (data ?? []) as Listing[]
+
+  // Fetch the logged-in user's saved listings so cards can show the heart filled.
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  const favIds = user ? new Set(await getFavoriteIds(user.id)) : new Set<string>()
 
   const titleText = kindFilter === 'property'
     ? 'Imóveis'
@@ -222,7 +229,9 @@ export default async function ListingsPage({
           <ListingsMap listings={listings} />
         ) : (
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {listings.map((l) => <ListingCard key={l.id} listing={l} />)}
+            {listings.map((l) => (
+              <ListingCard key={l.id} listing={l} isFavorited={favIds.has(l.id)} />
+            ))}
           </div>
         )}
       </section>
