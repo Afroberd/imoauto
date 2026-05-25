@@ -85,6 +85,8 @@ export type Listing = {
   attributes: ListingAttributes
   status: ListingStatus
   cover_image_url: string | null
+  rating_avg: number | null
+  rating_count: number
   created_at: string
   updated_at: string
 }

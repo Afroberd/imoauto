@@ -7,6 +7,7 @@ import {
   CalendarIcon, GaugeIcon, FuelIcon,
 } from '@/components/icons'
 import { FavoriteButton } from '@/components/favorite-button'
+import { StarRatingDisplay } from '@/components/star-rating'
 
 export function ListingCard({
   listing,
@@ -69,7 +70,7 @@ export function ListingCard({
           {listing.title}
         </h3>
 
-        <div className="flex items-end justify-between pt-1">
+        <div className="flex items-end justify-between gap-2 pt-1">
           <div>
             <span className="font-display text-[22px] font-medium text-ink tnum">
               {formatCVE(listing.price_cve)}
@@ -78,6 +79,9 @@ export function ListingCard({
               <span className="ml-1 text-[12px] text-text-3">{suffix}</span>
             )}
           </div>
+          {listing.rating_count > 0 && (
+            <StarRatingDisplay value={listing.rating_avg} count={listing.rating_count} size="sm" />
+          )}
         </div>
 
         <ul className="flex flex-wrap gap-x-3.5 gap-y-1 pt-1 text-[12px] text-text-2">

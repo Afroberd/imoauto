@@ -134,6 +134,14 @@ export function PlusIcon(props: SVGProps<SVGSVGElement>) {
     </svg>
   )
 }
+type StarIconProps = SVGProps<SVGSVGElement> & { filled?: boolean }
+export function StarIcon({ filled, ...props }: StarIconProps) {
+  return (
+    <svg {...base} fill={filled ? 'currentColor' : 'none'} {...props}>
+      <polygon points="12 2 15 8.5 22 9.3 17 14 18.2 21 12 17.8 5.8 21 7 14 2 9.3 9 8.5 12 2" />
+    </svg>
+  )
+}
 export function MessageIcon(props: SVGProps<SVGSVGElement>) {
   return (
     <svg {...base} {...props}>

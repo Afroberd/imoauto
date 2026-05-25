@@ -17,6 +17,11 @@ import {
 import { ShareButton } from '@/components/share-button'
 import { FavoriteButton } from '@/components/favorite-button'
 import { ContactSellerButton } from '@/components/contact-seller-button'
+import { BookingForm } from '@/components/booking-form'
+import { ReviewForm } from '@/components/review-form'
+import { StarRatingDisplay } from '@/components/star-rating'
+import { getUnavailableRanges } from '@/app/actions/bookings'
+import { checkReviewEligibility } from '@/app/actions/reviews'
 
 function buildWhatsAppLink(phone: string, listingTitle: string): string {
   const digits = phone.replace(/\D/g, '')
@@ -75,6 +80,29 @@ export default async function ListingDetailPage({
   const thumbs = photos.slice(1, 5)
   const rows = detailRows(l)
 
+  // Phase 5.3: load unavailable date ranges (only for rent_daily)
+  const unavailable =
+    l.purpose === 'rent_daily' ? await getUnavailableRanges(l.id) : []
+
+  // Phase 5.4: reviews — list + eligibility
+  const [{ data: reviewData }, eligibility] = await Promise.all([
+    supabase
+      .from('reviews')
+      .select('id, reviewer_id, rating, body, created_at, reviewer:profiles(display_name, email)')
+      .eq('listing_id', l.id)
+      .order('created_at', { ascending: false })
+      .limit(20),
+    checkReviewEligibility(l.id),
+  ])
+  const reviews = (reviewData ?? []) as unknown as {
+    id: string
+    reviewer_id: string
+    rating: number
+    body: string | null
+    created_at: string
+    reviewer: { display_name: string | null; email: string } | null
+  }[]
+
   return (
     <main className="bg-paper">
       <div className="mx-auto max-w-6xl px-5 pt-8">
@@ -111,14 +139,19 @@ export default async function ListingDetailPage({
             />
           )}
         </div>
-        <div className="mt-3 flex items-center gap-2 text-sm text-text-2">
-          <PinIcon className="h-4 w-4 text-text-3" />
-          <span>
-            {l.location_municipality
-              ? `${l.location_municipality}, ${l.location_island}`
-              : l.location_island}
-            {l.location_city ? ` · ${l.location_city}` : ''}
+        <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-text-2">
+          <span className="inline-flex items-center gap-2">
+            <PinIcon className="h-4 w-4 text-text-3" />
+            <span>
+              {l.location_municipality
+                ? `${l.location_municipality}, ${l.location_island}`
+                : l.location_island}
+              {l.location_city ? ` · ${l.location_city}` : ''}
+            </span>
           </span>
+          {l.rating_count > 0 && (
+            <StarRatingDisplay value={l.rating_avg} count={l.rating_count} size="md" />
+          )}
         </div>
       </header>
 
@@ -169,19 +202,54 @@ export default async function ListingDetailPage({
           {/* Chips: amenities / rules / extras */}
           <ChipSection listing={l} />
 
-          {/* Daily-rental availability note (no booking system yet) */}
-          {l.purpose === 'rent_daily' && (
-            <div className="mt-12 border-t border-shell pt-10">
+          {/* Reviews */}
+          <div className="mt-12 border-t border-shell pt-10">
+            <div className="flex items-center justify-between gap-3">
               <div className="flex items-center gap-3 text-[12px] uppercase tracking-[0.22em] text-text-3">
-                <span className="numeral text-[14px] tnum">03</span>
-                Disponibilidade
+                <span className="numeral text-[14px] tnum">{l.purpose === 'rent_daily' ? '03' : '03'}</span>
+                Avaliações
               </div>
-              <p className="mt-4 rounded-[var(--radius-card)] border border-sky/30 bg-sky-soft px-4 py-3 text-sm text-ink">
-                O calendário de reservas chega numa próxima fase. Por agora,
-                confirma as datas disponíveis diretamente com o anunciante via WhatsApp.
-              </p>
+              {l.rating_count > 0 && (
+                <StarRatingDisplay value={l.rating_avg} count={l.rating_count} size="md" />
+              )}
             </div>
-          )}
+
+            {reviews.length === 0 ? (
+              <p className="mt-4 text-sm italic text-text-3">Ainda sem avaliações.</p>
+            ) : (
+              <ul className="mt-6 space-y-5">
+                {reviews.map((r) => (
+                  <li key={r.id} className="rounded-[var(--radius-card)] border border-shell bg-white p-4">
+                    <div className="flex items-center justify-between gap-3">
+                      <p className="text-[13px] font-medium text-ink">
+                        {r.reviewer?.display_name ||
+                          (r.reviewer?.email ? r.reviewer.email.split('@')[0] : 'Anónimo')}
+                      </p>
+                      <StarRatingDisplay value={r.rating} size="sm" />
+                    </div>
+                    {r.body && (
+                      <p className="mt-2 text-[14px] leading-relaxed text-text-1">{r.body}</p>
+                    )}
+                    <p className="mt-2 text-[11px] text-text-3 tnum">
+                      {new Date(r.created_at).toLocaleDateString('pt-PT')}
+                    </p>
+                  </li>
+                ))}
+              </ul>
+            )}
+
+            {/* Review form */}
+            {!isOwner && eligibility.eligible && (
+              <div className="mt-6">
+                <ReviewForm listingId={l.id} existing={eligibility.existingReview} />
+              </div>
+            )}
+            {!isOwner && !eligibility.eligible && eligibility.reason === 'no_interaction' && (
+              <p className="mt-4 text-[12px] text-text-3">
+                Contacta o anunciante ou faz uma reserva para poderes avaliar.
+              </p>
+            )}
+          </div>
         </div>
 
         {/* Right — sticky contact */}
@@ -229,6 +297,7 @@ export default async function ListingDetailPage({
               </div>
             )}
             {!isOwner && <ContactSellerButton listingId={l.id} />}
+
             <div className="mt-2">
               <ShareButton title={l.title} />
             </div>
@@ -237,6 +306,34 @@ export default async function ListingDetailPage({
               Contacto direto. Sem comissões intermédias do IMOAUTO.
             </p>
           </div>
+
+          {/* Booking form — rent_daily only, non-owners only */}
+          {l.purpose === 'rent_daily' && !isOwner && (
+            <div className="mt-4">
+              <BookingForm
+                listingId={l.id}
+                pricePerNight={l.price_cve}
+                cleaningFee={a.cleaning_fee_cve ?? 0}
+                minNights={a.min_nights ?? 1}
+                maxNights={a.max_nights}
+                maxGuests={a.guests}
+                unavailable={unavailable}
+              />
+            </div>
+          )}
+
+          {/* Owner panel for managing this listing's bookings */}
+          {l.purpose === 'rent_daily' && isOwner && (
+            <div className="mt-4 rounded-[var(--radius-card)] border border-shell bg-white p-4 shadow-[var(--shadow-card)]">
+              <p className="text-[12px] uppercase tracking-[0.18em] text-text-3">Reservas</p>
+              <Link
+                href="/bookings?view=owner"
+                className="mt-2 inline-block rounded-full bg-ink px-4 py-2 text-[13px] font-medium text-paper transition-colors hover:bg-ink-deep"
+              >
+                Ver pedidos recebidos
+              </Link>
+            </div>
+          )}
 
           {isOwner && (
             <div className="mt-4 rounded-[var(--radius-card)] border border-warn/40 bg-warn-soft p-4">
