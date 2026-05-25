@@ -134,6 +134,21 @@ export function PlusIcon(props: SVGProps<SVGSVGElement>) {
     </svg>
   )
 }
+export function MessageIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg {...base} {...props}>
+      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+    </svg>
+  )
+}
+export function SendIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg {...base} {...props}>
+      <path d="M22 2 11 13" />
+      <path d="M22 2 15 22 11 13 2 9l20-7z" />
+    </svg>
+  )
+}
 export function GoogleIcon(props: SVGProps<SVGSVGElement>) {
   return (
     <svg viewBox="0 0 24 24" {...props}>

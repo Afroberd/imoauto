@@ -2,7 +2,7 @@ import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { signOut } from '@/app/actions/auth'
 import { Wordmark } from '@/components/wordmark'
-import { PlusIcon, HeartIcon } from '@/components/icons'
+import { PlusIcon, HeartIcon, MessageIcon } from '@/components/icons'
 
 export async function SiteHeader() {
   const supabase = await createClient()
@@ -44,6 +44,13 @@ export async function SiteHeader() {
                 aria-label="Favoritos"
               >
                 <HeartIcon className="h-4 w-4" />
+              </Link>
+              <Link
+                href="/messages"
+                className="hidden items-center gap-1 rounded-full px-3 py-2 text-text-2 transition-colors hover:bg-shell-soft hover:text-ink md:inline-flex"
+                aria-label="Mensagens"
+              >
+                <MessageIcon className="h-4 w-4" />
               </Link>
               <Link
                 href="/my-listings"

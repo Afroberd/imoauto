@@ -16,6 +16,7 @@ import {
 } from '@/components/icons'
 import { ShareButton } from '@/components/share-button'
 import { FavoriteButton } from '@/components/favorite-button'
+import { ContactSellerButton } from '@/components/contact-seller-button'
 
 function buildWhatsAppLink(phone: string, listingTitle: string): string {
   const digits = phone.replace(/\D/g, '')
@@ -227,6 +228,7 @@ export default async function ListingDetailPage({
                 Sem contacto disponível
               </div>
             )}
+            {!isOwner && <ContactSellerButton listingId={l.id} />}
             <div className="mt-2">
               <ShareButton title={l.title} />
             </div>
