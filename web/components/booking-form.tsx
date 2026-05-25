@@ -4,6 +4,7 @@ import { useState, useTransition, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { createBooking } from '@/app/actions/bookings'
 import { CalendarIcon } from '@/components/icons'
+import { DateInput } from '@/components/date-input'
 
 interface Props {
   listingId: string
@@ -137,23 +138,25 @@ export function BookingForm({
       <div className="mt-4 grid grid-cols-2 gap-3">
         <label className="block">
           <span className="block text-[12px] uppercase tracking-[0.12em] text-text-3">Entrada</span>
-          <input
-            type="date"
-            min={todayISO()}
-            value={checkIn}
-            onChange={(e) => setCheckIn(e.target.value)}
-            className="mt-1 w-full rounded-xl border border-shell bg-paper-soft px-3 py-2 text-sm text-ink focus:border-ink focus:outline-none"
-          />
+          <div className="mt-1">
+            <DateInput
+              value={checkIn}
+              onChange={setCheckIn}
+              min={todayISO()}
+              ariaLabel="Data de entrada"
+            />
+          </div>
         </label>
         <label className="block">
           <span className="block text-[12px] uppercase tracking-[0.12em] text-text-3">Saída</span>
-          <input
-            type="date"
-            min={checkIn || todayISO()}
-            value={checkOut}
-            onChange={(e) => setCheckOut(e.target.value)}
-            className="mt-1 w-full rounded-xl border border-shell bg-paper-soft px-3 py-2 text-sm text-ink focus:border-ink focus:outline-none"
-          />
+          <div className="mt-1">
+            <DateInput
+              value={checkOut}
+              onChange={setCheckOut}
+              min={checkIn || todayISO()}
+              ariaLabel="Data de saída"
+            />
+          </div>
         </label>
       </div>
 
