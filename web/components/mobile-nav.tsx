@@ -55,11 +55,11 @@ export function MobileNav({ loggedIn, loggedInLinks, loggedOutLinks, baseLinks }
       {open && (
         <>
           <div
-            className="fixed inset-0 z-40 bg-ink/40 backdrop-blur-sm md:hidden"
+            className="fixed left-0 top-0 z-40 h-screen w-screen bg-ink/40 backdrop-blur-sm md:hidden"
             onClick={() => setOpen(false)}
             aria-hidden
           />
-          <nav className="fixed right-0 top-0 z-50 h-full w-[85%] max-w-xs overflow-y-auto bg-paper p-6 shadow-2xl md:hidden">
+          <nav className="fixed right-0 top-0 z-50 h-screen w-[85%] max-w-xs overflow-y-auto bg-paper p-6 shadow-2xl md:hidden">
             <div className="flex items-center justify-between">
               <p className="text-[12px] uppercase tracking-[0.18em] text-text-3">Menu</p>
               <button
