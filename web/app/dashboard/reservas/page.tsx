@@ -2,7 +2,9 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { getMyGuestBookings, type DashboardBooking } from '@/app/actions/dashboard'
 import { BookingActions } from '@/components/booking-actions'
+import { PaymentOptions } from '@/components/payment-options'
 import { HouseIcon, CarIcon, CalendarIcon } from '@/components/icons'
+import { STRIPE_ENABLED } from '@/lib/payments/stripe'
 
 export const dynamic = 'force-dynamic'
 
@@ -91,25 +93,15 @@ function GuestBookingCard({ b }: { b: DashboardBooking }) {
           )}
 
           {b.status === 'confirmed' && (
-            <div className="mt-3 rounded-[var(--radius-card)] border border-warn/40 bg-warn-soft p-3 text-[13px]">
-              <p className="font-medium text-warn-strong">Como pagar</p>
-              {b.payout_iban ? (
-                <div className="mt-1 space-y-0.5 text-text-1">
-                  <p>IBAN: <span className="tnum font-medium">{b.payout_iban}</span></p>
-                  {b.payout_holder_name && <p>Titular: {b.payout_holder_name}</p>}
-                  <p>Valor: <span className="tnum font-medium">{formatCVE(b.total_cve)}</span></p>
-                  {b.payout_instructions && (
-                    <p className="mt-2 italic text-text-2">&ldquo;{b.payout_instructions}&rdquo;</p>
-                  )}
-                  <p className="mt-2 text-[12px] text-text-3">
-                    Depois de transferires, avisa o anfitrião por mensagem. Ele confirma o pagamento e a tua reserva fica garantida.
-                  </p>
-                </div>
-              ) : (
-                <p className="mt-1 text-text-2">
-                  Contacta o anfitrião por mensagem para combinarem como pagar.
-                </p>
-              )}
+            <div className="mt-3">
+              <PaymentOptions
+                bookingId={b.id}
+                totalCve={b.total_cve - b.paid_amount_cve}
+                payoutIban={b.payout_iban}
+                payoutHolderName={b.payout_holder_name}
+                payoutInstructions={b.payout_instructions}
+                stripeEnabled={STRIPE_ENABLED}
+              />
             </div>
           )}
 

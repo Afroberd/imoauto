@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { CalendarIcon } from '@/components/icons'
+import { CalendarListingSelector } from '@/components/dashboard/calendar-selector'
 
 export const dynamic = 'force-dynamic'
 
@@ -55,12 +56,13 @@ function cellState(iso: string, bookings: BookingRow[]): { color: string; label:
 export default async function DashboardCalendarPage({
   searchParams,
 }: {
-  searchParams: Promise<{ month?: string; year?: string }>
+  searchParams: Promise<{ month?: string; year?: string; listing?: string }>
 }) {
   const sp = await searchParams
   const now = new Date()
   const month0 = sp.month ? Math.max(0, Math.min(11, parseInt(sp.month) - 1)) : now.getMonth()
   const year = sp.year ? parseInt(sp.year) : now.getFullYear()
+  const filterListingId = sp.listing ?? null
 
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -74,7 +76,10 @@ export default async function DashboardCalendarPage({
     .eq('purpose', 'rent_daily')
     .order('created_at', { ascending: false })
 
-  const listings = (listingsData ?? []) as ListingLite[]
+  const allListings = (listingsData ?? []) as ListingLite[]
+  const listings = filterListingId
+    ? allListings.filter((l) => l.id === filterListingId)
+    : allListings
 
   // Fetch all bookings on these listings for the displayed month
   const firstDay = new Date(year, month0, 1)
@@ -105,14 +110,18 @@ export default async function DashboardCalendarPage({
   const prev = month0 === 0 ? { m: 12, y: year - 1 } : { m: month0, y: year }
   const next = month0 === 11 ? { m: 1, y: year + 1 } : { m: month0 + 2, y: year }
 
-  if (listings.length === 0) {
+  if (allListings.length === 0) {
     return (
       <div className="rounded-[var(--radius-card)] border border-dashed border-shell bg-paper-soft px-6 py-16 text-center">
         <CalendarIcon className="mx-auto h-10 w-10 text-text-3" />
-        <h2 className="mt-3 font-display text-xl text-ink">Calendário só está disponível para alojamento ao dia.</h2>
+        <h2 className="mt-3 font-display text-xl text-ink">Não tens anúncios de aluguer ao dia.</h2>
         <p className="mt-2 text-sm text-text-2">
-          Cria um anúncio com aluguer diário ou muda a finalidade de um existente.
+          O calendário só mostra anúncios com finalidade <span className="font-medium">"Aluguer ao dia"</span>.
+          Cria um novo, ou muda a finalidade de um anúncio existente em "Os meus".
         </p>
+        <Link href="/listings/new" className="mt-4 inline-flex rounded-full bg-ink px-4 py-2 text-sm text-paper hover:bg-ink-deep">
+          Criar anúncio
+        </Link>
       </div>
     )
   }
@@ -136,6 +145,17 @@ export default async function DashboardCalendarPage({
             Mês seguinte →
           </Link>
         </div>
+      </div>
+
+      {/* Listing selector (always visible to clarify what's being shown) */}
+      <div>
+        <p className="mb-2 text-[12px] uppercase tracking-[0.12em] text-text-3">
+          Anúncios de aluguer ao dia ({allListings.length})
+        </p>
+        <CalendarListingSelector
+          listings={allListings}
+          selectedId={filterListingId ?? 'all'}
+        />
       </div>
 
       {/* Legend */}
