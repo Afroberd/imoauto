@@ -199,8 +199,24 @@ export function ListingWizard({
 
   return (
     <div className="space-y-8">
-      {/* Progress */}
-      <ol className="flex flex-wrap gap-x-2 gap-y-1 text-[11px] uppercase tracking-[0.14em]">
+      {/* Progress — telemóvel: barra + label do passo atual. Desktop: lista completa. */}
+      <div className="sm:hidden">
+        <div className="flex items-baseline justify-between text-[12px] text-text-2">
+          <span className="font-medium text-ink">
+            Passo {stepIdx + 1} de {steps.length}
+          </span>
+          <span className="uppercase tracking-[0.12em] text-text-3">
+            {stepName(steps[stepIdx])}
+          </span>
+        </div>
+        <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-shell">
+          <div
+            className="h-full rounded-full bg-ink transition-all"
+            style={{ width: `${((stepIdx + 1) / steps.length) * 100}%` }}
+          />
+        </div>
+      </div>
+      <ol className="hidden flex-wrap gap-x-2 gap-y-1 text-[11px] uppercase tracking-[0.14em] sm:flex">
         {steps.map((s, i) => (
           <li key={s} className="flex items-center gap-2">
             <span
@@ -284,13 +300,13 @@ export function ListingWizard({
         </p>
       )}
 
-      {/* Nav */}
-      <div className="flex items-center justify-between border-t border-shell pt-6">
+      {/* Nav — no mobile fica sticky no fundo do ecrã para sempre acessível */}
+      <div className="sticky bottom-0 -mx-4 flex items-center justify-between gap-3 border-t border-shell bg-paper px-4 pb-4 pt-4 sm:static sm:mx-0 sm:border-t sm:bg-transparent sm:px-0 sm:pb-0 sm:pt-6">
         <button
           type="button"
           onClick={back}
           disabled={stepIdx === 0 || submitting}
-          className="rounded-full border border-shell px-4 py-2.5 text-sm text-text-2 transition-colors hover:border-ink hover:text-ink disabled:cursor-not-allowed disabled:opacity-40"
+          className="rounded-full border border-shell px-4 py-3 text-sm text-text-2 transition-colors hover:border-ink hover:text-ink disabled:cursor-not-allowed disabled:opacity-40 sm:py-2.5"
         >
           Voltar
         </button>
@@ -299,7 +315,7 @@ export function ListingWizard({
           <button
             type="button"
             onClick={next}
-            className="inline-flex items-center gap-2 rounded-full bg-ink px-6 py-3 text-sm font-medium text-paper transition-colors hover:bg-ink-deep"
+            className="inline-flex flex-1 items-center justify-center gap-2 rounded-full bg-ink px-6 py-3 text-sm font-medium text-paper transition-colors hover:bg-ink-deep sm:flex-initial"
           >
             Continuar <ArrowRightIcon className="h-4 w-4" />
           </button>
@@ -308,7 +324,7 @@ export function ListingWizard({
             type="button"
             onClick={handleSubmit}
             disabled={submitting}
-            className="inline-flex items-center gap-2 rounded-full bg-ink px-6 py-3 text-sm font-medium text-paper transition-colors hover:bg-ink-deep disabled:cursor-not-allowed disabled:opacity-60"
+            className="inline-flex flex-1 items-center justify-center gap-2 rounded-full bg-ink px-6 py-3 text-sm font-medium text-paper transition-colors hover:bg-ink-deep disabled:cursor-not-allowed disabled:opacity-60 sm:flex-initial"
           >
             {submitting
               ? 'A guardar…'

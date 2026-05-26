@@ -282,7 +282,7 @@ function CategoryBlock({
             {icon}
           </span>
         </div>
-        <h3 className="mt-8 font-display text-4xl font-medium tracking-[-0.02em] text-ink sm:text-5xl">
+        <h3 className="mt-6 font-display text-2xl font-medium tracking-[-0.02em] text-ink sm:mt-8 sm:text-4xl md:text-5xl">
           {title}
         </h3>
         <p className="mt-4 max-w-md text-text-2">{blurb}</p>

@@ -47,12 +47,12 @@ export default async function MessagesPage() {
     <main className="bg-paper">
       {/* Header */}
       <section className="border-b border-shell/70 bg-paper-soft">
-        <div className="mx-auto max-w-3xl px-5 py-12">
-          <div className="flex items-center gap-3 text-[12px] uppercase tracking-[0.22em] text-text-3">
+        <div className="mx-auto max-w-3xl px-4 py-8 sm:px-5 sm:py-12">
+          <div className="flex items-center gap-3 text-[12px] uppercase tracking-[0.2em] text-text-3 sm:tracking-[0.22em]">
             <span className="h-px w-8 bg-line-strong" />
             Mensagens
           </div>
-          <h1 className="mt-2 font-display text-4xl font-medium tracking-[-0.022em] text-ink sm:text-5xl">
+          <h1 className="mt-2 font-display text-3xl font-medium tracking-[-0.022em] text-ink sm:text-4xl md:text-5xl">
             Conversas
           </h1>
 

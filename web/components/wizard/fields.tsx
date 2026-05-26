@@ -10,7 +10,7 @@ export type WizardData = Record<string, unknown>
 export type Setter = (name: string, value: unknown) => void
 
 export const inputClass =
-  'w-full rounded-lg border border-shell bg-white px-4 py-2.5 text-[15px] text-text-1 placeholder-text-3 outline-none transition-colors focus:border-ink'
+  'w-full rounded-lg border border-shell bg-white px-4 py-3 text-base text-text-1 placeholder-text-3 outline-none transition-colors focus:border-ink sm:py-2.5 sm:text-[15px]'
 
 export function Field({
   label,
@@ -85,6 +85,7 @@ export function NumberField({
       <div className="relative">
         <input
           type="number"
+          inputMode="decimal"
           value={(data[name] as string | number) ?? ''}
           onChange={(e) => set(name, e.target.value)}
           placeholder={placeholder}

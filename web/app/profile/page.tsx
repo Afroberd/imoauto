@@ -19,12 +19,12 @@ export default async function ProfilePage() {
   return (
     <main className="bg-paper">
       <section className="border-b border-shell/70 bg-paper-soft">
-        <div className="mx-auto max-w-3xl px-5 py-12">
-          <div className="flex items-center gap-3 text-[12px] uppercase tracking-[0.22em] text-text-3">
+        <div className="mx-auto max-w-3xl px-4 py-8 sm:px-5 sm:py-12">
+          <div className="flex items-center gap-3 text-[12px] uppercase tracking-[0.2em] text-text-3 sm:tracking-[0.22em]">
             <span className="h-px w-8 bg-line-strong" />
             Conta
           </div>
-          <h1 className="mt-2 font-display text-4xl font-medium tracking-[-0.022em] text-ink sm:text-5xl">
+          <h1 className="mt-2 font-display text-3xl font-medium tracking-[-0.022em] text-ink sm:text-4xl md:text-5xl">
             {fullName ? `Olá, ${fullName.split(' ')[0]}` : 'O teu perfil'}
           </h1>
           <p className="mt-2 text-text-2">
@@ -33,7 +33,7 @@ export default async function ProfilePage() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-3xl px-5 py-12">
+      <section className="mx-auto max-w-3xl px-4 py-8 sm:px-5 sm:py-12">
         <dl className="overflow-hidden rounded-[var(--radius-card)] border border-shell bg-white shadow-[var(--shadow-card)]">
           <Row label="Email" value={user.email ?? '—'} />
           <Row label="Nome" value={fullName ?? '—'} />

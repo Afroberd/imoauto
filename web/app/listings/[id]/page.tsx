@@ -105,7 +105,7 @@ export default async function ListingDetailPage({
 
   return (
     <main className="bg-paper">
-      <div className="mx-auto max-w-6xl px-5 pt-8">
+      <div className="mx-auto max-w-6xl px-4 pt-6 sm:px-5 sm:pt-8">
         <Link
           href="/listings"
           className="inline-flex items-center gap-1 text-[13px] text-text-3 transition-colors hover:text-ink"
@@ -115,7 +115,7 @@ export default async function ListingDetailPage({
       </div>
 
       {/* Title block */}
-      <header className="mx-auto mt-6 max-w-6xl px-5">
+      <header className="mx-auto mt-4 max-w-6xl px-4 sm:mt-6 sm:px-5">
         <div className="flex items-center gap-2 text-[12px] uppercase tracking-[0.18em] text-text-3">
           <span>{isProperty ? 'Imóvel' : 'Automóvel'}</span>
           <span>·</span>
@@ -127,15 +127,15 @@ export default async function ListingDetailPage({
             </>
           )}
         </div>
-        <div className="mt-3 flex items-start justify-between gap-4">
-          <h1 className="font-display text-[40px] font-medium leading-[1.04] tracking-[-0.022em] text-ink sm:text-[52px]">
+        <div className="mt-3 flex items-start justify-between gap-3">
+          <h1 className="font-display text-[26px] font-medium leading-[1.1] tracking-[-0.022em] text-ink sm:text-[40px] sm:leading-[1.04] md:text-[52px]">
             {l.title}
           </h1>
           {!isOwner && (
             <FavoriteButton
               listingId={l.id}
               initialFavorited={isFavorited}
-              className="mt-2 flex-shrink-0"
+              className="mt-1 flex-shrink-0"
             />
           )}
         </div>
@@ -156,12 +156,12 @@ export default async function ListingDetailPage({
       </header>
 
       {/* Gallery */}
-      <section className="mx-auto mt-8 max-w-6xl px-5">
+      <section className="mx-auto mt-6 max-w-6xl px-4 sm:mt-8 sm:px-5">
         <PhotoGallery hero={hero} thumbs={thumbs} kind={l.kind} />
       </section>
 
       {/* Body */}
-      <section className="mx-auto mt-12 grid max-w-6xl gap-12 px-5 pb-20 md:grid-cols-[1.6fr_1fr]">
+      <section className="mx-auto mt-8 grid max-w-6xl gap-8 px-4 pb-16 sm:mt-12 sm:gap-12 sm:px-5 sm:pb-20 md:grid-cols-[1.6fr_1fr]">
         <div>
           <Highlights listing={l} />
 

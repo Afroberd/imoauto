@@ -56,9 +56,9 @@ export default async function ConversationPage({ params }: PageProps) {
   const listing = conv.listing
 
   return (
-    <div className="flex h-[calc(100dvh-73px)] flex-col bg-paper">
+    <div className="flex h-[calc(100dvh-65px)] flex-col bg-paper sm:h-[calc(100dvh-73px)]">
       {/* Conversation header */}
-      <header className="flex flex-shrink-0 items-center gap-4 border-b border-shell bg-paper px-5 py-4">
+      <header className="flex flex-shrink-0 items-center gap-3 border-b border-shell bg-paper px-4 py-3 sm:gap-4 sm:px-5 sm:py-4">
         <Link
           href="/messages"
           className="text-[13px] text-text-3 transition-colors hover:text-ink"

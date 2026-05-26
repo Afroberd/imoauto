@@ -103,16 +103,16 @@ export default async function ListingsPage({
     <main className="bg-paper">
       {/* Header */}
       <section className="border-b border-shell/70 bg-paper-soft">
-        <div className="mx-auto max-w-6xl px-5 py-12 md:py-16">
-          <div className="flex items-center gap-3 text-[12px] uppercase tracking-[0.22em] text-text-3">
-            <span className="h-px w-8 bg-line-strong" />
+        <div className="mx-auto max-w-6xl px-4 py-8 sm:px-5 sm:py-12 md:py-16">
+          <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.2em] text-text-3 sm:text-[12px] sm:tracking-[0.22em]">
+            <span className="h-px w-6 bg-line-strong sm:w-8" />
             {listings.length} {listings.length === 1 ? 'anúncio' : 'anúncios'}
           </div>
-          <div className="mt-2 flex flex-wrap items-end justify-between gap-4">
-            <h1 className="font-display text-4xl font-medium tracking-[-0.02em] text-ink sm:text-5xl">
+          <div className="mt-2 flex flex-wrap items-end justify-between gap-3 sm:gap-4">
+            <h1 className="font-display text-3xl font-medium tracking-[-0.02em] text-ink sm:text-4xl md:text-5xl">
               {titleText}
               {islandFilter && (
-                <span className="ml-3 italic text-ink-soft">— {islandFilter}</span>
+                <span className="ml-2 block text-xl italic text-ink-soft sm:ml-3 sm:inline sm:text-3xl">— {islandFilter}</span>
               )}
             </h1>
             <Link
@@ -128,7 +128,7 @@ export default async function ListingsPage({
           <form
             action="/listings"
             method="GET"
-            className="mt-8 flex flex-col gap-3 rounded-2xl border border-shell bg-white p-3 shadow-[var(--shadow-card)] sm:flex-row sm:items-stretch"
+            className="mt-6 flex flex-col gap-2 rounded-2xl border border-shell bg-white p-2 shadow-[var(--shadow-card)] sm:mt-8 sm:gap-3 sm:p-3 sm:flex-row sm:items-stretch"
           >
             {/* preserve type filters via hidden inputs */}
             {kindFilter && <input type="hidden" name="kind" value={kindFilter} />}
@@ -137,13 +137,13 @@ export default async function ListingsPage({
             {view === 'map' && <input type="hidden" name="view" value="map" />}
 
             <label className="flex flex-1 items-center gap-2 rounded-xl px-3 py-2 sm:px-4">
-              <SearchIcon className="h-4 w-4 text-text-3" />
+              <SearchIcon className="h-4 w-4 flex-shrink-0 text-text-3" />
               <input
                 type="search"
                 name="q"
                 defaultValue={q}
-                placeholder="Procurar por título ou descrição…"
-                className="w-full bg-transparent text-sm text-text-1 outline-none placeholder:text-text-3"
+                placeholder="Procurar…"
+                className="w-full min-w-0 bg-transparent text-base text-text-1 outline-none placeholder:text-text-3 sm:text-sm"
               />
             </label>
 
@@ -153,18 +153,20 @@ export default async function ListingsPage({
               <span className="text-[11px] uppercase tracking-[0.15em] text-text-3">Preço</span>
               <input
                 type="number"
+                inputMode="numeric"
                 name="min"
                 defaultValue={minPrice ?? ''}
                 placeholder="min"
-                className="w-24 bg-transparent text-sm text-text-1 outline-none tnum placeholder:text-text-3"
+                className="w-20 min-w-0 bg-transparent text-base text-text-1 outline-none tnum placeholder:text-text-3 sm:w-24 sm:text-sm"
               />
               <span className="text-text-3">—</span>
               <input
                 type="number"
+                inputMode="numeric"
                 name="max"
                 defaultValue={maxPrice ?? ''}
                 placeholder="max"
-                className="w-24 bg-transparent text-sm text-text-1 outline-none tnum placeholder:text-text-3"
+                className="w-20 min-w-0 bg-transparent text-base text-text-1 outline-none tnum placeholder:text-text-3 sm:w-24 sm:text-sm"
               />
               <span className="text-[11px] uppercase tracking-[0.15em] text-text-3">CVE</span>
             </div>
@@ -179,9 +181,9 @@ export default async function ListingsPage({
         </div>
       </section>
 
-      {/* Filter bar + view toggle */}
-      <section className="sticky top-[64px] z-20 border-b border-shell/70 bg-paper/90 backdrop-blur">
-        <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-2 px-5 py-3.5">
+      {/* Filter bar + view toggle — scroll horizontal no mobile */}
+      <section className="sticky top-[57px] z-20 border-b border-shell/70 bg-paper/90 backdrop-blur sm:top-[64px]">
+        <div className="mx-auto flex max-w-6xl items-center gap-2 overflow-x-auto px-4 py-3 sm:flex-wrap sm:px-5 sm:py-3.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           <FilterGroup
             label="Tipo"
             current={kindFilter ?? 'all'}
@@ -216,7 +218,7 @@ export default async function ListingsPage({
       </section>
 
       {/* Results */}
-      <section className="mx-auto max-w-6xl px-5 py-12">
+      <section className="mx-auto max-w-6xl px-4 py-8 sm:px-5 sm:py-12">
         {error && (
           <p className="rounded-md border border-coral/40 bg-coral-soft px-4 py-3 text-sm text-coral-deep">
             Erro a carregar: {error.message}
@@ -228,7 +230,7 @@ export default async function ListingsPage({
         ) : view === 'map' ? (
           <ListingsMap listings={listings} />
         ) : (
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3">
             {listings.map((l) => (
               <ListingCard key={l.id} listing={l} isFavorited={favIds.has(l.id)} />
             ))}

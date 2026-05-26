@@ -17,16 +17,16 @@ export default async function DashboardHomePage() {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6 md:space-y-8">
       {/* Top stats grid */}
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <Stat label="Pedidos por responder" value={stats.pendingRequests} accent={stats.pendingRequests > 0 ? 'warn' : 'neutral'} href="/dashboard/requests" />
+      <div className="grid grid-cols-2 gap-2.5 sm:gap-3 lg:grid-cols-4">
+        <Stat label="Pedidos" value={stats.pendingRequests} accent={stats.pendingRequests > 0 ? 'warn' : 'neutral'} href="/dashboard/requests" />
         <Stat label="Check-ins hoje" value={stats.checkinsToday} accent="green" href="/dashboard/stays" />
         <Stat label="Check-outs hoje" value={stats.checkoutsToday} accent="coral" href="/dashboard/stays" />
-        <Stat label="Estadias em curso" value={stats.activeStays} accent="neutral" href="/dashboard/stays" />
+        <Stat label="Em curso" value={stats.activeStays} accent="neutral" href="/dashboard/stays" />
       </div>
 
-      <div className="grid gap-3 sm:grid-cols-3">
+      <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-3 sm:gap-3">
         <Stat label="Por receber pagamento" value={stats.unpaidConfirmed} accent={stats.unpaidConfirmed > 0 ? 'warn' : 'neutral'} href="/dashboard/payments" />
         <Stat label={`Ocupação (${stats.totalListings} anúncios)`} value={`${stats.occupiedListings}/${stats.totalListings}`} accent="neutral" />
         <Stat label="Receita este mês" value={formatCVE(stats.monthRevenueCve)} accent="green" />
@@ -89,9 +89,9 @@ function Stat({
   }[accent]
 
   const inner = (
-    <div className={`rounded-[var(--radius-card)] border bg-white p-4 shadow-[var(--shadow-card)] ${ring}`}>
-      <p className="text-[12px] uppercase tracking-[0.12em] text-text-3">{label}</p>
-      <p className="mt-2 font-display text-3xl font-medium text-ink tnum">{value}</p>
+    <div className={`rounded-[var(--radius-card)] border bg-white p-3 shadow-[var(--shadow-card)] sm:p-4 ${ring}`}>
+      <p className="text-[10px] uppercase tracking-[0.12em] text-text-3 sm:text-[12px]">{label}</p>
+      <p className="mt-1 font-display text-2xl font-medium text-ink tnum sm:mt-2 sm:text-3xl">{value}</p>
     </div>
   )
 
