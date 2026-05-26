@@ -2,6 +2,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { getActiveAndUpcomingStays, type DashboardBooking } from '@/app/actions/dashboard'
 import { CheckinButton, CheckoutButton } from '@/components/dashboard/stay-actions'
+import { RecordPaymentButton } from '@/components/dashboard/record-payment'
 import { HouseIcon, CarIcon, CalendarIcon } from '@/components/icons'
 
 export const dynamic = 'force-dynamic'
@@ -123,9 +124,7 @@ function StayCard({ b, actionType }: { b: DashboardBooking; actionType: 'checkin
             {actionType === 'checkin'  && <CheckinButton  bookingId={b.id} isVehicle={isVehicle} />}
             {actionType === 'checkout' && <CheckoutButton bookingId={b.id} isVehicle={isVehicle} />}
             {actionType === 'payment'  && (
-              <Link href="/dashboard/payments" className="rounded-full bg-warn-strong px-3 py-1.5 text-[12px] font-medium text-white hover:opacity-90">
-                Registar pagamento
-              </Link>
+              <RecordPaymentButton bookingId={b.id} amountDue={b.total_cve - b.paid_amount_cve} />
             )}
           </div>
         </div>

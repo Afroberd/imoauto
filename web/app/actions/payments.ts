@@ -44,7 +44,8 @@ export async function recordPayment(input: {
 
   revalidatePath('/dashboard')
   revalidatePath('/dashboard/payments')
-  revalidatePath('/bookings')
+  revalidatePath('/dashboard/stays')
+  revalidatePath('/dashboard/reservas')
   return { ok: true, paymentId: data.id as string }
 }
 

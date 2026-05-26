@@ -122,7 +122,7 @@ export async function createBooking(input: {
     return { ok: false, error: error.message }
   }
 
-  revalidatePath('/bookings')
+  revalidatePath('/dashboard/reservas'); revalidatePath('/dashboard')
   revalidatePath(`/listings/${input.listingId}`)
   return { ok: true, bookingId: data.id as string, instant: lst.instant_booking }
 }
@@ -147,7 +147,7 @@ export async function updateBookingStatus(
 
   if (error) return { ok: false, error: error.message }
 
-  revalidatePath('/bookings')
+  revalidatePath('/dashboard/reservas'); revalidatePath('/dashboard')
   return { ok: true }
 }
 
@@ -197,7 +197,7 @@ export async function blockDates(input: {
     return { ok: false, error: error.message }
   }
 
-  revalidatePath('/bookings')
+  revalidatePath('/dashboard/reservas'); revalidatePath('/dashboard')
   revalidatePath(`/listings/${input.listingId}`)
   return { ok: true, bookingId: data.id as string }
 }

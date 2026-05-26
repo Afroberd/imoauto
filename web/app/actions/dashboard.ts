@@ -37,6 +37,9 @@ export type DashboardBooking = {
   listing_cover: string | null
   listing_kind: 'property' | 'vehicle'
   listing_island: string
+  payout_iban: string | null
+  payout_holder_name: string | null
+  payout_instructions: string | null
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -88,28 +91,32 @@ export async function getDashboardData(): Promise<{
     return { stats: empty, recentRequests: [], todayCheckins: [], todayCheckouts: [], activeNow: [] }
   }
 
-  // Fetch all bookings on these listings with rich data (joined)
+  // Two-step fetch: bookings + listings inline, profiles separately. The
+  // bookings.guest_id FK points to auth.users (not profiles), so PostgREST
+  // can't resolve a hint-style join — we map profiles in JS instead.
   const { data: rows } = await supabase
     .from('bookings')
     .select(`
       id, listing_id, guest_id, check_in, check_out, guests, status, payment_status,
       total_cve, paid_amount_cve, message, checked_in_at, checked_out_at, created_at,
-      listing:listings(title, cover_image_url, kind, location_island),
-      guest:profiles!guest_id(email, display_name)
+      listing:listings(title, cover_image_url, kind, location_island)
     `)
     .in('listing_id', listingIds)
     .neq('status', 'blocked')
     .order('created_at', { ascending: false })
 
-  const bookings = ((rows ?? []) as unknown as Array<{
+  const rowsRaw = (rows ?? []) as unknown as Array<{
     id: string; listing_id: string; guest_id: string
     check_in: string; check_out: string; guests: number
     status: string; payment_status: string; total_cve: number; paid_amount_cve: number
     message: string | null; checked_in_at: string | null; checked_out_at: string | null
     created_at: string
     listing: { title: string; cover_image_url: string | null; kind: 'property' | 'vehicle'; location_island: string } | null
-    guest: { email: string; display_name: string | null } | null
-  }>).map((b) => normalise(b))
+  }>
+
+  const guestIds = Array.from(new Set(rowsRaw.map((r) => r.guest_id)))
+  const profileMap = await fetchProfilesMap(supabase, guestIds)
+  const bookings = rowsRaw.map((b) => normalise(b, profileMap))
 
   const today = todayISO()
   const monthStart = firstOfMonthISO()
@@ -147,60 +154,67 @@ export async function getDashboardData(): Promise<{
 
 /** All pending booking requests on the host's listings. */
 export async function getPendingRequests(): Promise<DashboardBooking[]> {
-  const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-  if (!user) return []
-
-  const { data: myListings } = await supabase.from('listings').select('id').eq('owner_id', user.id)
-  const ids = (myListings ?? []).map((l) => (l as { id: string }).id)
-  if (ids.length === 0) return []
-
-  const { data } = await supabase
-    .from('bookings')
-    .select(`
-      id, listing_id, guest_id, check_in, check_out, guests, status, payment_status,
-      total_cve, paid_amount_cve, message, checked_in_at, checked_out_at, created_at,
-      listing:listings(title, cover_image_url, kind, location_island),
-      guest:profiles!guest_id(email, display_name)
-    `)
-    .in('listing_id', ids)
-    .eq('status', 'pending')
-    .order('created_at', { ascending: false })
-
-  return ((data ?? []) as unknown as any[]).map(normalise)
+  return hostBookings(['pending'], { byCreatedDesc: true })
 }
 
-/** Active + upcoming stays (paid + in_progress) on host's listings. */
+/** Active + upcoming stays (paid + in_progress + confirmed) on host's listings. */
 export async function getActiveAndUpcomingStays(): Promise<DashboardBooking[]> {
-  const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-  if (!user) return []
-
-  const { data: myListings } = await supabase.from('listings').select('id').eq('owner_id', user.id)
-  const ids = (myListings ?? []).map((l) => (l as { id: string }).id)
-  if (ids.length === 0) return []
-
-  const { data } = await supabase
-    .from('bookings')
-    .select(`
-      id, listing_id, guest_id, check_in, check_out, guests, status, payment_status,
-      total_cve, paid_amount_cve, message, checked_in_at, checked_out_at, created_at,
-      listing:listings(title, cover_image_url, kind, location_island),
-      guest:profiles!guest_id(email, display_name)
-    `)
-    .in('listing_id', ids)
-    .in('status', ['paid', 'in_progress', 'confirmed'])
-    .order('check_in', { ascending: true })
-
-  return ((data ?? []) as unknown as any[]).map(normalise)
+  return hostBookings(['paid', 'in_progress', 'confirmed'], { byCheckInAsc: true })
 }
 
-/** All bookings (any status) for the payments page, with payment rows summed. */
+/** All bookings (any status) for the payments page. */
 export async function getBookingsForPayments(): Promise<DashboardBooking[]> {
+  return hostBookings(['confirmed', 'paid', 'in_progress', 'completed'], { byCreatedDesc: true })
+}
+
+/**
+ * Guest-side: all bookings I'VE made (regardless of host's listing).
+ * Used in /dashboard/reservas (replaces the old /bookings page).
+ */
+export async function getMyGuestBookings(): Promise<DashboardBooking[]> {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) return []
+
+  const { data: rows } = await supabase
+    .from('bookings')
+    .select(`
+      id, listing_id, guest_id, check_in, check_out, guests, status, payment_status,
+      total_cve, paid_amount_cve, message, checked_in_at, checked_out_at, created_at,
+      listing:listings(title, cover_image_url, kind, location_island, payout_iban, payout_holder_name, payout_instructions)
+    `)
+    .eq('guest_id', user.id)
+    .neq('status', 'blocked')
+    .order('check_in', { ascending: false })
+
+  const rowsRaw = (rows ?? []) as unknown as RawBookingRow[]
+  // Host profile (owner) — for showing who the guest is paying
+  const ownerIds: string[] = [] // not currently needed; payout info is inline on listing
+  const profileMap = await fetchProfilesMap(supabase, ownerIds)
+  return rowsRaw.map((b) => normalise(b, profileMap))
+}
+
+// ── Internal helpers ─────────────────────────────────────────────────────────
+
+type RawBookingRow = {
+  id: string; listing_id: string; guest_id: string
+  check_in: string; check_out: string; guests: number
+  status: string; payment_status: string; total_cve: number; paid_amount_cve: number
+  message: string | null; checked_in_at: string | null; checked_out_at: string | null
+  created_at: string
+  listing: {
+    title: string; cover_image_url: string | null
+    kind: 'property' | 'vehicle'; location_island: string
+    payout_iban?: string | null; payout_holder_name?: string | null; payout_instructions?: string | null
+  } | null
+}
+
+async function hostBookings(
+  statuses: string[],
+  sort: { byCheckInAsc?: boolean; byCreatedDesc?: boolean },
+): Promise<DashboardBooking[]> {
   const supabase = await createClient()
   const {
     data: { user },
@@ -211,31 +225,53 @@ export async function getBookingsForPayments(): Promise<DashboardBooking[]> {
   const ids = (myListings ?? []).map((l) => (l as { id: string }).id)
   if (ids.length === 0) return []
 
-  const { data } = await supabase
+  let q = supabase
     .from('bookings')
     .select(`
       id, listing_id, guest_id, check_in, check_out, guests, status, payment_status,
       total_cve, paid_amount_cve, message, checked_in_at, checked_out_at, created_at,
-      listing:listings(title, cover_image_url, kind, location_island),
-      guest:profiles!guest_id(email, display_name)
+      listing:listings(title, cover_image_url, kind, location_island, payout_iban, payout_holder_name, payout_instructions)
     `)
     .in('listing_id', ids)
-    .in('status', ['confirmed', 'paid', 'in_progress', 'completed'])
-    .order('created_at', { ascending: false })
+    .in('status', statuses)
+  if (sort.byCheckInAsc) q = q.order('check_in', { ascending: true })
+  if (sort.byCreatedDesc) q = q.order('created_at', { ascending: false })
 
-  return ((data ?? []) as unknown as any[]).map(normalise)
+  const { data: rows } = await q
+  const rowsRaw = (rows ?? []) as unknown as RawBookingRow[]
+  const guestIds = Array.from(new Set(rowsRaw.map((r) => r.guest_id)))
+  const profileMap = await fetchProfilesMap(supabase, guestIds)
+  return rowsRaw.map((b) => normalise(b, profileMap))
 }
 
-function normalise(b: any): DashboardBooking {
+async function fetchProfilesMap(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  ids: string[],
+): Promise<Map<string, { email: string; display_name: string | null }>> {
+  if (ids.length === 0) return new Map()
+  const { data: profs } = await supabase
+    .from('profiles')
+    .select('id, email, display_name')
+    .in('id', ids)
+  return new Map(
+    ((profs ?? []) as Array<{ id: string; email: string; display_name: string | null }>)
+      .map((p) => [p.id, { email: p.email, display_name: p.display_name }]),
+  )
+}
+
+function normalise(
+  b: RawBookingRow,
+  profileMap: Map<string, { email: string; display_name: string | null }>,
+): DashboardBooking {
   const listing = b.listing
-  const guest = b.guest
+  const guest = profileMap.get(b.guest_id)
   return {
     id: b.id,
     listing_id: b.listing_id,
     guest_id: b.guest_id,
     guest_name: guest?.display_name || (guest?.email ? guest.email.split('@')[0] : 'Hóspede'),
     guest_email: guest?.email ?? '',
-    guest_phone: null, // populated via guest_verifications when implemented
+    guest_phone: null,
     check_in: b.check_in,
     check_out: b.check_out,
     guests: b.guests,
@@ -251,5 +287,8 @@ function normalise(b: any): DashboardBooking {
     listing_cover: listing?.cover_image_url ?? null,
     listing_kind: listing?.kind ?? 'property',
     listing_island: listing?.location_island ?? '',
+    payout_iban: listing?.payout_iban ?? null,
+    payout_holder_name: listing?.payout_holder_name ?? null,
+    payout_instructions: listing?.payout_instructions ?? null,
   }
 }

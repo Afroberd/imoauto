@@ -129,7 +129,7 @@ export function BookingForm({
         setError(r.error)
         return
       }
-      router.push('/bookings')
+      router.push('/dashboard/reservas')
     })
   }
 

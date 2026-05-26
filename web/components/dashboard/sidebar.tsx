@@ -15,7 +15,8 @@ interface NavItem {
 
 const items: NavItem[] = [
   { href: '/dashboard',          label: 'Hoje',         icon: <AreaIcon className="h-4 w-4" />, exact: true },
-  { href: '/dashboard/requests', label: 'Pedidos',      icon: <MessageIcon className="h-4 w-4" /> },
+  { href: '/dashboard/reservas', label: 'As minhas reservas', icon: <CalendarIcon className="h-4 w-4" /> },
+  { href: '/dashboard/requests', label: 'Pedidos recebidos',  icon: <MessageIcon className="h-4 w-4" /> },
   { href: '/dashboard/stays',    label: 'Estadias',     icon: <HouseIcon className="h-4 w-4" /> },
   { href: '/dashboard/payments', label: 'Pagamentos',   icon: <CarIcon className="h-4 w-4" /> },
   { href: '/dashboard/calendar', label: 'Calendário',   icon: <CalendarIcon className="h-4 w-4" /> },

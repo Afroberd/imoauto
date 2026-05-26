@@ -327,7 +327,7 @@ export default async function ListingDetailPage({
             <div className="mt-4 rounded-[var(--radius-card)] border border-shell bg-white p-4 shadow-[var(--shadow-card)]">
               <p className="text-[12px] uppercase tracking-[0.18em] text-text-3">Reservas</p>
               <Link
-                href="/bookings?view=owner"
+                href="/dashboard/requests"
                 className="mt-2 inline-block rounded-full bg-ink px-4 py-2 text-[13px] font-medium text-paper transition-colors hover:bg-ink-deep"
               >
                 Ver pedidos recebidos
