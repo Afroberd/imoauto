@@ -29,26 +29,12 @@ export default async function DashboardStaysPage() {
 
   if (stays.length === 0) {
     return (
-      <div className="space-y-4">
-        <div className="rounded-[var(--radius-card)] border border-dashed border-shell bg-paper-soft px-6 py-12 text-center">
-          <CalendarIcon className="mx-auto h-10 w-10 text-text-3" />
-          <h2 className="mt-3 font-display text-xl text-ink">Sem estadias ativas.</h2>
-          <p className="mt-2 text-sm text-text-2">
-            Esta página mostra as reservas dos teus hóspedes que estão a acontecer,
-            ou que já foram aprovadas e estão à espera do dia de check-in.
-          </p>
-        </div>
-
-        <div className="rounded-[var(--radius-card)] border border-shell bg-white p-5">
-          <p className="text-[12px] font-medium uppercase tracking-[0.15em] text-text-3">Como funciona</p>
-          <ol className="mt-3 space-y-2 text-sm text-text-1">
-            <li><span className="font-medium">1.</span> Alguém pede para reservar um dos teus anúncios → aparece em <Link href="/dashboard/requests" className="text-ink underline">Pedidos recebidos</Link></li>
-            <li><span className="font-medium">2.</span> Aceitas → fica <span className="rounded-full bg-warn-soft px-2 py-0.5 text-[11px] text-warn-strong">Confirmada · paga já</span> e aparece aqui</li>
-            <li><span className="font-medium">3.</span> Hóspede paga (Stripe, transferência, etc.) → fica <span className="rounded-full bg-sky-soft px-2 py-0.5 text-[11px] text-ink">Paga · à espera check-in</span></li>
-            <li><span className="font-medium">4.</span> Dia do check-in chega → tu marcas check-in aqui → fica <span className="rounded-full bg-green-50 px-2 py-0.5 text-[11px] text-green-800">Em curso</span></li>
-            <li><span className="font-medium">5.</span> Dia do check-out → marcas check-out → reserva concluída, anúncio volta a livre</li>
-          </ol>
-        </div>
+      <div className="rounded-[var(--radius-card)] border border-dashed border-shell bg-paper-soft px-6 py-16 text-center">
+        <CalendarIcon className="mx-auto h-10 w-10 text-text-3" />
+        <h2 className="mt-3 font-display text-xl text-ink">Sem estadias ativas.</h2>
+        <p className="mt-2 text-sm text-text-2">
+          As reservas aprovadas e pagas aparecem aqui.
+        </p>
       </div>
     )
   }
