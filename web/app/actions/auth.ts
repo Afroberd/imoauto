@@ -6,10 +6,16 @@ import { createClient } from '@/lib/supabase/server'
 
 export type AuthState = { error: string } | undefined
 
-function getSiteOrigin(headerHost: string | null) {
+function getSiteOrigin(headerHost: string | null, forwardedProto?: string | null) {
   const env = process.env.NEXT_PUBLIC_SITE_URL
   if (env) return env.replace(/\/$/, '')
-  return headerHost ? `http://${headerHost}` : 'http://localhost:3000'
+  if (!headerHost) return 'http://localhost:3000'
+  // Behind Vercel the request is HTTPS; x-forwarded-proto carries the real
+  // scheme. localhost stays http. Never hard-code http for a public host —
+  // an http redirectTo won't match the https entries in Supabase's allow list.
+  const isLocal = headerHost.startsWith('localhost') || headerHost.startsWith('127.0.0.1')
+  const proto = forwardedProto ?? (isLocal ? 'http' : 'https')
+  return `${proto}://${headerHost}`
 }
 
 // Only allow same-site relative paths (no protocol, no host) to avoid open redirect.
@@ -33,7 +39,7 @@ export async function signUp(
 
   const supabase = await createClient()
   const h = await headers()
-  const origin = getSiteOrigin(h.get('host'))
+  const origin = getSiteOrigin(h.get('host'), h.get('x-forwarded-proto'))
 
   const callback = `${origin}/auth/callback?next=${encodeURIComponent(next)}`
   const { error } = await supabase.auth.signUp({
@@ -82,7 +88,7 @@ export async function requestPasswordReset(
 
   const supabase = await createClient()
   const h = await headers()
-  const origin = getSiteOrigin(h.get('host'))
+  const origin = getSiteOrigin(h.get('host'), h.get('x-forwarded-proto'))
 
   // The link lands on /auth/callback, which exchanges the code for a session
   // and then forwards to /auth/reset-password so the user can set a new password.
@@ -123,7 +129,7 @@ export async function signInWithGoogle(formData?: FormData) {
   const next = safeNext(formData?.get('next'))
   const supabase = await createClient()
   const h = await headers()
-  const origin = getSiteOrigin(h.get('host'))
+  const origin = getSiteOrigin(h.get('host'), h.get('x-forwarded-proto'))
 
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: 'google',
