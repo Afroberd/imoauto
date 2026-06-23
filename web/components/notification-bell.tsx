@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useRef, useCallback, useId } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import {
@@ -32,12 +32,17 @@ export function NotificationBell({ userId, initialUnread }: Props) {
   const [items, setItems] = useState<Notification[]>([])
   const [loading, setLoading] = useState(false)
   const panelRef = useRef<HTMLDivElement>(null)
+  // Unique per component instance: the header mounts this bell twice (desktop +
+  // mobile). Two channels with the same topic make supabase-js throw
+  // "cannot add postgres_changes callbacks after subscribe()", which crashed
+  // the whole app. A per-instance id keeps the channel topics distinct.
+  const instanceId = useId()
 
   // Live updates: bump the badge whenever a new notification row arrives.
   useEffect(() => {
     const supabase = createClient()
     const channel = supabase
-      .channel(`notif:${userId}`)
+      .channel(`notif:${userId}:${instanceId}`)
       .on(
         'postgres_changes',
         { event: 'INSERT', schema: 'public', table: 'notifications', filter: `user_id=eq.${userId}` },
@@ -48,7 +53,7 @@ export function NotificationBell({ userId, initialUnread }: Props) {
       )
       .subscribe()
     return () => { supabase.removeChannel(channel) }
-  }, [userId])
+  }, [userId, instanceId])
 
   // Close on click outside / Escape.
   useEffect(() => {
