@@ -8,6 +8,7 @@ import { DateInput } from '@/components/date-input'
 
 interface Props {
   listingId: string
+  kind?: 'property' | 'vehicle'
   pricePerNight: number
   cleaningFee?: number
   minNights?: number
@@ -42,6 +43,7 @@ function formatCVE(n: number): string {
 
 export function BookingForm({
   listingId,
+  kind = 'property',
   pricePerNight,
   cleaningFee = 0,
   minNights = 1,
@@ -56,6 +58,14 @@ export function BookingForm({
   const [message, setMessage] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [isPending, startTransition] = useTransition()
+
+  // Vocabulary adapts to what's being rented: a car is rented by "dias" with
+  // "condutores"; a property is stayed in for "noites" with "hóspedes".
+  const isVehicle = kind === 'vehicle'
+  const unit = (n: number) => (isVehicle ? (n === 1 ? 'dia' : 'dias') : n === 1 ? 'noite' : 'noites')
+  const partyLabel = isVehicle ? 'Condutores' : 'Hóspedes'
+  const minWord = isVehicle ? 'Aluguer mínimo' : 'Estadia mínima'
+  const maxWord = isVehicle ? 'Aluguer máximo' : 'Estadia máxima'
 
   const nights = nightsBetween(checkIn, checkOut)
   const subtotal = nights * pricePerNight
@@ -88,11 +98,11 @@ export function BookingForm({
       return
     }
     if (minNightsError) {
-      setError(`Estadia mínima: ${minNights} noites.`)
+      setError(`${minWord}: ${minNights} ${unit(minNights)}.`)
       return
     }
     if (maxNightsError) {
-      setError(`Estadia máxima: ${maxNights} noites.`)
+      setError(`${maxWord}: ${maxNights} ${unit(maxNights ?? 0)}.`)
       return
     }
 
@@ -166,14 +176,15 @@ export function BookingForm({
       </div>
 
       <label className="mt-3 block">
-        <span className="block text-[12px] uppercase tracking-[0.12em] text-text-3">Hóspedes</span>
+        <span className="block text-[12px] uppercase tracking-[0.12em] text-text-3">{partyLabel}</span>
         <input
           type="number"
+          inputMode="numeric"
           min={1}
           max={maxGuests ?? 20}
           value={guests}
           onChange={(e) => setGuests(Number(e.target.value) || 1)}
-          className="mt-1 w-full rounded-xl border border-shell bg-paper-soft px-3 py-2 text-sm text-ink focus:border-ink focus:outline-none"
+          className="mt-1 w-full rounded-xl border border-shell bg-paper-soft px-3 py-2 text-base text-ink focus:border-ink focus:outline-none sm:text-sm"
         />
       </label>
 
@@ -191,7 +202,7 @@ export function BookingForm({
       {/* Price breakdown */}
       {nights > 0 && (
         <dl className="mt-4 space-y-1.5 border-t border-shell pt-4 text-[13px]">
-          <Row label={`${nights} ${nights === 1 ? 'noite' : 'noites'} × ${formatCVE(pricePerNight)}`} value={formatCVE(subtotal)} />
+          <Row label={`${nights} ${unit(nights)} × ${formatCVE(pricePerNight)}`} value={formatCVE(subtotal)} />
           {cleaningFee > 0 && <Row label="Taxa de limpeza" value={formatCVE(cleaningFee)} />}
           <Row label="Total" value={formatCVE(total)} bold />
         </dl>

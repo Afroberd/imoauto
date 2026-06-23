@@ -312,6 +312,7 @@ export default async function ListingDetailPage({
             <div className="mt-4">
               <BookingForm
                 listingId={l.id}
+                kind={l.kind}
                 pricePerNight={l.price_cve}
                 cleaningFee={a.cleaning_fee_cve ?? 0}
                 minNights={a.min_nights ?? 1}

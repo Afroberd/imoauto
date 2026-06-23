@@ -1,9 +1,11 @@
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { signOut } from '@/app/actions/auth'
+import { getUnreadCount } from '@/app/actions/notifications'
 import { Wordmark } from '@/components/wordmark'
 import { PlusIcon, HeartIcon, MessageIcon, CalendarIcon } from '@/components/icons'
 import { MobileNav } from '@/components/mobile-nav'
+import { NotificationBell } from '@/components/notification-bell'
 
 const baseLinks = [
   { href: '/listings', label: 'Anúncios' },
@@ -32,6 +34,8 @@ export async function SiteHeader() {
   const {
     data: { user },
   } = await supabase.auth.getUser()
+
+  const unread = user ? await getUnreadCount() : 0
 
   return (
     <header className="sticky top-0 z-30 border-b border-shell/70 bg-paper/85 backdrop-blur">
@@ -73,6 +77,7 @@ export async function SiteHeader() {
                   className="inline-flex items-center rounded-full px-3 py-2 text-text-2 transition-colors hover:bg-shell-soft hover:text-ink">
                   <CalendarIcon className="h-4 w-4" />
                 </Link>
+                <NotificationBell userId={user.id} initialUnread={unread} />
                 <Link href="/dashboard"
                   className="rounded-full px-3 py-2 text-text-2 transition-colors hover:bg-shell-soft hover:text-ink">
                   Dashboard
@@ -106,7 +111,12 @@ export async function SiteHeader() {
             )}
           </nav>
 
-          {/* Mobile: hamburger menu */}
+          {/* Mobile: notification bell + hamburger menu */}
+          {user && (
+            <div className="md:hidden">
+              <NotificationBell userId={user.id} initialUnread={unread} />
+            </div>
+          )}
           <MobileNav
             loggedIn={!!user}
             baseLinks={baseLinks}
