@@ -8,8 +8,9 @@ export type VerificationResult =
   | { ok: false; error: 'unauthenticated' | string }
 
 /**
- * Submit or update the current user's verification record. The MVP auto-verifies
- * (sets verified_at = now()) — a real review queue is future work.
+ * Submit or update the current user's verification record. Submissions enter the
+ * review queue as `pending` (verified_at stays null) until an admin approves them
+ * in /admin/verificacoes. Any edit re-opens review.
  */
 export async function submitVerification(input: {
   idType: 'bi' | 'passport'
@@ -40,7 +41,11 @@ export async function submitVerification(input: {
         driver_license_number: input.driverLicenseNumber?.trim() || null,
         driver_license_photo_url: input.driverLicensePhotoUrl ?? null,
         phone: input.phone?.trim() || null,
-        verified_at: new Date().toISOString(),
+        status: 'pending',
+        verified_at: null,
+        rejection_reason: null,
+        reviewed_by: null,
+        reviewed_at: null,
         updated_at: new Date().toISOString(),
       },
       { onConflict: 'user_id' },

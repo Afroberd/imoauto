@@ -15,6 +15,8 @@ interface Props {
     driver_license_photo_url: string | null
     phone: string | null
     verified_at: string | null
+    status?: 'pending' | 'approved' | 'rejected' | null
+    rejection_reason?: string | null
   } | null
 }
 
@@ -88,13 +90,28 @@ export function VerificationForm({ userId, existing }: Props) {
     })
   }
 
-  const verified = !!existing?.verified_at
+  const status: 'pending' | 'approved' | 'rejected' | null =
+    existing?.status ?? (existing?.verified_at ? 'approved' : existing ? 'pending' : null)
 
   return (
     <div className="space-y-6">
-      {verified && (
+      {status === 'approved' && (
         <div className="rounded-[var(--radius-card)] border border-green-200 bg-green-50 p-4 text-sm text-green-800">
           ✓ A tua identidade está verificada. Podes atualizar os dados em qualquer momento.
+        </div>
+      )}
+      {status === 'pending' && (
+        <div className="rounded-[var(--radius-card)] border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
+          ⏳ A tua identidade está <strong>em análise</strong>. Avisamos-te assim que for aprovada — normalmente é rápido.
+        </div>
+      )}
+      {status === 'rejected' && (
+        <div className="rounded-[var(--radius-card)] border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+          <p>✕ A tua verificação foi <strong>rejeitada</strong>.</p>
+          {existing?.rejection_reason && (
+            <p className="mt-1">Motivo: {existing.rejection_reason}</p>
+          )}
+          <p className="mt-1">Corrige os dados/foto e reenvia para nova análise.</p>
         </div>
       )}
 
@@ -153,11 +170,21 @@ export function VerificationForm({ userId, existing }: Props) {
       </section>
 
       {error && <p className="text-[13px] text-red-600">{error}</p>}
-      {success && <p className="text-[13px] text-green-700">Identidade guardada com sucesso.</p>}
+      {success && (
+        <p className="text-[13px] text-green-700">
+          Submetido com sucesso. A tua identidade ficou em análise.
+        </p>
+      )}
 
       <button onClick={handleSubmit} disabled={isPending || !!uploading}
         className="w-full rounded-full bg-ink px-5 py-3 text-sm font-medium text-paper transition-colors hover:bg-ink-deep disabled:opacity-50 sm:w-auto">
-        {isPending ? 'A guardar…' : verified ? 'Atualizar identidade' : 'Confirmar identidade'}
+        {isPending
+          ? 'A enviar…'
+          : status === 'approved'
+            ? 'Atualizar identidade'
+            : status === 'rejected'
+              ? 'Reenviar para análise'
+              : 'Confirmar identidade'}
       </button>
     </div>
   )

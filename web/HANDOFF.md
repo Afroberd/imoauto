@@ -33,6 +33,9 @@ nova sem perder contexto. (O site está 100% funcional em produção.)
 001–006 (base) · 007 favorites (recriada na 012) · 008 mensagens ·
 009 bookings · 010 reviews · 011 plataforma reservas (payments, verifications,
 listings settings, bucket verifications) · 012 favorites+notifications.
+**013 admin_verifications — POR APLICAR** (admins table + is_admin() +
+guest_verifications.status/rejection_reason/reviewed_by/reviewed_at + RLS admin +
+seed admin por email). É aditiva e idempotente; segura de correr na BD live.
 Há um PHASE_5_COMPLETE.sql idempotente. **Forma de aplicar SQL:** colar no SQL
 editor do Supabase (o user faz Ctrl+A→Ctrl+V→Run). Migrations são idempotentes.
 
@@ -47,8 +50,14 @@ editor do Supabase (o user faz Ctrl+A→Ctrl+V→Run). Migrations são idempoten
    ⚠️ Completar a fórmula da fingerprint em lib/payments/vinti4.ts
    (buildFingerprint + verifyVinti4Response — estão isoladas com TODO).
 3. **Emails transacionais** (Resend) — ainda nenhum email é enviado.
-4. **Verificação de identidade real** — hoje auto-aprova; falta painel admin
-   para o user aprovar/rejeitar.
+4. **Verificação de identidade real** — ✅ CÓDIGO PRONTO (falta aplicar migração
+   013 + testar logado + deploy). Painel admin em /admin/verificacoes: lista
+   pedidos, vê fotos (signed URLs do bucket privado), aprova/rejeita com motivo.
+   submitVerification já NÃO auto-aprova — entra como 'pending'. Link "Admin" no
+   header só aparece a admins. Ordem de deploy: aplicar migração 013 ANTES de
+   fazer push (o código novo escreve colunas que a migração cria). Autentika
+   (identidade oficial do Estado CV via OIDC) avaliado como alternativa futura —
+   ver memória reference-autentika; adesão por email cxm@nosi.cv.
 5. **CRON_SECRET** no Vercel — o cron /api/cron/booking-transitions corre mas
    sem secret definido.
 6. **Reativar "Confirm email"** no Supabase Auth antes de abrir ao público.

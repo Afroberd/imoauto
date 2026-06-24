@@ -37,6 +37,20 @@ export async function SiteHeader() {
 
   const unread = user ? await getUnreadCount() : 0
 
+  let userIsAdmin = false
+  if (user) {
+    const { data: adminRow } = await supabase
+      .from('admins')
+      .select('user_id')
+      .eq('user_id', user.id)
+      .maybeSingle()
+    userIsAdmin = !!adminRow
+  }
+
+  const mobileLoggedInLinks = userIsAdmin
+    ? [...loggedInLinks, { href: '/admin', label: 'Admin' }]
+    : loggedInLinks
+
   return (
     <header className="sticky top-0 z-30 border-b border-shell/70 bg-paper/85 backdrop-blur">
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3 sm:px-5 sm:py-4">
@@ -82,6 +96,12 @@ export async function SiteHeader() {
                   className="rounded-full px-3 py-2 text-text-2 transition-colors hover:bg-shell-soft hover:text-ink">
                   Dashboard
                 </Link>
+                {userIsAdmin && (
+                  <Link href="/admin"
+                    className="rounded-full px-3 py-2 text-text-2 transition-colors hover:bg-shell-soft hover:text-ink">
+                    Admin
+                  </Link>
+                )}
                 <Link href="/my-listings"
                   className="hidden rounded-full px-3 py-2 text-text-2 transition-colors hover:bg-shell-soft hover:text-ink lg:inline-block">
                   Os meus
@@ -120,7 +140,7 @@ export async function SiteHeader() {
           <MobileNav
             loggedIn={!!user}
             baseLinks={baseLinks}
-            loggedInLinks={loggedInLinks}
+            loggedInLinks={mobileLoggedInLinks}
             loggedOutLinks={loggedOutLinks}
           />
         </div>
