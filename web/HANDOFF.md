@@ -50,13 +50,14 @@ editor do Supabase (o user faz Ctrl+A→Ctrl+V→Run). Migrations são idempoten
    ⚠️ Completar a fórmula da fingerprint em lib/payments/vinti4.ts
    (buildFingerprint + verifyVinti4Response — estão isoladas com TODO).
 3. **Emails transacionais** (Resend) — ainda nenhum email é enviado.
-4. **Verificação de identidade real** — ✅ CÓDIGO PRONTO (falta aplicar migração
-   013 + testar logado + deploy). Painel admin em /admin/verificacoes: lista
-   pedidos, vê fotos (signed URLs do bucket privado), aprova/rejeita com motivo.
-   submitVerification já NÃO auto-aprova — entra como 'pending'. Link "Admin" no
-   header só aparece a admins. Ordem de deploy: aplicar migração 013 ANTES de
-   fazer push (o código novo escreve colunas que a migração cria). Autentika
-   (identidade oficial do Estado CV via OIDC) avaliado como alternativa futura —
+4. **Verificação de identidade real** — ✅ FEITO E NO AR (migração 013 aplicada,
+   deployed, testado logado em 2026-06-24). Painel admin em /admin/verificacoes:
+   lista pedidos, vê fotos (signed URLs do bucket privado), aprova/rejeita com
+   motivo. submitVerification já NÃO auto-aprova — entra como 'pending'. Link
+   "Admin" no header só aparece a admins. Admin = afroberd@gmail.com (login do
+   site; ≠ yanickdrs). Tabela `admins`; para adicionar admin ver migração 013.
+   FALTA testar o ciclo completo (submeter → aprovar/rejeitar) com um pedido real.
+   Autentika (identidade oficial do Estado CV via OIDC) = alternativa futura —
    ver memória reference-autentika; adesão por email cxm@nosi.cv.
 5. **CRON_SECRET** no Vercel — o cron /api/cron/booking-transitions corre mas
    sem secret definido.

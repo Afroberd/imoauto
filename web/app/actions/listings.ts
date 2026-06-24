@@ -20,6 +20,19 @@ export type SaveListingResult =
 /** Anti-spam: maximum listings a single account may hold at once. */
 const MAX_LISTINGS_PER_USER = 25
 
+/** Has this user an approved identity verification? Gate for daily rentals. */
+async function isUserVerified(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  userId: string,
+): Promise<boolean> {
+  const { data } = await supabase
+    .from('guest_verifications')
+    .select('verified_at')
+    .eq('user_id', userId)
+    .maybeSingle()
+  return !!(data && (data as { verified_at: string | null }).verified_at)
+}
+
 function isKind(v: string): v is ListingKind {
   return (LISTING_KINDS as readonly string[]).includes(v)
 }
@@ -213,6 +226,11 @@ export async function createListing(input: ListingInput): Promise<SaveListingRes
   const v = validate(input)
   if (!v.ok) return v
 
+  // Daily rentals: only verified hosts may publish houses/cars for the night.
+  if (input.purpose === 'rent_daily' && !(await isUserVerified(supabase, user.id))) {
+    return { ok: false, error: 'unverified' }
+  }
+
   // Anti-spam: cap how many listings one account can hold.
   const { count } = await supabase
     .from('listings')
@@ -247,6 +265,11 @@ export async function updateListing(
 
   const v = validate(input)
   if (!v.ok) return v
+
+  // Switching a listing to daily rental also requires a verified host.
+  if (input.purpose === 'rent_daily' && !(await isUserVerified(supabase, user.id))) {
+    return { ok: false, error: 'unverified' }
+  }
 
   const { error } = await supabase
     .from('listings')

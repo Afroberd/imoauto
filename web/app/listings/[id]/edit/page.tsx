@@ -1,5 +1,6 @@
 import { redirect, notFound } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
+import { isCurrentUserVerified } from '@/app/actions/verification'
 import { ListingWizard } from '@/app/listings/new/listing-wizard'
 import type { Listing } from '@/lib/listings/types'
 import type { WizardData } from '@/components/wizard/fields'
@@ -28,6 +29,8 @@ export default async function EditListingPage({
   if (!listing) notFound()
   const l = listing as Listing
   if (l.owner_id !== user.id) notFound() // only the owner can edit
+
+  const isVerified = await isCurrentUserVerified()
 
   // Flatten listing + attributes into the wizard's flat data record.
   const data: WizardData = {
@@ -66,6 +69,7 @@ export default async function EditListingPage({
           mode="edit"
           listingId={l.id}
           initial={{ kind: l.kind, purpose: l.purpose, data }}
+          isVerified={isVerified}
         />
       </section>
     </main>

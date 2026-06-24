@@ -1,6 +1,7 @@
 'use client'
 
 import { useMemo, useState, useTransition } from 'react'
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import {
@@ -58,11 +59,13 @@ export function ListingWizard({
   mode,
   listingId,
   initial,
+  isVerified,
 }: {
   userId: string
   mode: Mode
   listingId?: string
   initial?: Initial
+  isVerified: boolean
 }) {
   const router = useRouter()
   const [kind, setKind] = useState<ListingKind | null>(initial?.kind ?? null)
@@ -92,6 +95,8 @@ export function ListingWizard({
     if (step === 'tipo') {
       if (!kind) return 'Escolhe imóvel ou automóvel.'
       if (!purpose) return 'Escolhe a finalidade.'
+      if (purpose === 'rent_daily' && !isVerified)
+        return 'Para publicar aluguer diário precisas de verificar a tua identidade primeiro.'
     }
     if (step === 'basico') {
       if (((data.title as string) ?? '').trim().length < 3)
@@ -152,7 +157,10 @@ export function ListingWizard({
     if (mode === 'edit' && listingId) {
       setPhase({ name: 'submitting' })
       const res = await updateListing(listingId, input)
-      if (!res.ok) { setPhase({ name: 'error', message: res.error }); return }
+      if (!res.ok) {
+        if (res.error === 'unverified') { router.push('/verificacao'); return }
+        setPhase({ name: 'error', message: res.error }); return
+      }
       router.push(`/listings/${listingId}`)
       router.refresh()
       return
@@ -161,7 +169,10 @@ export function ListingWizard({
     // create
     setPhase({ name: 'submitting' })
     const res = await createListing(input)
-    if (!res.ok) { setPhase({ name: 'error', message: res.error }); return }
+    if (!res.ok) {
+      if (res.error === 'unverified') { router.push('/verificacao'); return }
+      setPhase({ name: 'error', message: res.error }); return
+    }
     const newId = res.listingId
 
     if (files.length > 0) {
@@ -239,7 +250,7 @@ export function ListingWizard({
       <div className="min-h-[280px]">
         {step === 'tipo' && (
           <StepTipo
-            kind={kind} purpose={purpose}
+            kind={kind} purpose={purpose} isVerified={isVerified}
             onKind={(k) => { setKind(k); setPurpose(null) }}
             onPurpose={setPurpose}
           />
@@ -346,10 +357,11 @@ function stepName(s: string): string {
 
 /* — Step 1: Tipo — */
 function StepTipo({
-  kind, purpose, onKind, onPurpose,
+  kind, purpose, isVerified, onKind, onPurpose,
 }: {
   kind: ListingKind | null
   purpose: ListingPurpose | null
+  isVerified: boolean
   onKind: (k: ListingKind) => void
   onPurpose: (p: ListingPurpose) => void
 }) {
@@ -397,6 +409,22 @@ function StepTipo({
               </button>
             ))}
           </div>
+        </div>
+      )}
+
+      {purpose === 'rent_daily' && !isVerified && (
+        <div className="rounded-[var(--radius-card)] border border-amber-200 bg-amber-50 p-4 text-sm">
+          <p className="font-medium text-amber-900">Verificação necessária</p>
+          <p className="mt-1 text-amber-800">
+            Para publicar <strong>aluguer diário</strong> (casas ou carros ao dia) precisas de ter
+            a identidade verificada. Faz-se uma vez só e protege quem aluga e quem publica.
+          </p>
+          <Link
+            href="/verificacao"
+            className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-ink px-4 py-2 text-[13px] font-medium text-paper transition-colors hover:bg-ink-deep"
+          >
+            Verificar identidade →
+          </Link>
         </div>
       )}
     </div>

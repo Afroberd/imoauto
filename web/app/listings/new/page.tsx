@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
+import { isCurrentUserVerified } from '@/app/actions/verification'
 import { ListingWizard } from './listing-wizard'
 
 export default async function NewListingPage() {
@@ -8,6 +9,8 @@ export default async function NewListingPage() {
     data: { user },
   } = await supabase.auth.getUser()
   if (!user) redirect('/login?next=/listings/new')
+
+  const isVerified = await isCurrentUserVerified()
 
   return (
     <main className="bg-paper">
@@ -27,7 +30,7 @@ export default async function NewListingPage() {
         </div>
       </section>
       <section className="mx-auto max-w-3xl px-4 py-8 sm:px-5 sm:py-12">
-        <ListingWizard userId={user.id} mode="create" />
+        <ListingWizard userId={user.id} mode="create" isVerified={isVerified} />
       </section>
     </main>
   )
