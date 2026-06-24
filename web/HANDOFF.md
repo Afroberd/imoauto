@@ -54,13 +54,17 @@ editor do Supabase (o user faz Ctrl+A→Ctrl+V→Run). Migrations são idempoten
    `VINTI4_POS_AUTH_CODE`, `VINTI4_GATEWAY_URL` + **manual de integração SISP**.
    ⚠️ Completar a fórmula da fingerprint em lib/payments/vinti4.ts
    (buildFingerprint + verifyVinti4Response — estão isoladas com TODO).
-3. **Emails transacionais** (Resend) — ✅ SISTEMA CONSTRUÍDO (lib/email/resend.ts
-   + template.ts + rota /api/webhooks/notification-email). Cada notificação do
-   sino dispara um email (mesmo título/corpo/link). Ativa por env vars no Vercel:
-   RESEND_API_KEY, EMAIL_FROM, NOTIFICATION_WEBHOOK_SECRET. FALTA (setup do user):
-   criar conta Resend + chave; verificar domínio imoauto.cv (ou testar com
-   onboarding@resend.dev p/ o próprio email); criar Database Webhook no Supabase
-   (tabela notifications, INSERT → POST à rota com header x-webhook-secret).
+3. **Emails transacionais** (Resend) — ✅ A FUNCIONAR (pipeline confirmado:
+   notificação → email recebido). lib/email/resend.ts + template.ts + rota
+   /api/webhooks/notification-email. Env vars no Vercel (RESEND_API_KEY,
+   EMAIL_FROM, NOTIFICATION_WEBHOOK_SECRET) ✅ + Database Webhook no Supabase
+   (notifications INSERT → POST à rota, header x-webhook-secret) ✅.
+   **FALTA p/ produção: verificar o domínio imoauto.cv no Resend** (Resend →
+   Domains → add imoauto.cv → adicionar registos DNS). Enquanto não estiver:
+   (a) emails caem no SPAM; (b) modo teste só entrega ao email da conta Resend
+   (afroberd@gmail.com) — outros users não recebem. Depois de verificar, mudar
+   EMAIL_FROM para noreply@imoauto.cv. Nota: submeter verificação só notifica
+   ADMINS; o utilizador só é notificado quando aprovada/rejeitada (by design).
 4. **Verificação de identidade real** — ✅ FEITO E NO AR (migração 013 aplicada,
    deployed, testado logado em 2026-06-24). Painel admin em /admin/verificacoes:
    lista pedidos, vê fotos (signed URLs do bucket privado), aprova/rejeita com
