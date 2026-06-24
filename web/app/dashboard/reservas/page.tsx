@@ -5,6 +5,7 @@ import { BookingActions } from '@/components/booking-actions'
 import { PaymentOptions } from '@/components/payment-options'
 import { HouseIcon, CarIcon, CalendarIcon } from '@/components/icons'
 import { STRIPE_ENABLED } from '@/lib/payments/stripe'
+import { VINTI4_ENABLED } from '@/lib/payments/vinti4'
 
 export const dynamic = 'force-dynamic'
 
@@ -97,10 +98,8 @@ function GuestBookingCard({ b }: { b: DashboardBooking }) {
               <PaymentOptions
                 bookingId={b.id}
                 totalCve={b.total_cve - b.paid_amount_cve}
-                payoutIban={b.payout_iban}
-                payoutHolderName={b.payout_holder_name}
-                payoutInstructions={b.payout_instructions}
                 stripeEnabled={STRIPE_ENABLED}
+                vinti4Enabled={VINTI4_ENABLED}
               />
             </div>
           )}
