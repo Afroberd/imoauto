@@ -24,7 +24,7 @@ nova sem perder contexto. (O site está 100% funcional em produção.)
 - Verificação de identidade (/verificacao) — fila de revisão manual: entra
   'pending', admin aprova/rejeita em /admin/verificacoes. Publicar aluguer
   diário (rent_daily, imóvel/carro) exige estar verificado. Notifica admin
-  (novo pedido) e user (aprovado/rejeitado) via sino — após migração 014.
+  (novo pedido) e user (aprovado/rejeitado) via sino 🔔.
 - Avaliações (estrelas) + agregados em listings
 - Notificações: sino 🔔 no header, painel, realtime, triggers automáticos
 - Mobile: hamburger + responsivo
@@ -38,9 +38,9 @@ nova sem perder contexto. (O site está 100% funcional em produção.)
 listings settings, bucket verifications) · 012 favorites+notifications ·
 **013 admin_verifications APLICADA** (admins + is_admin() + status/rejection_reason/
 reviewed_by/reviewed_at em guest_verifications + RLS admin; admin=afroberd@gmail.com).
-**014 verification_notifications — POR APLICAR** (trigger notify_verification:
+**014 verification_notifications APLICADA** (trigger notify_verification:
 avisa admins quando há nova verificação pendente; avisa o user quando aprovada/
-rejeitada). Aditiva e idempotente; precisa da 013.
+rejeitada).
 Há um PHASE_5_COMPLETE.sql idempotente. **Forma de aplicar SQL:** colar no SQL
 editor do Supabase (o user faz Ctrl+A→Ctrl+V→Run). Migrations são idempotentes.
 
@@ -63,7 +63,7 @@ editor do Supabase (o user faz Ctrl+A→Ctrl+V→Run). Migrations são idempoten
    site; ≠ yanickdrs). Tabela `admins`; para adicionar admin ver migração 013.
    Publicar aluguer diário (rent_daily) exige verificação (createListing/
    updateListing + wizard). Notificações via migração 014 (admin no novo pedido;
-   user na aprovação/rejeição). FALTA: aplicar 014 + testar ciclo+notificações.
+   user na aprovação/rejeição) — APLICADA. Tarefa fechada.
    Autentika (identidade oficial do Estado CV via OIDC) = alternativa futura —
    ver memória reference-autentika; adesão por email cxm@nosi.cv.
 5. **CRON_SECRET** no Vercel — o cron /api/cron/booking-transitions corre mas
