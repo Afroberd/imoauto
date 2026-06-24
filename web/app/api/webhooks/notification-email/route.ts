@@ -47,10 +47,19 @@ export async function POST(req: Request) {
     .maybeSingle()
 
   const to = (prof as { email?: string } | null)?.email
-  if (!to) return NextResponse.json({ skipped: 'no_email' })
+  if (!to) {
+    console.log('[notif-email] no_email for user_id', record.user_id)
+    return NextResponse.json({ skipped: 'no_email' })
+  }
 
   const html = renderEmail({ title: record.title, body: record.body, link: record.link })
   const result = await sendEmail({ to, subject: record.title, html })
+
+  if (result.ok) {
+    console.log('[notif-email] sent OK to', to)
+  } else {
+    console.error('[notif-email] FAILED to', to, '->', result.error)
+  }
 
   return NextResponse.json({ sent: result.ok, ...(result.ok ? {} : { error: result.error }) })
 }
