@@ -57,6 +57,11 @@ export function SiteFooter() {
       <div className="border-t border-shell/70">
         <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-5 py-5 text-xs text-text-3">
           <span>© {new Date().getFullYear()} Imo·auto · Cabo Verde</span>
+          <nav className="flex flex-wrap items-center gap-x-4 gap-y-1">
+            <Link href="/termos" className="hover:text-ink">Termos</Link>
+            <Link href="/privacidade" className="hover:text-ink">Privacidade</Link>
+            <Link href="/contacto" className="hover:text-ink">Contacto</Link>
+          </nav>
           <span className="font-mono tnum tracking-tighter">
             14°55′N · 23°31′W
           </span>

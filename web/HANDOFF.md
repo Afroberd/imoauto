@@ -28,6 +28,9 @@ nova sem perder contexto. (O site está 100% funcional em produção.)
 - Avaliações (estrelas) + agregados em listings
 - Notificações: sino 🔔 no header, painel, realtime, triggers automáticos
 - Mobile: hamburger + responsivo
+- Páginas legais: /termos, /privacidade, /contacto (links no rodapé). São
+  modelos PT a rever por advogado. ⚠️ /contacto tem email/WhatsApp PLACEHOLDER
+  (geral@imoauto.cv, +238 000…) — trocar pelos reais em app/contacto/page.tsx.
 - Pagamentos: "Pagar na chegada" ativo; Cartão (Stripe) e Vinti4 prontos mas
   desativados até haver credenciais
 
@@ -80,6 +83,22 @@ editor do Supabase (o user faz Ctrl+A→Ctrl+V→Run). Migrations são idempoten
    sem secret definido.
 6. **Reativar "Confirm email"** no Supabase Auth antes de abrir ao público.
 7. **Limpar conta de teste** debug.imoauto.test@gmail.com (criada para debug).
+
+## Análise de prontidão p/ lançamento (2026-06-24)
+
+O site são 2 produtos colados: **A) Classificados tipo OLX** (venda/aluguer
+mensal, contacto direto — quase pronto, não precisa de verificação nem emails)
+e **B) Reservas tipo Booking** (aluguer diário, calendário, verificação — tem
+atrito). Riscos/lógica a resolver antes de abrir ao público:
+- **Gargalo da verificação:** publicar/reservar diário exige verificação MANUAL
+  e o email de aprovação não chega (domínio). Decisão pendente do user: auto-
+  aprovar no lançamento / manter manual / tirar. (Mudança ~5 min quando decidir.)
+- **Emails off para todos exceto afroberd** até verificar o domínio (ver #3).
+- **Confirm email desligado** (#6) → registo com email de outrem.
+- **Cold start:** homepage só mostra anúncios se existirem — é preciso semear
+  anúncios reais antes de abrir.
+- Páginas legais ✅ feitas hoje (rever c/ advogado + trocar placeholders contacto).
+- Sem monitorização de erros em produção.
 
 ## Regras importantes (ver memória)
 
