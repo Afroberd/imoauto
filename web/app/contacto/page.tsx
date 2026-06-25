@@ -5,10 +5,9 @@ export const metadata: Metadata = {
   description: 'Fala com a equipa do IMOAUTO.',
 }
 
-// ⚠️ Confirma/troca estes contactos pelos reais do IMOAUTO.
-const SUPPORT_EMAIL = 'geral@imoauto.cv'
-const SUPPORT_WHATSAPP = '+238 000 00 00' // número de WhatsApp/telefone
-const WHATSAPP_DIGITS = '238' // só dígitos, para o link wa.me (ex: 238XXXXXXX)
+const SUPPORT_EMAIL = 'afroberd@gmail.com'
+const SUPPORT_WHATSAPP = '+238 937 20 69' // número de WhatsApp/telefone
+const WHATSAPP_DIGITS = '2389372069' // só dígitos, para o link wa.me
 
 export default function ContactoPage() {
   return (
