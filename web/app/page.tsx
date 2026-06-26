@@ -148,15 +148,15 @@ export default async function Home() {
           <div>
             <div className="flex items-center gap-3 text-[12px] uppercase tracking-[0.22em] text-paper/70">
               <span className="h-px w-8 bg-coral" />
-              Atlântico, sem comissões
+              Anunciar é grátis
             </div>
             <h2 className="mt-3 font-display text-4xl font-medium leading-[1.05] tracking-[-0.022em] text-paper sm:text-5xl">
               Anuncia hoje.<br />
               <span className="italic text-coral">Sem intermediários.</span>
             </h2>
             <p className="mt-4 max-w-md text-paper/75">
-              Contacta diretamente quem procura. Publicar é gratuito, sem comissões
-              do IMOAUTO sobre as tuas transações.
+              Contacta diretamente quem procura. Publicar o teu anúncio é totalmente
+              gratuito.
             </p>
           </div>
           <div className="flex flex-col gap-3 md:items-end">

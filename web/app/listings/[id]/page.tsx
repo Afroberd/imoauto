@@ -303,7 +303,7 @@ export default async function ListingDetailPage({
             </div>
 
             <p className="mt-4 text-[12px] leading-relaxed text-text-3">
-              Contacto direto. Sem comissões intermédias do IMOAUTO.
+              Contacto direto com o anunciante.
             </p>
           </div>
 

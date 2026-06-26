@@ -26,9 +26,11 @@ export default function TermosPage() {
           <p>
             O IMOAUTO é uma plataforma online que liga quem anuncia imóveis e automóveis
             (para venda ou aluguer) a quem procura, em todas as ilhas de Cabo Verde.
-            Somos apenas o intermediário tecnológico: os negócios são feitos diretamente
-            entre os utilizadores. O IMOAUTO <strong>não é parte</strong> de nenhuma compra,
-            venda, arrendamento ou reserva, e não cobra comissões sobre as transações.
+            <strong> Publicar anúncios é gratuito.</strong> Para venda e aluguer mensal, o
+            IMOAUTO é apenas o intermediário tecnológico e o negócio é feito diretamente
+            entre as partes. Para o aluguer diário, o IMOAUTO disponibiliza a reserva e o
+            pagamento online e cobra uma comissão de serviço sobre o valor da reserva
+            (ver ponto 4).
           </p>
         </Block>
 
@@ -56,10 +58,14 @@ export default function TermosPage() {
 
         <Block n="4" title="Reservas e pagamentos">
           <p>
-            Para aluguer diário, o IMOAUTO disponibiliza um sistema de reservas e um registo de
-            pagamentos. O pagamento pode ser combinado entre as partes (por exemplo, na chegada).
-            O IMOAUTO não guarda dados de cartão e não é responsável por pagamentos feitos fora
-            da plataforma. Cancelamentos e reembolsos seguem a política indicada em cada anúncio.
+            No aluguer diário, a reserva é confirmada e <strong>paga online através da
+            plataforma</strong>, por Vinti4 ou cartão (Visa/Mastercard). O IMOAUTO não guarda
+            dados de cartão — o pagamento é processado por fornecedores certificados.
+          </p>
+          <p>
+            Sobre cada reserva paga, o IMOAUTO retém uma <strong>comissão de serviço de 10%</strong>{' '}
+            do valor da reserva; o restante é transferido para o anunciante. Cancelamentos e
+            reembolsos seguem a política indicada em cada anúncio.
           </p>
         </Block>
 

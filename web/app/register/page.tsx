@@ -62,7 +62,7 @@ export default async function RegisterPage({
             <ol className="mt-8 space-y-4 text-paper/85">
               <Bullet num="01" text="Cria conta — email + password ou Google." />
               <Bullet num="02" text="Publica o teu imóvel ou automóvel, com fotos." />
-              <Bullet num="03" text="Recebe contactos diretos, sem comissões." />
+              <Bullet num="03" text="Recebe contactos diretos de quem procura." />
             </ol>
           </div>
 
