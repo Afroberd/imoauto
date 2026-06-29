@@ -4,7 +4,10 @@
  * (title/body/link) into a clean IMOAUTO-styled message.
  */
 
-const SITE_URL = 'https://www.imoauto.cv'
+// Domínio público do site. Enquanto o imoauto.cv estiver expirado, usamos o
+// vercel.app. Define NEXT_PUBLIC_SITE_URL no Vercel p/ apontar de volta ao .cv.
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://imoauto.vercel.app'
+const SITE_HOST = SITE_URL.replace(/^https?:\/\//, '')
 
 function absoluteUrl(link: string | null | undefined): string | null {
   if (!link) return null
@@ -63,7 +66,7 @@ export function renderEmail(opts: {
                   Recebeste este email porque tens conta no IMOAUTO — o marketplace de
                   imóveis e automóveis de Cabo Verde.
                   <br />
-                  <a href="${SITE_URL}" style="color:#9a968d;">www.imoauto.cv</a>
+                  <a href="${SITE_URL}" style="color:#9a968d;">${SITE_HOST}</a>
                 </p>
               </td>
             </tr>
