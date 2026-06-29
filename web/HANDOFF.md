@@ -1,7 +1,18 @@
 # IMOAUTO — Estado do projeto (handoff)
 
-Última atualização: 2026-06-24. Documento para retomar o trabalho numa sessão
+Última atualização: 2026-06-29. Documento para retomar o trabalho numa sessão
 nova sem perder contexto. (O site está 100% funcional em produção.)
+
+**Feito em 2026-06-29:** domínio imoauto.cv expirou e foi RENOVADO (1 ano; auto-
+renew a confirmar) · SEO/Open Graph + sitemap + robots · páginas legais +
+entidade (Afro-Berdiano Image, NIF 285307002) · CRON_SECRET definido no Vercel ·
+conta de teste debug.imoauto.test APAGADA · "Pagar na chegada" removido (mostra
+"pagamento online em breve" até Vinti4 estar vivo) · decidido Vinti4-only (sem
+Stripe). Falta: verificar domínio no Resend (emails p/ todos) → depois SMTP no
+Supabase → depois reativar Confirm email; Vinti4 (SISP em curso); comissão 10%
+na lógica; política de verificação (ver baixo). Browser do user ligado via
+extensão Claude-in-Chrome (consigo conduzir Supabase/Vercel/Namecheap logados;
+SQL sim, segredos não).
 
 ## Onde está
 
