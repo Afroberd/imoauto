@@ -1,3 +1,4 @@
+import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
@@ -30,6 +31,41 @@ function buildWhatsAppLink(phone: string, listingTitle: string): string {
 }
 
 export const dynamic = 'force-dynamic'
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>
+}): Promise<Metadata> {
+  const { id } = await params
+  const supabase = await createClient()
+  const { data } = await supabase
+    .from('listings')
+    .select('title, description, price_cve, purpose, cover_image_url')
+    .eq('id', id)
+    .maybeSingle()
+  if (!data) return { title: 'Anúncio — IMOAUTO' }
+  const l = data as {
+    title: string
+    description: string | null
+    price_cve: number
+    purpose: string
+    cover_image_url: string | null
+  }
+  const suffix = priceSuffix(l.purpose)
+  const price = formatCVE(l.price_cve) + (suffix ? ` ${suffix}` : '')
+  const title = `${l.title} · ${price} · IMOAUTO`
+  const description = (
+    l.description?.trim() || `${purposeLabel(l.purpose)} em Cabo Verde no IMOAUTO.`
+  ).slice(0, 200)
+  const images = l.cover_image_url ? [l.cover_image_url] : undefined
+  return {
+    title,
+    description,
+    openGraph: { title, description, type: 'website', images },
+    twitter: { card: 'summary_large_image', title, description, images },
+  }
+}
 
 export default async function ListingDetailPage({
   params,

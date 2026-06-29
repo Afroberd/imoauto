@@ -31,10 +31,28 @@ const mono = JetBrains_Mono({
   display: 'swap',
 })
 
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.imoauto.cv'
+const SITE_TITLE = 'IMOAUTO — Imóveis e Automóveis em Cabo Verde'
+const SITE_DESC =
+  'O marketplace atlântico para comprar, vender e alugar imóveis e automóveis em Cabo Verde.'
+
 export const metadata: Metadata = {
-  title: 'IMOAUTO — Imóveis e Automóveis em Cabo Verde',
-  description:
-    'O marketplace atlântico para comprar, vender e alugar imóveis e automóveis em Cabo Verde.',
+  metadataBase: new URL(SITE_URL),
+  title: SITE_TITLE,
+  description: SITE_DESC,
+  openGraph: {
+    type: 'website',
+    siteName: 'IMOAUTO',
+    locale: 'pt_PT',
+    url: SITE_URL,
+    title: SITE_TITLE,
+    description: SITE_DESC,
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: SITE_TITLE,
+    description: SITE_DESC,
+  },
 }
 
 export default function RootLayout({
