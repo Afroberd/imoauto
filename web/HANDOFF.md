@@ -28,6 +28,9 @@ nova sem perder contexto. (O site está 100% funcional em produção.)
 - Avaliações (estrelas) + agregados em listings
 - Notificações: sino 🔔 no header, painel, realtime, triggers automáticos
 - Mobile: hamburger + responsivo
+- SEO/partilha: Open Graph + Twitter card (layout), imagem OG dinâmica
+  (app/opengraph-image.tsx), generateMetadata por anúncio (partilha mostra foto
+  de capa + preço), sitemap.ts + robots.ts. SITE_URL via NEXT_PUBLIC_SITE_URL.
 - Páginas legais: /termos, /privacidade, /contacto (links no rodapé). São
   modelos PT a rever por advogado. ⚠️ /contacto tem email/WhatsApp PLACEHOLDER
   (geral@imoauto.cv, +238 000…) — trocar pelos reais em app/contacto/page.tsx.
