@@ -22,6 +22,16 @@ export default function PrivacidadePage() {
       </section>
 
       <section className="mx-auto max-w-3xl space-y-8 px-5 py-10 sm:py-12">
+        <p className="text-[15px] leading-relaxed text-text-2">
+          Os teus dados são tratados por <strong>Afro-Berdiano Image, Sociedade Unipessoal,
+          Lda</strong> (NIF 285307002), com sede em Palmarejo, Praia, Cabo Verde — a entidade
+          que opera o IMOAUTO e é responsável pelo tratamento dos teus dados pessoais.
+          Contacto:{' '}
+          <a href="mailto:afroberd@gmail.com" className="text-ink underline underline-offset-2">
+            afroberd@gmail.com
+          </a>.
+        </p>
+
         <Block n="1" title="Que dados recolhemos">
           <ul className="list-disc space-y-1.5 pl-5">
             <li><strong>Conta:</strong> nome, email e (se fornecida) palavra-passe ou login Google.</li>

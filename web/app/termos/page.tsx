@@ -22,6 +22,11 @@ export default function TermosPage() {
       </section>
 
       <section className="mx-auto max-w-3xl space-y-8 px-5 py-10 sm:py-12">
+        <p className="text-[15px] leading-relaxed text-text-2">
+          O IMOAUTO é um serviço operado por <strong>Afro-Berdiano Image, Sociedade
+          Unipessoal, Lda</strong> (NIF 285307002), com sede em Palmarejo, Praia, Cabo Verde.
+        </p>
+
         <Block n="1" title="O que é o IMOAUTO">
           <p>
             O IMOAUTO é uma plataforma online que liga quem anuncia imóveis e automóveis
