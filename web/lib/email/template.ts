@@ -4,9 +4,8 @@
  * (title/body/link) into a clean IMOAUTO-styled message.
  */
 
-// Domínio público do site. Enquanto o imoauto.cv estiver expirado, usamos o
-// vercel.app. Define NEXT_PUBLIC_SITE_URL no Vercel p/ apontar de volta ao .cv.
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://imoauto.vercel.app'
+// Domínio público do site (configurável por env var, com fallback ao .cv).
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.imoauto.cv'
 const SITE_HOST = SITE_URL.replace(/^https?:\/\//, '')
 
 function absoluteUrl(link: string | null | undefined): string | null {
