@@ -14,6 +14,47 @@ na lógica; política de verificação (ver baixo). Browser do user ligado via
 extensão Claude-in-Chrome (consigo conduzir Supabase/Vercel/Namecheap logados;
 SQL sim, segredos não).
 
+## ⏭️ PARA O PRÓXIMO CHAT — começa por aqui (estado 2026-06-29)
+
+**Como trabalhar:** o user é zero-code, responde em português, código em inglês.
+Testa SEMPRE logado no browser antes de dizer "feito". O **browser do user está
+ligado** via extensão Claude-in-Chrome → consegues conduzir Supabase/Vercel/
+Namecheap/Resend **logados** (SQL escreves tu; segredos/API keys/passwords cola
+o user). Cada push a `main` → deploy automático no Vercel. Mantém este HANDOFF +
+a memória atualizados.
+
+**Decisões já tomadas:**
+- Modelo: **Classificados (venda/aluguer mensal, grátis, contacto WhatsApp)** +
+  **Reservas pagas (aluguer diário, comissão 10% paga pelo anfitrião, online)**.
+- Pagamento online **só Vinti4** (cobre Vinti4+Visa+Mastercard) — Stripe abandonado.
+- Verificação de identidade: **manual** (admin revê). Autentika = futuro (ver
+  [[reference-autentika]] / email NOSi cxm@nosi.cv).
+- Entidade legal: **Afro-Berdiano Image, Unipessoal Lda, NIF 285307002** (dados +
+  IBAN + passaporte do Yanick na memória reference-business-identity).
+
+**EM CURSO (retomar):**
+1. **Resend (emails p/ todos):** domínio `imoauto.cv` já ADICIONADO no Resend.
+   Falta meter os registos DNS (DKIM TXT `resend._domainkey`, MX+TXT `send`,
+   talvez DMARC `_dmarc`) no Namecheap (Advanced DNS) → clicar Verify no Resend →
+   quando "Verified", mudar `EMAIL_FROM` no Vercel para `IMOAUTO <noreply@imoauto.cv>`.
+   (Os valores DKIM são longos; o filtro bloqueia lê-los — transferir por copy/paste.)
+2. **Vinti4/SISP:** user vai enviar à SISP a ficha (gerada em
+   Downloads/Ficha_Adesao_SISP_IMOAUTO_preenchida.docx) + contrato assinado +
+   Certidão + passaporte → recebe credenciais + manual → completar a fingerprint
+   em lib/payments/vinti4.ts + ativar (VINTI4_POS_ID/AUTH_CODE/GATEWAY_URL).
+
+**PENDENTE (não bloqueia classificados):**
+- Comissão 10% na lógica de reservas (anfitrião vê "recebes 90%") — código.
+- Reativar "Confirm email" no Supabase — só DEPOIS do Resend + SMTP do Resend no
+  Supabase (senão users ficam trancados por email não fiável).
+- Mais anúncios reais (cold start; ~13 hoje).
+- Auto-renew do domínio (tem 1 ano pago; baixo risco).
+- Polish: aceitar Termos no registo, monitorização de erros, analytics, filtro
+  por concelho + ordenação.
+
+**Para LANÇAR os classificados:** falta só reativar confirm-email (depende do
+Resend) + (opcional) mais anúncios. O resto (Vinti4/emails) é para as reservas.
+
 ## Onde está
 
 - **Produção:** https://www.imoauto.cv (domínio .cv ligado ao Vercel, SSL ok).
