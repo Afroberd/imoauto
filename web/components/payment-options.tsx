@@ -11,7 +11,7 @@ interface Props {
   vinti4Enabled: boolean
 }
 
-type Method = 'arrival' | 'card' | 'vinti4'
+type Method = 'card' | 'vinti4'
 
 function formatCVE(n: number): string {
   return n.toLocaleString('pt-PT') + ' CVE'
@@ -61,51 +61,36 @@ export function PaymentOptions({
         Escolhe a forma de pagamento.
       </p>
 
-      <div className="mt-3 space-y-2">
-        {/* Pagar na chegada — sempre disponível */}
-        <MethodCard
-          icon="🤝"
-          title="Pagar na chegada"
-          subtitle="Em dinheiro ou Vinti4 presencial, no check-in"
-          selected={selected === 'arrival'}
-          onClick={() => setSelected('arrival')}
-        />
+      {!stripeEnabled && !vinti4Enabled ? (
+        <div className="mt-3 rounded-xl border border-shell bg-white p-3 text-[13px] text-text-1">
+          💳 Pagamento online (Vinti4, Visa e Mastercard) <strong>em breve</strong>. A tua
+          reserva fica registada; combina os detalhes com o anfitrião pela área de mensagens.
+        </div>
+      ) : (
+        <div className="mt-3 space-y-2">
+          {/* Cartão (Stripe) */}
+          <MethodCard
+            icon="💳"
+            title="Cartão (Visa, Mastercard)"
+            subtitle={stripeEnabled ? 'Pagamento online seguro' : 'Em breve'}
+            selected={selected === 'card'}
+            onClick={() => setSelected('card')}
+            disabled={!stripeEnabled}
+          />
 
-        {/* Cartão (Stripe) */}
-        <MethodCard
-          icon="💳"
-          title="Cartão (Visa, Mastercard)"
-          subtitle={stripeEnabled ? 'Pagamento online seguro' : 'Em breve'}
-          selected={selected === 'card'}
-          onClick={() => setSelected('card')}
-          disabled={!stripeEnabled}
-        />
-
-        {/* Vinti4 */}
-        <MethodCard
-          icon="💴"
-          title="Vinti4"
-          subtitle={vinti4Enabled ? 'Cartão Vinti4 cabo-verdiano' : 'Em breve'}
-          selected={selected === 'vinti4'}
-          onClick={() => setSelected('vinti4')}
-          disabled={!vinti4Enabled}
-        />
-      </div>
-
-      {/* Painel do método escolhido */}
-      {selected === 'arrival' && (
-        <div className="mt-3 rounded-xl bg-white p-3 text-[13px] text-text-1">
-          <p>
-            Pagas diretamente ao anfitrião no momento do check-in — em dinheiro ou
-            Vinti4 presencial. A reserva fica confirmada; o anfitrião regista o
-            pagamento quando o receber.
-          </p>
-          <p className="mt-2 text-[12px] text-text-3">
-            Combina os detalhes com o anfitrião pela área de mensagens.
-          </p>
+          {/* Vinti4 — cobre Vinti4 + Visa + Mastercard */}
+          <MethodCard
+            icon="💴"
+            title="Vinti4"
+            subtitle={vinti4Enabled ? 'Vinti4, Visa e Mastercard' : 'Em breve'}
+            selected={selected === 'vinti4'}
+            onClick={() => setSelected('vinti4')}
+            disabled={!vinti4Enabled}
+          />
         </div>
       )}
 
+      {/* Painel do método escolhido */}
       {selected === 'card' && stripeEnabled && (
         <div className="mt-3 rounded-xl bg-white p-3">
           <p className="text-[12px] text-text-2">
@@ -142,9 +127,8 @@ export function PaymentOptions({
 
       {/* Aviso de segurança — suave, não bloqueante */}
       <p className="mt-3 text-[11px] leading-relaxed text-text-3">
-        Dica de segurança: paga sempre através do IMOAUTO ou diretamente ao
-        anfitrião no check-in. Evita transferências adiantadas para contactos
-        que não conheces.
+        Dica de segurança: paga sempre através do IMOAUTO. Evita transferências
+        adiantadas para contactos que não conheces.
       </p>
     </div>
   )
