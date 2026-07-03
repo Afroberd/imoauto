@@ -43,8 +43,8 @@ O site está **100% funcional em produção**. Lê isto de cima a baixo antes de
 - **Database Webhook Supabase:** `notification_email` — INSERT em
   `public.notifications` → POST https://www.imoauto.cv/api/webhooks/notification-email
   com header `x-webhook-secret`.
-- **Migrations 001–014 TODAS aplicadas** (013 = admins/verificação manual;
-  014 = notificações de verificação). Aplicar SQL = colar no SQL editor (eu
+- **Migrations 001–015 TODAS aplicadas** (013 admins/verificação · 014 notif.
+  verificação · 015 comissão: commission_rate/commission_cve/host_payout_cve). Aplicar SQL = colar no SQL editor (eu
   consigo fazê-lo via browser).
 
 ## 3. DECISÕES TOMADAS (não re-discutir sem motivo)
@@ -122,11 +122,11 @@ FALTA (quando o Resend disser **Verified**):
    lib/payments/vinti4.ts conforme o manual (TODOs isolados) · meter env vars ·
    testar em ambiente de teste da SISP · botão Vinti4 ativa sozinho.
 
-### TRILHO C — Comissão 10% (código; posso fazer a qualquer momento)
-- Nas reservas: total do hóspede = preço anunciado; anfitrião vê "recebes 90%"
-  (dashboard/pedidos); registar comissão na tabela payments/bookings.
-- Melhor fazer junto com o Trilho B (o dinheiro passa pela plataforma), mas a
-  UI/lógica pode ir antes.
+### TRILHO C — Comissão 10% — ✅ FEITO (2026-07-03)
+lib/payments/commission.ts · createBooking grava comissão/payout por reserva ·
+migração 015 aplicada (+backfill) · dashboard anfitrião (pedidos/pagamentos/
+estadias) mostra "Recebes X após comissão 10%" · hint no wizard (rent_daily).
+No Vinti4 (Trilho B): usar host_payout_cve como valor a transferir ao anfitrião.
 
 ### TRILHO D — Lançar CLASSIFICADOS (pode ir primeiro, não depende de B/C)
 - Precisa: Trilho A passos 1–5 (por causa do confirm-email) + anúncios reais
