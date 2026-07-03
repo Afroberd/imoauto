@@ -93,18 +93,12 @@ O site está **100% funcional em produção**. Lê isto de cima a baixo antes de
 
 ## 5. ROADMAP — TUDO O QUE FALTA (com dependências)
 
-### TRILHO A — Emails para todos (Resend) — EM CURSO (2026-07-03)
-✅ FEITO: registos DNS todos na Namecheap (adicionados por mim via browser) e
-CONFIRMADOS a propagar via 8.8.8.8: TXT `send`=SPF amazonses · TXT `_dmarc` ·
-MX `send`→feedback-smtp.eu-west-1.amazonses.com (prio 10; Mail Settings mudou
-Email Forwarding→Custom MX — não havia forwarding) · TXT `resend._domainkey`
-(DKIM). Verify clicado no Resend → estado **Pending** (re-verificação automática).
-FALTA (quando o Resend disser **Verified**):
-1. Vercel → `EMAIL_FROM` = `IMOAUTO <noreply@imoauto.cv>` → redeploy (posso eu;
-   não é segredo). NÃO mudar antes de Verified (partiria os envios).
-2. Supabase → Auth → SMTP custom Resend (host smtp.resend.com, port 465, user
-   `resend`, password = RESEND_API_KEY ← **user cola**).
-3. Supabase → Auth → reativar **Confirm email** (só depois do SMTP).
+### TRILHO A — Emails para todos (Resend) — ✅ COMPLETO (2026-07-03)
+Domínio imoauto.cv VERIFIED no Resend (DNS na Namecheap: SPF/DKIM/DMARC/MX) ·
+EMAIL_FROM no Vercel = `IMOAUTO <noreply@imoauto.cv>` (redeploy feito) ·
+SMTP custom no Supabase (smtp.resend.com:465, user resend, pw=RESEND_API_KEY) ·
+**Confirm email ATIVADO**. Emails chegam a TODOS os users, fora do spam; registo
+novo exige confirmação de email. ⚠️ Testar: registar conta nova + receber email.
 
 ### TRILHO B — Vinti4 / pagamento online — BLOQUEADO NO USER→SISP
 1. **User envia à SISP** (responder ao email deles, processo só segue completo):
