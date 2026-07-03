@@ -93,20 +93,18 @@ O site está **100% funcional em produção**. Lê isto de cima a baixo antes de
 
 ## 5. ROADMAP — TUDO O QUE FALTA (com dependências)
 
-### TRILHO A — Emails para todos (Resend) — EM CURSO
-Estado: domínio `imoauto.cv` **já adicionado** no painel Resend; registos DNS
-**por meter** na Namecheap. Sequência:
-1. Namecheap → imoauto.cv → Advanced DNS → adicionar os registos que o Resend
-   mostra (resend.com/domains): TXT `resend._domainkey` (DKIM), MX `send`
-   (prio 10), TXT `send` (SPF), TXT `_dmarc`, e MX `@` se listado.
-   *Método:* eu abro/preencho a UI; os VALORES (DKIM longo) o user copia/cola
-   (filtro bloqueia-me ler segredos). Botão copiar existe em cada linha no Resend.
-2. Resend → Verify → esperar "Verified" (minutos a horas).
-3. Vercel → mudar `EMAIL_FROM` para `IMOAUTO <noreply@imoauto.cv>` → redeploy.
-   → **Desbloqueia:** emails a TODOS os users, fora do spam.
-4. (Depois) Supabase → Auth → SMTP custom com Resend (para o passo 5 ser fiável).
-5. (Depois) Supabase → Auth → **reativar "Confirm email"**. NUNCA ativar antes
-   do SMTP fiável — users ficariam trancados sem receber a confirmação.
+### TRILHO A — Emails para todos (Resend) — EM CURSO (2026-07-03)
+✅ FEITO: registos DNS todos na Namecheap (adicionados por mim via browser) e
+CONFIRMADOS a propagar via 8.8.8.8: TXT `send`=SPF amazonses · TXT `_dmarc` ·
+MX `send`→feedback-smtp.eu-west-1.amazonses.com (prio 10; Mail Settings mudou
+Email Forwarding→Custom MX — não havia forwarding) · TXT `resend._domainkey`
+(DKIM). Verify clicado no Resend → estado **Pending** (re-verificação automática).
+FALTA (quando o Resend disser **Verified**):
+1. Vercel → `EMAIL_FROM` = `IMOAUTO <noreply@imoauto.cv>` → redeploy (posso eu;
+   não é segredo). NÃO mudar antes de Verified (partiria os envios).
+2. Supabase → Auth → SMTP custom Resend (host smtp.resend.com, port 465, user
+   `resend`, password = RESEND_API_KEY ← **user cola**).
+3. Supabase → Auth → reativar **Confirm email** (só depois do SMTP).
 
 ### TRILHO B — Vinti4 / pagamento online — BLOQUEADO NO USER→SISP
 1. **User envia à SISP** (responder ao email deles, processo só segue completo):
