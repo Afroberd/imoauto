@@ -1,165 +1,181 @@
-# IMOAUTO — Estado do projeto (handoff)
+# IMOAUTO — HANDOFF completo (snapshot 2026-07-03)
 
-Última atualização: 2026-06-29. Documento para retomar o trabalho numa sessão
-nova sem perder contexto. (O site está 100% funcional em produção.)
+Documento único para retomar o trabalho num chat novo sem perder contexto.
+O site está **100% funcional em produção**. Lê isto de cima a baixo antes de agir.
 
-**Feito em 2026-06-29:** domínio imoauto.cv expirou e foi RENOVADO (1 ano; auto-
-renew a confirmar) · SEO/Open Graph + sitemap + robots · páginas legais +
-entidade (Afro-Berdiano Image, NIF 285307002) · CRON_SECRET definido no Vercel ·
-conta de teste debug.imoauto.test APAGADA · "Pagar na chegada" removido (mostra
-"pagamento online em breve" até Vinti4 estar vivo) · decidido Vinti4-only (sem
-Stripe). Falta: verificar domínio no Resend (emails p/ todos) → depois SMTP no
-Supabase → depois reativar Confirm email; Vinti4 (SISP em curso); comissão 10%
-na lógica; política de verificação (ver baixo). Browser do user ligado via
-extensão Claude-in-Chrome (consigo conduzir Supabase/Vercel/Namecheap logados;
-SQL sim, segredos não).
+---
 
-## ⏭️ PARA O PRÓXIMO CHAT — começa por aqui (estado 2026-06-29)
+## 1. COMO TRABALHAR COM O USER (regras)
 
-**Como trabalhar:** o user é zero-code, responde em português, código em inglês.
-Testa SEMPRE logado no browser antes de dizer "feito". O **browser do user está
-ligado** via extensão Claude-in-Chrome → consegues conduzir Supabase/Vercel/
-Namecheap/Resend **logados** (SQL escreves tu; segredos/API keys/passwords cola
-o user). Cada push a `main` → deploy automático no Vercel. Mantém este HANDOFF +
-a memória atualizados.
+- User = **Yanick** (zero-code). Responder **em português**; código em inglês.
+- **Testar SEMPRE logado no browser antes de dizer "feito"** (curl/build não
+  apanham crashes client-side — já causou um ecrã preto no passado).
+- **Browser do user ligado** via extensão Claude-in-Chrome (tools
+  `mcp__claude-in-chrome__*`): consigo conduzir Supabase/Vercel/Namecheap/Resend
+  **logados**. SQL escrevo e corro eu (há diálogo de confirmação em ops
+  destrutivas); **segredos** (API keys, valores DKIM, passwords) o filtro
+  bloqueia — o user cola, eu abro a página e preencho o resto.
+- Cada `git push` a `main` → deploy automático Vercel. Confirmar deploy READY.
+- **Manter este HANDOFF + a memória atualizados ao longo do trabalho** (o user
+  muda de chat quando o contexto enche — este doc é a ponte).
+- AGENTS.md: este Next.js 16 tem breaking changes — ler docs em
+  `node_modules/next/dist/docs/` antes de escrever código Next novo.
+- Lint tem erros PRÉ-EXISTENTES (date-input.tsx, vinti4.ts, gateway.ts) — não
+  bloqueiam; o build passa. Não "corrigir" sem pedido.
 
-**Decisões já tomadas:**
-- Modelo: **Classificados (venda/aluguer mensal, grátis, contacto WhatsApp)** +
-  **Reservas pagas (aluguer diário, comissão 10% paga pelo anfitrião, online)**.
-- Pagamento online **só Vinti4** (cobre Vinti4+Visa+Mastercard) — Stripe abandonado.
-- Verificação de identidade: **manual** (admin revê). Autentika = futuro (ver
-  [[reference-autentika]] / email NOSi cxm@nosi.cv).
-- Entidade legal: **Afro-Berdiano Image, Unipessoal Lda, NIF 285307002** (dados +
-  IBAN + passaporte do Yanick na memória reference-business-identity).
+## 2. INFRA / IDs
 
-**EM CURSO (retomar):**
-1. **Resend (emails p/ todos):** domínio `imoauto.cv` já ADICIONADO no Resend.
-   Falta meter os registos DNS (DKIM TXT `resend._domainkey`, MX+TXT `send`,
-   talvez DMARC `_dmarc`) no Namecheap (Advanced DNS) → clicar Verify no Resend →
-   quando "Verified", mudar `EMAIL_FROM` no Vercel para `IMOAUTO <noreply@imoauto.cv>`.
-   (Os valores DKIM são longos; o filtro bloqueia lê-los — transferir por copy/paste.)
-2. **Vinti4/SISP:** user vai enviar à SISP a ficha (gerada em
-   Downloads/Ficha_Adesao_SISP_IMOAUTO_preenchida.docx) + contrato assinado +
-   Certidão + passaporte → recebe credenciais + manual → completar a fingerprint
-   em lib/payments/vinti4.ts + ativar (VINTI4_POS_ID/AUTH_CODE/GATEWAY_URL).
+- **Prod:** https://www.imoauto.cv (aliases: imoauto.cv, imoauto.vercel.app).
+  Domínio na **Namecheap** (renovado até jun 2027 após ter EXPIRADO em jun 2026
+  — confirmar auto-renew um dia).
+- **Stack:** Next.js 16 App Router + React 19 + Tailwind 4 · Supabase
+  (Postgres/Auth/Storage/RLS/Realtime) · Vercel Hobby.
+- **Repo:** github.com/Afroberd/imoauto (branch `main`), pasta `web/`.
+- **Supabase ref:** rnaoozvrdhhoedxdasip · **Vercel:** prj_ZY93MeXxW7lcbv2K6JLskncLDxzk
+  / team_Gmqje9uLQxZhyhoNfQT6tZOq (MCP Vercel ligado — deploys/logs por API).
+- **Login do site + admin:** afroberd@gmail.com (tabela `admins`, migração 013).
+  yanickdrs@gmail.com também é admin. Conta Resend/Vercel/Supabase/Namecheap:
+  afroberd@gmail.com.
+- **Env vars no Vercel:** NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY,
+  RESEND_API_KEY, EMAIL_FROM (=`IMOAUTO <onboarding@resend.dev>` por agora),
+  NOTIFICATION_WEBHOOK_SECRET, CRON_SECRET. (NEXT_PUBLIC_SITE_URL opcional,
+  default https://www.imoauto.cv no código.)
+- **Database Webhook Supabase:** `notification_email` — INSERT em
+  `public.notifications` → POST https://www.imoauto.cv/api/webhooks/notification-email
+  com header `x-webhook-secret`.
+- **Migrations 001–014 TODAS aplicadas** (013 = admins/verificação manual;
+  014 = notificações de verificação). Aplicar SQL = colar no SQL editor (eu
+  consigo fazê-lo via browser).
 
-**PENDENTE (não bloqueia classificados):**
-- Comissão 10% na lógica de reservas (anfitrião vê "recebes 90%") — código.
-- Reativar "Confirm email" no Supabase — só DEPOIS do Resend + SMTP do Resend no
-  Supabase (senão users ficam trancados por email não fiável).
-- Mais anúncios reais (cold start; ~13 hoje).
-- Auto-renew do domínio (tem 1 ano pago; baixo risco).
-- Polish: aceitar Termos no registo, monitorização de erros, analytics, filtro
-  por concelho + ordenação.
+## 3. DECISÕES TOMADAS (não re-discutir sem motivo)
 
-**Para LANÇAR os classificados:** falta só reativar confirm-email (depende do
-Resend) + (opcional) mais anúncios. O resto (Vinti4/emails) é para as reservas.
+- **Dois produtos:** A) **Classificados** (venda + aluguer mensal; grátis;
+  contacto direto WhatsApp) · B) **Reservas pagas** (aluguer diário; pagamento
+  online; **comissão 10% paga pelo anfitrião** — ele recebe 90%).
+- **Pagamento online: SÓ Vinti4/SISP** (cobre Vinti4+Visa+Mastercard+Amex).
+  Stripe ABANDONADO (código fica dormente; não ativar). Contrato SISP proíbe
+  passar taxa ao comprador → comissão sai do lado do anfitrião. Liquidação:
+  vinti4 no dia, internacionais 4 dias úteis. Taxa SISP = "tarifário" anexo ao
+  contrato — **pedir/confirmar o valor** (come a margem dos 10%).
+- **"Pagar na chegada" REMOVIDO** (payment-options.tsx mostra "pagamento online
+  em breve" enquanto nenhum gateway ativo).
+- **Verificação de identidade: MANUAL** (admin revê em /admin/verificacoes).
+  Auto-aprovação rejeitada pelo user. **Autentika** (identidade do Estado CV,
+  OIDC, adesão cxm@nosi.cv) = futuro; investigação na memória reference-autentika.
+- **Entidade legal:** Afro-Berdiano Image, Sociedade Unipessoal, Lda —
+  NIF 285307002, Palmarejo, Praia. Consta nos Termos/Privacidade. Dados completos
+  (registo, IBAN Caixa, passaporte Yanick) na memória **reference-business-identity**
+  (SENSÍVEL). Contacto público: afroberd@gmail.com · +238 937 20 69.
+  ⚠️ Atividade registada da empresa = produção de vídeo (≠ imobiliária) —
+  user decidiu avançar; se a SISP objetar, acrescentar atividade ao objeto social.
 
-## Onde está
+## 4. O QUE FUNCIONA EM PRODUÇÃO (testado)
 
-- **Produção:** https://www.imoauto.cv (domínio .cv ligado ao Vercel, SSL ok).
-  Aliases: imoauto.cv → www.imoauto.cv, imoauto.vercel.app.
-- **Stack:** Next.js 16 (App Router, Turbopack) · React 19 · Tailwind 4 ·
-  Supabase (Postgres+Auth+Storage+RLS+Realtime) · Vercel (Hobby, Node 22.x).
-- **Repo:** github.com/Afroberd/imoauto (branch main). Cada push → deploy Vercel.
-- **Supabase project ref:** rnaoozvrdhhoedxdasip
-- **Vercel:** projeto prj_ZY93MeXxW7lcbv2K6JLskncLDxzk, team team_Gmqje9uLQxZhyhoNfQT6tZOq
+- Auth email/password + Google OAuth · perfil
+- Anúncios: wizard 6 passos, editar, pausar/apagar, fotos, mapa (Leaflet),
+  pesquisa (tipo/finalidade/ilha/preço/texto), favoritos, partilha
+- Mensagens em tempo real (/messages) · Avaliações (estrelas)
+- Reservas rent_daily: BookingForm, dashboard anfitrião (Hoje/Pedidos/Estadias/
+  Pagamentos/Calendário), "As minhas reservas", check-in/out c/ km+combustível
+- Verificação: submete → 'pending' → admin aprova/rejeita c/ motivo em
+  /admin/verificacoes (vê fotos via signed URLs). Publicar rent_daily EXIGE
+  verificação. Sino notifica admin (novo pedido) e user (resultado).
+- Notificações: sino realtime + triggers (mensagem/reserva/estado/avaliação/verificação)
+- **Emails:** pipeline completo notificação→webhook→Resend→inbox. ⚠️ Só entrega
+  a afroberd@gmail.com (modo teste Resend) até o domínio ser verificado.
+- SEO: Open Graph + Twitter card, imagem OG dinâmica, metadata por anúncio
+  (partilha = foto capa + título + preço), sitemap.xml, robots.txt
+- Legal: /termos /privacidade /contacto (contactos REAIS: afroberd@gmail.com,
+  +238 937 20 69) + entidade identificada + links no rodapé. Modelos PT — rever
+  com advogado antes de escala.
+- Mobile responsivo · ~13 anúncios publicados (reais do user/contactos; conta
+  de teste debug.imoauto.test APAGADA em 2026-06-29)
 
-## Funciona em produção (testado)
+## 5. ROADMAP — TUDO O QUE FALTA (com dependências)
 
-- Auth email/password + Google OAuth (redirect https corrigido)
-- Anúncios: criar (wizard 6 passos), editar, listar, mapa, favoritos, pesquisa
-- Mensagens em tempo real (/messages)
-- Reservas rent_daily: BookingForm (carro mostra "Condutores/dias"; imóvel
-  "Hóspedes/noites"), /dashboard com Hoje, Pedidos, Estadias, Pagamentos,
-  Calendário, "As minhas reservas"
-- Verificação de identidade (/verificacao) — fila de revisão manual: entra
-  'pending', admin aprova/rejeita em /admin/verificacoes. Publicar aluguer
-  diário (rent_daily, imóvel/carro) exige estar verificado. Notifica admin
-  (novo pedido) e user (aprovado/rejeitado) via sino 🔔.
-- Avaliações (estrelas) + agregados em listings
-- Notificações: sino 🔔 no header, painel, realtime, triggers automáticos
-- Mobile: hamburger + responsivo
-- SEO/partilha: Open Graph + Twitter card (layout), imagem OG dinâmica
-  (app/opengraph-image.tsx), generateMetadata por anúncio (partilha mostra foto
-  de capa + preço), sitemap.ts + robots.ts. SITE_URL via NEXT_PUBLIC_SITE_URL.
-- Páginas legais: /termos, /privacidade, /contacto (links no rodapé). São
-  modelos PT a rever por advogado. ⚠️ /contacto tem email/WhatsApp PLACEHOLDER
-  (geral@imoauto.cv, +238 000…) — trocar pelos reais em app/contacto/page.tsx.
-- Pagamentos: "Pagar na chegada" ativo; Cartão (Stripe) e Vinti4 prontos mas
-  desativados até haver credenciais
+### TRILHO A — Emails para todos (Resend) — EM CURSO
+Estado: domínio `imoauto.cv` **já adicionado** no painel Resend; registos DNS
+**por meter** na Namecheap. Sequência:
+1. Namecheap → imoauto.cv → Advanced DNS → adicionar os registos que o Resend
+   mostra (resend.com/domains): TXT `resend._domainkey` (DKIM), MX `send`
+   (prio 10), TXT `send` (SPF), TXT `_dmarc`, e MX `@` se listado.
+   *Método:* eu abro/preencho a UI; os VALORES (DKIM longo) o user copia/cola
+   (filtro bloqueia-me ler segredos). Botão copiar existe em cada linha no Resend.
+2. Resend → Verify → esperar "Verified" (minutos a horas).
+3. Vercel → mudar `EMAIL_FROM` para `IMOAUTO <noreply@imoauto.cv>` → redeploy.
+   → **Desbloqueia:** emails a TODOS os users, fora do spam.
+4. (Depois) Supabase → Auth → SMTP custom com Resend (para o passo 5 ser fiável).
+5. (Depois) Supabase → Auth → **reativar "Confirm email"**. NUNCA ativar antes
+   do SMTP fiável — users ficariam trancados sem receber a confirmação.
 
-## Migrations SQL aplicadas (todas no Supabase)
+### TRILHO B — Vinti4 / pagamento online — BLOQUEADO NO USER→SISP
+1. **User envia à SISP** (responder ao email deles, processo só segue completo):
+   ficha preenchida (`C:\Users\yanic\Downloads\Ficha_Adesao_SISP_IMOAUTO_preenchida.docx`
+   — gerada por mim, falta nº agência bancária), contrato assinado (PDF
+   `MD050.02_CONTRATOADESAOPAGAMENTOONLINENAWEB (1).pdf`; preencher parágrafo:
+   "AFRO-BERDIANO IMAGE, SOCIEDADE UNIPESSOAL, LDA, contribuinte nº 285307002,
+   sede Palmarejo, Praia, representado por Yanick dos Reis Silva, Sócio-Gerente,
+   conta nº 03546157110001, Banco Caixa"), Certidão Comercial, cópia passaporte.
+   Perguntar no mesmo email: tarifário (taxa/transação) + se a atividade da
+   empresa é aceite.
+2. SISP devolve: VINTI4_POS_ID, VINTI4_POS_AUTH_CODE, VINTI4_GATEWAY_URL +
+   **manual técnico**.
+3. **Eu:** completar `buildFingerprint` + `verifyVinti4Response` em
+   lib/payments/vinti4.ts conforme o manual (TODOs isolados) · meter env vars ·
+   testar em ambiente de teste da SISP · botão Vinti4 ativa sozinho.
 
-001–006 (base) · 007 favorites (recriada na 012) · 008 mensagens ·
-009 bookings · 010 reviews · 011 plataforma reservas (payments, verifications,
-listings settings, bucket verifications) · 012 favorites+notifications ·
-**013 admin_verifications APLICADA** (admins + is_admin() + status/rejection_reason/
-reviewed_by/reviewed_at em guest_verifications + RLS admin; admin=afroberd@gmail.com).
-**014 verification_notifications APLICADA** (trigger notify_verification:
-avisa admins quando há nova verificação pendente; avisa o user quando aprovada/
-rejeitada).
-Há um PHASE_5_COMPLETE.sql idempotente. **Forma de aplicar SQL:** colar no SQL
-editor do Supabase (o user faz Ctrl+A→Ctrl+V→Run). Migrations são idempotentes.
+### TRILHO C — Comissão 10% (código; posso fazer a qualquer momento)
+- Nas reservas: total do hóspede = preço anunciado; anfitrião vê "recebes 90%"
+  (dashboard/pedidos); registar comissão na tabela payments/bookings.
+- Melhor fazer junto com o Trilho B (o dinheiro passa pela plataforma), mas a
+  UI/lógica pode ir antes.
 
-## PENDENTE (próximos passos)
+### TRILHO D — Lançar CLASSIFICADOS (pode ir primeiro, não depende de B/C)
+- Precisa: Trilho A passos 1–5 (por causa do confirm-email) + anúncios reais
+  (user; cold start com ~13) → **anunciar/lançar**.
+- Alternativa rápida: lançar sem confirm-email (risco: registos com email
+  alheio) — decisão do user.
 
-1. **Ativar Stripe** (conta criada em Portugal pelo irmão do user). Falta o user
-   enviar: `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `SUPABASE_SERVICE_ROLE_KEY`.
-   Meter no Vercel → botão "Cartão" ativa sozinho. Webhook já implementado em
-   /api/webhooks/stripe. (lib/payments/stripe.ts apiVersion '2026-04-22.dahlia'.)
-2. **Ativar Vinti4/SISP.** Falta: contrato SISP + `VINTI4_POS_ID`,
-   `VINTI4_POS_AUTH_CODE`, `VINTI4_GATEWAY_URL` + **manual de integração SISP**.
-   ⚠️ Completar a fórmula da fingerprint em lib/payments/vinti4.ts
-   (buildFingerprint + verifyVinti4Response — estão isoladas com TODO).
-3. **Emails transacionais** (Resend) — ✅ A FUNCIONAR (pipeline confirmado:
-   notificação → email recebido). lib/email/resend.ts + template.ts + rota
-   /api/webhooks/notification-email. Env vars no Vercel (RESEND_API_KEY,
-   EMAIL_FROM, NOTIFICATION_WEBHOOK_SECRET) ✅ + Database Webhook no Supabase
-   (notifications INSERT → POST à rota, header x-webhook-secret) ✅.
-   **FALTA p/ produção: verificar o domínio imoauto.cv no Resend** (Resend →
-   Domains → add imoauto.cv → adicionar registos DNS). Enquanto não estiver:
-   (a) emails caem no SPAM; (b) modo teste só entrega ao email da conta Resend
-   (afroberd@gmail.com) — outros users não recebem. Depois de verificar, mudar
-   EMAIL_FROM para noreply@imoauto.cv. Nota: submeter verificação só notifica
-   ADMINS; o utilizador só é notificado quando aprovada/rejeitada (by design).
-4. **Verificação de identidade real** — ✅ FEITO E NO AR (migração 013 aplicada,
-   deployed, testado logado em 2026-06-24). Painel admin em /admin/verificacoes:
-   lista pedidos, vê fotos (signed URLs do bucket privado), aprova/rejeita com
-   motivo. submitVerification já NÃO auto-aprova — entra como 'pending'. Link
-   "Admin" no header só aparece a admins. Admin = afroberd@gmail.com (login do
-   site; ≠ yanickdrs). Tabela `admins`; para adicionar admin ver migração 013.
-   Publicar aluguer diário (rent_daily) exige verificação (createListing/
-   updateListing + wizard). Notificações via migração 014 (admin no novo pedido;
-   user na aprovação/rejeição) — APLICADA. Tarefa fechada.
-   Autentika (identidade oficial do Estado CV via OIDC) = alternativa futura —
-   ver memória reference-autentika; adesão por email cxm@nosi.cv.
-5. **CRON_SECRET** no Vercel — o cron /api/cron/booking-transitions corre mas
-   sem secret definido.
-6. **Reativar "Confirm email"** no Supabase Auth antes de abrir ao público.
-7. **Limpar conta de teste** debug.imoauto.test@gmail.com (criada para debug).
+### BACKLOG / polish (não bloqueia nada)
+- Checkbox "aceito os Termos" no registo
+- Monitorização de erros (ex. Sentry) + analytics (Vercel Analytics)
+- Filtro por concelho + ordenação (preço/recente) na pesquisa
+- Botão "denunciar anúncio" / moderação
+- Auto-renew do domínio na Namecheap (tem 1 ano pago)
+- Rever legal com advogado · Autentika (verificação oficial)
 
-## Análise de prontidão p/ lançamento (2026-06-24)
+## 6. ORDEM RECOMENDADA (se o user perguntar "o que fazemos?")
 
-O site são 2 produtos colados: **A) Classificados tipo OLX** (venda/aluguer
-mensal, contacto direto — quase pronto, não precisa de verificação nem emails)
-e **B) Reservas tipo Booking** (aluguer diário, calendário, verificação — tem
-atrito). Riscos/lógica a resolver antes de abrir ao público:
-- **Gargalo da verificação:** publicar/reservar diário exige verificação MANUAL
-  e o email de aprovação não chega (domínio). Decisão pendente do user: auto-
-  aprovar no lançamento / manter manual / tirar. (Mudança ~5 min quando decidir.)
-- **Emails off para todos exceto afroberd** até verificar o domínio (ver #3).
-- **Confirm email desligado** (#6) → registo com email de outrem.
-- **Cold start:** homepage só mostra anúncios se existirem — é preciso semear
-  anúncios reais antes de abrir.
-- Páginas legais ✅ feitas hoje (rever c/ advogado + trocar placeholders contacto).
-- Sem monitorização de erros em produção.
+1. **Trilho A** (Resend DNS → Verified → EMAIL_FROM → SMTP → confirm-email) —
+   30 min de trabalho conjunto, desbloqueia emails E o lançamento seguro.
+2. **User dispara Trilho B** (email à SISP com anexos) — 15 min dele; a espera
+   é da SISP.
+3. **Eu faço Trilho C** (comissão) enquanto a SISP responde.
+4. **Lançar classificados** (Trilho D) — não esperar pelo Vinti4.
+5. Vinti4 chega → ligar reservas pagas → lançamento "Booking" completo.
 
-## Regras importantes (ver memória)
+## 7. ARQUITETURA RÁPIDA (onde mexer)
 
-- Responder em português; código em inglês.
-- Abrir URLs no Microsoft Edge (mas automação de browser só funciona em Chrome
-  via chrome-devtools-mcp — dizer ao user à partida quando precisa de Chrome).
-- **Testar SEMPRE o site LOGADO no browser antes de dizer "feito"** (curl/build
-  não apanham crashes client-side só-logado — foi o que causou o ecrã preto).
-- Confirmar deploy READY no Vercel após cada push.
+- `app/actions/*.ts` — server actions (listings, bookings, verification, admin,
+  notifications, payments…). RLS no Supabase é a fonte de verdade.
+- `app/admin/*` — painel admin (guard: tabela admins). `components/admin/*`.
+- `lib/payments/vinti4.ts` — TODOs da fingerprint (Trilho B). `gateway.ts`
+  seleciona gateway. `stripe.ts` dormente.
+- `lib/email/resend.ts` + `template.ts` + `app/api/webhooks/notification-email/`
+  — pipeline de email (1 notificação = 1 email).
+- `supabase/migrations/` — 001–014 aplicadas; escrever novas idempotentes.
+- `components/payment-options.tsx` — UI de pagamento (online-only).
+- SEO: `app/layout.tsx` (metadata), `app/opengraph-image.tsx`,
+  `app/listings/[id]/page.tsx` (generateMetadata), `app/sitemap.ts`, `app/robots.ts`.
+
+## 8. HISTÓRICO RECENTE (contexto)
+
+- 2026-06-24: painel admin verificações (migr. 013+014) · verificação manual ·
+  publicar rent_daily exige verificação · emails Resend construídos e testados ·
+  páginas legais criadas · gate de verificação no wizard.
+- 2026-06-26: ficha SISP preenchida (docx) · dados empresa/IBAN/passaporte
+  guardados na memória · decisão comissão 10% + Vinti4-only.
+- 2026-06-29: **domínio expirou e foi renovado** (site esteve em parking!) ·
+  SEO/OG/sitemap/robots · entidade nas páginas legais · CRON_SECRET · conta de
+  teste apagada · "pagar na chegada" removido · domínio adicionado no Resend ·
+  browser do user ligado (extensão) — Supabase/Vercel/Namecheap conduzidos por mim.
