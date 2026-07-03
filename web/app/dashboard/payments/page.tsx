@@ -93,6 +93,12 @@ function PaymentRow({ b }: { b: DashboardBooking }) {
               </>
             )}
           </p>
+          {b.host_payout_cve > 0 && (
+            <p className="mt-0.5 text-[12px] text-text-3">
+              Recebes <span className="font-medium text-green-700 tnum">{formatCVE(b.host_payout_cve)}</span>{' '}
+              · após comissão de serviço (10%)
+            </p>
+          )}
 
           {due > 0 && b.status !== 'cancelled' && b.status !== 'declined' && (
             <div className="mt-3">

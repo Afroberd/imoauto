@@ -531,6 +531,9 @@ function StepPreco({
       <NumberField
         data={data} set={set} name="price_cve" label={priceLabel} required
         suffix="CVE" min={0} placeholder="0"
+        hint={purpose === 'rent_daily'
+          ? 'Sobre cada reserva paga na plataforma, o IMOAUTO retém uma comissão de serviço de 10% — recebes 90%.'
+          : undefined}
       />
 
       {purpose === 'rent_daily' && (

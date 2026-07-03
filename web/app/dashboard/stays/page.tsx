@@ -112,6 +112,9 @@ function StayCard({ b, actionType }: { b: DashboardBooking; actionType: 'checkin
             {b.paid_amount_cve > 0 && b.paid_amount_cve < b.total_cve && (
               <> <span className="mx-1.5 text-text-3">·</span><span className="text-warn-strong">Pago {formatCVE(b.paid_amount_cve)}</span></>
             )}
+            {b.host_payout_cve > 0 && (
+              <> <span className="mx-1.5 text-text-3">·</span><span className="text-[12px] text-text-3">recebes <span className="font-medium text-green-700 tnum">{formatCVE(b.host_payout_cve)}</span></span></>
+            )}
           </p>
 
           {b.checked_in_at && (

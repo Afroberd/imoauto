@@ -80,6 +80,12 @@ function RequestCard({ b }: { b: DashboardBooking }) {
               <span className="mx-1.5 text-text-3">·</span>
               <span className="font-medium text-ink tnum">{formatCVE(b.total_cve)}</span>
             </p>
+            {b.host_payout_cve > 0 && (
+              <p className="mt-0.5 text-[12px] text-text-3">
+                Recebes <span className="font-medium text-green-700 tnum">{formatCVE(b.host_payout_cve)}</span>{' '}
+                · após comissão de serviço (10%)
+              </p>
+            )}
           </div>
 
           {b.message && (

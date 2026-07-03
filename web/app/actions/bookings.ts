@@ -2,6 +2,7 @@
 
 import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
+import { COMMISSION_RATE, commissionCve, hostPayoutCve } from '@/lib/payments/commission'
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -109,6 +110,9 @@ export async function createBooking(input: {
       check_out: input.checkOut,
       guests: Math.max(1, input.guests),
       total_cve: total,
+      commission_rate: COMMISSION_RATE,
+      commission_cve: commissionCve(total),
+      host_payout_cve: hostPayoutCve(total),
       message: input.message?.trim() || null,
       status: initialStatus,
     })

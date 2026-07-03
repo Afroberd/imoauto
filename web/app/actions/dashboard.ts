@@ -29,6 +29,8 @@ export type DashboardBooking = {
   payment_status: string
   total_cve: number
   paid_amount_cve: number
+  commission_cve: number
+  host_payout_cve: number
   message: string | null
   checked_in_at: string | null
   checked_out_at: string | null
@@ -98,7 +100,7 @@ export async function getDashboardData(): Promise<{
     .from('bookings')
     .select(`
       id, listing_id, guest_id, check_in, check_out, guests, status, payment_status,
-      total_cve, paid_amount_cve, message, checked_in_at, checked_out_at, created_at,
+      total_cve, paid_amount_cve, commission_cve, host_payout_cve, message, checked_in_at, checked_out_at, created_at,
       listing:listings(title, cover_image_url, kind, location_island)
     `)
     .in('listing_id', listingIds)
@@ -109,6 +111,7 @@ export async function getDashboardData(): Promise<{
     id: string; listing_id: string; guest_id: string
     check_in: string; check_out: string; guests: number
     status: string; payment_status: string; total_cve: number; paid_amount_cve: number
+  commission_cve: number | null; host_payout_cve: number | null
     message: string | null; checked_in_at: string | null; checked_out_at: string | null
     created_at: string
     listing: { title: string; cover_image_url: string | null; kind: 'property' | 'vehicle'; location_island: string } | null
@@ -182,7 +185,7 @@ export async function getMyGuestBookings(): Promise<DashboardBooking[]> {
     .from('bookings')
     .select(`
       id, listing_id, guest_id, check_in, check_out, guests, status, payment_status,
-      total_cve, paid_amount_cve, message, checked_in_at, checked_out_at, created_at,
+      total_cve, paid_amount_cve, commission_cve, host_payout_cve, message, checked_in_at, checked_out_at, created_at,
       listing:listings(title, cover_image_url, kind, location_island, payout_iban, payout_holder_name, payout_instructions)
     `)
     .eq('guest_id', user.id)
@@ -202,6 +205,7 @@ type RawBookingRow = {
   id: string; listing_id: string; guest_id: string
   check_in: string; check_out: string; guests: number
   status: string; payment_status: string; total_cve: number; paid_amount_cve: number
+  commission_cve: number | null; host_payout_cve: number | null
   message: string | null; checked_in_at: string | null; checked_out_at: string | null
   created_at: string
   listing: {
@@ -229,7 +233,7 @@ async function hostBookings(
     .from('bookings')
     .select(`
       id, listing_id, guest_id, check_in, check_out, guests, status, payment_status,
-      total_cve, paid_amount_cve, message, checked_in_at, checked_out_at, created_at,
+      total_cve, paid_amount_cve, commission_cve, host_payout_cve, message, checked_in_at, checked_out_at, created_at,
       listing:listings(title, cover_image_url, kind, location_island, payout_iban, payout_holder_name, payout_instructions)
     `)
     .in('listing_id', ids)
@@ -279,6 +283,8 @@ function normalise(
     payment_status: b.payment_status,
     total_cve: b.total_cve,
     paid_amount_cve: b.paid_amount_cve ?? 0,
+    commission_cve: b.commission_cve ?? 0,
+    host_payout_cve: b.host_payout_cve ?? 0,
     message: b.message,
     checked_in_at: b.checked_in_at,
     checked_out_at: b.checked_out_at,
