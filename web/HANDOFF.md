@@ -1,7 +1,42 @@
-# IMOAUTO — HANDOFF completo (snapshot 2026-07-03)
+# IMOAUTO — HANDOFF completo (snapshot 2026-07-10)
 
 Documento único para retomar o trabalho num chat novo sem perder contexto.
 O site está **100% funcional em produção**. Lê isto de cima a baixo antes de agir.
+
+## 🚀 PLANO DE LANÇAMENTO — 25 DE JULHO DE 2026 (prioridade máxima)
+
+O user marcou lançamento público para **25/07/2026**. Checklist até lá:
+
+**Caminho crítico (Vinti4/pagamentos — Trilho B):**
+- [ ] 2026-07-10: user prepara/assina o CONTRATO SISP (hoje) e envia email à SISP
+      com: ficha preenchida (Downloads/"FROP020.01_Ficha_Pedido_Adesao_WEB -
+      PREENCHIDA.doc" — a OFICIAL, preenchida por mim via LibreOffice; ignorar
+      as Ficha_Adesao_SISP_IMOAUTO_*.docx antigas) + contrato assinado +
+      Certidão Comercial + cópia passaporte. Perguntar TARIFÁRIO + se aceitam a
+      atividade da empresa. Em branco na ficha: CP, AGÊNCIA, data+assinatura.
+- [ ] SISP devolve credenciais + manual → EU completo buildFingerprint/
+      verifyVinti4Response (lib/payments/vinti4.ts) → testar → ativar.
+- [ ] ⚠️ CONTINGÊNCIA: se a SISP não responder a tempo, lançar 25/07 na mesma —
+      classificados 100% + reservas com "pagamento online em breve" (reserva
+      fica registada; sem cobrança). Vinti4 liga-se quando chegar.
+
+**Antes do lançamento (independente da SISP):**
+- [ ] TESTAR Trilho A ponta-a-ponta: registar conta NOVA → receber email de
+      confirmação (Confirm email está ATIVO; SMTP Resend configurado) → sino +
+      emails de notificação a contas não-admin. (Ainda não testado!)
+- [ ] Verificação de identidade: MANTER MANUAL no lançamento (decisão em aberto
+      — ver §3; recomendação registada). Enviar email de adesão AUTENTIKA à
+      NOSi (cxm@nosi.cv) em paralelo — eu redijo.
+- [ ] Conteúdo: user semeia mais anúncios reais por ilha (cold start; ~13 hoje).
+- [ ] Google Search Console: criar propriedade, verificar por DNS, submeter
+      sitemap (guia em docs/production-domain-and-indexing.md; eu conduzo).
+- [ ] Namecheap: confirmar AUTO-RENEW ON do imoauto.cv (já expirou uma vez!).
+- [ ] Teste final completo logado: publicar anúncio, reservar, aprovar,
+      mensagens, verificação, emails — checklist de smoke test manual.
+- [ ] Opcional (se der tempo): checkbox "aceito os Termos" no registo;
+      Vercel Analytics; monitorização de erros; revisão legal por advogado.
+
+**No dia 25/07:** confirmar deploy READY + site limpo + anúncios ok → anunciar.
 
 ---
 
@@ -60,8 +95,12 @@ O site está **100% funcional em produção**. Lê isto de cima a baixo antes de
 - **"Pagar na chegada" REMOVIDO** (payment-options.tsx mostra "pagamento online
   em breve" enquanto nenhum gateway ativo).
 - **Verificação de identidade: MANUAL** (admin revê em /admin/verificacoes).
-  Auto-aprovação rejeitada pelo user. **Autentika** (identidade do Estado CV,
-  OIDC, adesão cxm@nosi.cv) = futuro; investigação na memória reference-autentika.
+  Auto-aprovação rejeitada pelo user ("selo falso é pior que nenhum").
+  DISCUSSÃO EM ABERTO (2026-07-10): recomendação dada = manter manual no
+  lançamento (agora viável: admin recebe email no pedido, user recebe email no
+  resultado) + iniciar JÁ adesão ao **Autentika** (identidade do Estado CV,
+  OIDC, email cxm@nosi.cv — eu redijo) para verificação real e automática no
+  futuro, com manual como fallback. Ver memória reference-autentika.
 - **Entidade legal:** Afro-Berdiano Image, Sociedade Unipessoal, Lda —
   NIF 285307002, Palmarejo, Praia. Consta nos Termos/Privacidade. Dados completos
   (registo, IBAN Caixa, passaporte Yanick) na memória **reference-business-identity**
