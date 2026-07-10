@@ -2,6 +2,8 @@ import Link from 'next/link'
 import { RegisterForm } from './register-form'
 import { Wordmark } from '@/components/wordmark'
 
+export const metadata = { robots: { index: false, follow: false } }
+
 export default async function RegisterPage({
   searchParams,
 }: {

@@ -4,6 +4,8 @@ import Image from 'next/image'
 import { createClient } from '@/lib/supabase/server'
 import { MessageIcon } from '@/components/icons'
 
+export const metadata = { robots: { index: false, follow: false } }
+
 export const dynamic = 'force-dynamic'
 
 function relativeTime(iso: string | null): string {

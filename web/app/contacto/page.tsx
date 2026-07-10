@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
   title: 'Contacto — IMOAUTO',
+  alternates: { canonical: '/contacto' },
   description: 'Fala com a equipa do IMOAUTO.',
 }
 

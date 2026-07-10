@@ -2,6 +2,8 @@ import Link from 'next/link'
 import { Wordmark } from '@/components/wordmark'
 import { ForgotForm } from './forgot-form'
 
+export const metadata = { robots: { index: false, follow: false } }
+
 export default async function ForgotPasswordPage({
   searchParams,
 }: {

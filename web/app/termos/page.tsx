@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
   title: 'Termos de Utilização — IMOAUTO',
+  alternates: { canonical: '/termos' },
   description: 'As regras de utilização do IMOAUTO, o marketplace de imóveis e automóveis de Cabo Verde.',
 }
 

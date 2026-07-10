@@ -8,6 +8,8 @@ import { setListingStatus } from '@/app/actions/listings'
 import { PlusIcon, PinIcon, HouseIcon, CarIcon } from '@/components/icons'
 import { DeleteListingButton } from '@/components/delete-listing-button'
 
+export const metadata = { robots: { index: false, follow: false } }
+
 export const dynamic = 'force-dynamic'
 
 export default async function MyListingsPage() {

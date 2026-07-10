@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
   title: 'Política de Privacidade — IMOAUTO',
+  alternates: { canonical: '/privacidade' },
   description: 'Como o IMOAUTO recolhe, usa e protege os teus dados pessoais.',
 }
 

@@ -3,6 +3,8 @@ import { createClient } from '@/lib/supabase/server'
 import { getMyVerification } from '@/app/actions/verification'
 import { VerificationForm } from '@/components/verification-form'
 
+export const metadata = { robots: { index: false, follow: false } }
+
 export const dynamic = 'force-dynamic'
 
 export default async function VerificationPage() {

@@ -4,6 +4,8 @@ import Image from 'next/image'
 import { createClient } from '@/lib/supabase/server'
 import { MessageThread } from './message-thread'
 
+export const metadata = { robots: { index: false, follow: false } }
+
 export const dynamic = 'force-dynamic'
 
 interface PageProps {

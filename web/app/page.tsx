@@ -7,6 +7,8 @@ import type { Listing } from '@/lib/listings/types'
 
 export const dynamic = 'force-dynamic'
 
+export const metadata = { alternates: { canonical: '/' } }
+
 export default async function Home() {
   const supabase = await createClient()
   const { data } = await supabase

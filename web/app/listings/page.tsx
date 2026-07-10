@@ -13,6 +13,8 @@ import { getFavoriteIds } from '@/app/actions/favorites'
 
 export const dynamic = 'force-dynamic'
 
+export const metadata = { alternates: { canonical: '/listings' } }
+
 /**
  * Clean a free-text search term before it goes into a PostgREST `.or()` filter.
  * Commas and parentheses are PostgREST syntax separators; `%`, `_`, `*` and `\`

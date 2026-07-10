@@ -4,6 +4,8 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { ArrowRightIcon } from '@/components/icons'
 
+export const metadata = { robots: { index: false, follow: false } }
+
 export default async function ProfilePage() {
   const supabase = await createClient()
   const {

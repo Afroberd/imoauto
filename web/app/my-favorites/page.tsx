@@ -5,6 +5,8 @@ import { ListingCard } from '@/components/listing-card'
 import { HeartIcon, SearchIcon } from '@/components/icons'
 import type { Listing } from '@/lib/listings/types'
 
+export const metadata = { robots: { index: false, follow: false } }
+
 export const dynamic = 'force-dynamic'
 
 export default async function MyFavoritesPage() {
