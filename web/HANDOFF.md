@@ -85,6 +85,10 @@ O site está **100% funcional em produção**. Lê isto de cima a baixo antes de
   a afroberd@gmail.com (modo teste Resend) até o domínio ser verificado.
 - SEO: Open Graph + Twitter card, imagem OG dinâmica, metadata por anúncio
   (partilha = foto capa + título + preço), sitemap.xml, robots.txt
+- SEO hardening (2026-07-10): canonicals nas páginas públicas, noindex nos
+  privados, /api/health p/ uptime, redirect apex→www agora 308 PERMANENTE
+  (mudado no Vercel Domains), docs/production-domain-and-indexing.md
+  (checklist DNS/Search Console). Canónico = www (decisão: NÃO inverter).
 - Legal: /termos /privacidade /contacto (contactos REAIS: afroberd@gmail.com,
   +238 937 20 69) + entidade identificada + links no rodapé. Modelos PT — rever
   com advogado antes de escala.
