@@ -2,6 +2,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { getPendingRequests, type DashboardBooking } from '@/app/actions/dashboard'
 import { BookingActions } from '@/components/booking-actions'
+import { KindFilter } from '@/components/dashboard/kind-filter'
 import { HouseIcon, CarIcon, MessageIcon } from '@/components/icons'
 
 export const dynamic = 'force-dynamic'
@@ -10,10 +11,24 @@ function formatCVE(n: number): string {
   return n.toLocaleString('pt-PT') + ' CVE'
 }
 
-export default async function DashboardRequestsPage() {
-  const requests = await getPendingRequests()
+export default async function DashboardRequestsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ kind?: string }>
+}) {
+  const { kind } = await searchParams
+  const all = await getPendingRequests()
+  const counts = {
+    all: all.length,
+    property: all.filter((b) => b.listing_kind !== 'vehicle').length,
+    vehicle: all.filter((b) => b.listing_kind === 'vehicle').length,
+  }
+  const requests =
+    kind === 'property' ? all.filter((b) => b.listing_kind !== 'vehicle')
+    : kind === 'vehicle' ? all.filter((b) => b.listing_kind === 'vehicle')
+    : all
 
-  if (requests.length === 0) {
+  if (all.length === 0) {
     return (
       <div className="rounded-[var(--radius-card)] border border-dashed border-shell bg-paper-soft px-6 py-16 text-center">
         <MessageIcon className="mx-auto h-10 w-10 text-text-3" />
@@ -27,6 +42,7 @@ export default async function DashboardRequestsPage() {
 
   return (
     <div className="space-y-3">
+      <KindFilter counts={counts} />
       <p className="text-sm text-text-2">
         Tens <span className="font-medium text-ink">{requests.length}</span> {requests.length === 1 ? 'pedido' : 'pedidos'} à espera de resposta.
       </p>

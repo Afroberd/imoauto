@@ -3,6 +3,7 @@ import Image from 'next/image'
 import { getActiveAndUpcomingStays, type DashboardBooking } from '@/app/actions/dashboard'
 import { CheckinButton, CheckoutButton } from '@/components/dashboard/stay-actions'
 import { RecordPaymentButton } from '@/components/dashboard/record-payment'
+import { KindFilter } from '@/components/dashboard/kind-filter'
 import { HouseIcon, CarIcon, CalendarIcon } from '@/components/icons'
 
 export const dynamic = 'force-dynamic'
@@ -18,37 +19,53 @@ function statusBadge(s: string): { label: string; cls: string } {
   }
 }
 
-export default async function DashboardStaysPage() {
-  const stays = await getActiveAndUpcomingStays()
+export default async function DashboardStaysPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ kind?: string }>
+}) {
+  const { kind } = await searchParams
+  const all = await getActiveAndUpcomingStays()
+  const counts = {
+    all: all.length,
+    property: all.filter((s) => s.listing_kind !== 'vehicle').length,
+    vehicle: all.filter((s) => s.listing_kind === 'vehicle').length,
+  }
+  const stays =
+    kind === 'property' ? all.filter((s) => s.listing_kind !== 'vehicle')
+    : kind === 'vehicle' ? all.filter((s) => s.listing_kind === 'vehicle')
+    : all
 
   const today = new Date().toISOString().slice(0, 10)
   const inProgress = stays.filter((s) => s.status === 'in_progress')
-  const checkInToday = stays.filter((s) => s.status === 'paid' && s.check_in === today)
+  // Check-in disponível: pago e o dia de check-in já chegou (ou passou, para
+  // não deixar reservas presas sem botão).
+  const checkInReady = stays.filter((s) => s.status === 'paid' && s.check_in <= today)
   const upcomingPaid = stays.filter((s) => s.status === 'paid' && s.check_in > today)
   const confirmedUnpaid = stays.filter((s) => s.status === 'confirmed')
 
-  if (stays.length === 0) {
-    return (
-      <div className="rounded-[var(--radius-card)] border border-dashed border-shell bg-paper-soft px-6 py-16 text-center">
-        <CalendarIcon className="mx-auto h-10 w-10 text-text-3" />
-        <h2 className="mt-3 font-display text-xl text-ink">Sem estadias ativas.</h2>
-        <p className="mt-2 text-sm text-text-2">
-          As reservas aprovadas e pagas aparecem aqui.
-        </p>
-      </div>
-    )
-  }
-
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
+      {counts.all > 0 && <KindFilter counts={counts} />}
+
+      {stays.length === 0 ? (
+        <div className="rounded-[var(--radius-card)] border border-dashed border-shell bg-paper-soft px-6 py-16 text-center">
+          <CalendarIcon className="mx-auto h-10 w-10 text-text-3" />
+          <h2 className="mt-3 font-display text-xl text-ink">Sem estadias ativas.</h2>
+          <p className="mt-2 text-sm text-text-2">
+            As reservas aprovadas e pagas aparecem aqui.
+          </p>
+        </div>
+      ) : (
+      <div className="space-y-8">
       {inProgress.length > 0 && (
         <Section title={`Em curso (${inProgress.length})`}>
           {inProgress.map((b) => <StayCard key={b.id} b={b} actionType="checkout" />)}
         </Section>
       )}
-      {checkInToday.length > 0 && (
-        <Section title={`Check-in hoje (${checkInToday.length})`}>
-          {checkInToday.map((b) => <StayCard key={b.id} b={b} actionType="checkin" />)}
+      {checkInReady.length > 0 && (
+        <Section title={`Check-in disponível (${checkInReady.length})`}>
+          {checkInReady.map((b) => <StayCard key={b.id} b={b} actionType="checkin" />)}
         </Section>
       )}
       {upcomingPaid.length > 0 && (
@@ -60,6 +77,8 @@ export default async function DashboardStaysPage() {
         <Section title={`Confirmadas — à espera de pagamento (${confirmedUnpaid.length})`}>
           {confirmedUnpaid.map((b) => <StayCard key={b.id} b={b} actionType="payment" />)}
         </Section>
+      )}
+      </div>
       )}
     </div>
   )
@@ -106,7 +125,7 @@ function StayCard({ b, actionType }: { b: DashboardBooking; actionType: 'checkin
           </p>
           <p className="text-[13px] text-text-2">
             {b.check_in} → {b.check_out}
-            <span className="mx-1.5 text-text-3">·</span>{nights} {nights === 1 ? 'noite' : 'noites'}
+            <span className="mx-1.5 text-text-3">·</span>{nights} {isVehicle ? (nights === 1 ? 'dia' : 'dias') : (nights === 1 ? 'noite' : 'noites')}
             <span className="mx-1.5 text-text-3">·</span>{b.guests} {b.guests === 1 ? 'pessoa' : 'pessoas'}
             <span className="mx-1.5 text-text-3">·</span><span className="font-medium text-ink tnum">{formatCVE(b.total_cve)}</span>
             {b.paid_amount_cve > 0 && b.paid_amount_cve < b.total_cve && (

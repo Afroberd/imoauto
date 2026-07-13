@@ -2,6 +2,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { getBookingsForPayments, type DashboardBooking } from '@/app/actions/dashboard'
 import { RecordPaymentButton } from '@/components/dashboard/record-payment'
+import { KindFilter } from '@/components/dashboard/kind-filter'
 import { HouseIcon, CarIcon } from '@/components/icons'
 
 export const dynamic = 'force-dynamic'
@@ -18,14 +19,30 @@ function payStatusBadge(s: string) {
   }
 }
 
-export default async function DashboardPaymentsPage() {
-  const bookings = await getBookingsForPayments()
+export default async function DashboardPaymentsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ kind?: string }>
+}) {
+  const { kind } = await searchParams
+  const allBookings = await getBookingsForPayments()
+  const counts = {
+    all: allBookings.length,
+    property: allBookings.filter((b) => b.listing_kind !== 'vehicle').length,
+    vehicle: allBookings.filter((b) => b.listing_kind === 'vehicle').length,
+  }
+  const bookings =
+    kind === 'property' ? allBookings.filter((b) => b.listing_kind !== 'vehicle')
+    : kind === 'vehicle' ? allBookings.filter((b) => b.listing_kind === 'vehicle')
+    : allBookings
 
+  // Totais refletem o filtro selecionado.
   const totalDue = bookings.reduce((s, b) => s + (b.total_cve - b.paid_amount_cve), 0)
   const totalReceived = bookings.reduce((s, b) => s + b.paid_amount_cve, 0)
 
   return (
     <div className="space-y-6">
+      {counts.all > 0 && <KindFilter counts={counts} />}
       {/* Summary */}
       <div className="grid gap-3 sm:grid-cols-2">
         <div className="rounded-[var(--radius-card)] border border-shell bg-white p-4 shadow-[var(--shadow-card)]">
