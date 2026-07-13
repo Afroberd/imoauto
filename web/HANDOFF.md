@@ -5,6 +5,28 @@ O site está **100% funcional em produção**. Lê isto de cima a baixo antes de
 
 ## 🚀 PLANO DE LANÇAMENTO — 25 DE JULHO DE 2026 (prioridade máxima)
 
+### ⚡ SESSÃO 2026-07-10 (emails+pagamento) — ESTADO EXATO
+User testou o fluxo: cliente/proprietário SEM emails (só admin). CAUSA
+ENCONTRADA (logs Vercel): EMAIL_FROM não tinha assentado → Resend em modo
+teste. ✅ CORRIGIDO: EMAIL_FROM recriado NÃO-sensitive, valor confirmado no
+ecrã (`IMOAUTO <noreply@imoauto.cv>`) + redeploy. 
+FEITO TAMBÉM: migração 016 escrita (boas-vindas no registo · "pedido enviado"
+ao hóspede · "pagamento recebido" ao proprietário · record_simulated_payment)
++ fluxo de PAGAMENTO SIMULADO no código (deployed, dormente):
+PAYMENT_SIMULATION=true → botão Vinti4 "modo teste" → /pay/simulate → paga →
+booking 'paid' → emails. Vinti4 real substitui depois (mesmo caminho).
+**FALTA (por ordem, retomar aqui):**
+1. Aplicar migração 016 no SQL editor (extensão Chrome desligou — religar).
+2. Vercel: criar env PAYMENT_SIMULATION=true (não-secreta, posso eu) + redeploy.
+3. PROVAR emails: inserir notificação de teste p/ yanickdrs via SQL → logs
+   Vercel devem dizer "sent OK to yanickdrs" (antes dizia resend_403).
+4. Verificar/ativar "Confirm email" (Supabase Auth → Sign In/Providers →
+   Email) — user criou conta SEM receber email nenhum e conseguiu entrar ⇒
+   toggle provavelmente OFF apesar do HANDOFF dizer ativado. SMTP já configurado.
+5. Testar ciclo completo: registo (email boas-vindas + confirmação) → reserva
+   ("pedido enviado") → aceitar → pagar simulado → 'paga' → emails a todos.
+
+
 O user marcou lançamento público para **25/07/2026**. Checklist até lá:
 
 **Caminho crítico (Vinti4/pagamentos — Trilho B):**
