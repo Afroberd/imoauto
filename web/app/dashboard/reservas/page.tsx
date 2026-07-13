@@ -100,6 +100,7 @@ function GuestBookingCard({ b }: { b: DashboardBooking }) {
                 totalCve={b.total_cve - b.paid_amount_cve}
                 stripeEnabled={STRIPE_ENABLED}
                 vinti4Enabled={VINTI4_ENABLED}
+                simulationEnabled={process.env.PAYMENT_SIMULATION === 'true'}
               />
             </div>
           )}

@@ -9,6 +9,7 @@ interface Props {
   totalCve: number
   stripeEnabled: boolean
   vinti4Enabled: boolean
+  simulationEnabled?: boolean
 }
 
 type Method = 'card' | 'vinti4'
@@ -18,8 +19,9 @@ function formatCVE(n: number): string {
 }
 
 export function PaymentOptions({
-  bookingId, totalCve, stripeEnabled, vinti4Enabled,
+  bookingId, totalCve, stripeEnabled, vinti4Enabled, simulationEnabled = false,
 }: Props) {
+  const vinti4Available = vinti4Enabled || simulationEnabled
   const [selected, setSelected] = useState<Method | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [isPending, startTransition] = useTransition()
@@ -61,7 +63,7 @@ export function PaymentOptions({
         Escolhe a forma de pagamento.
       </p>
 
-      {!stripeEnabled && !vinti4Enabled ? (
+      {!stripeEnabled && !vinti4Available ? (
         <div className="mt-3 rounded-xl border border-shell bg-white p-3 text-[13px] text-text-1">
           💳 Pagamento online (Vinti4, Visa e Mastercard) <strong>em breve</strong>. A tua
           reserva fica registada; combina os detalhes com o anfitrião pela área de mensagens.
@@ -82,10 +84,10 @@ export function PaymentOptions({
           <MethodCard
             icon="💴"
             title="Vinti4"
-            subtitle={vinti4Enabled ? 'Vinti4, Visa e Mastercard' : 'Em breve'}
+            subtitle={vinti4Enabled ? 'Vinti4, Visa e Mastercard' : simulationEnabled ? 'Vinti4, Visa e Mastercard · modo teste' : 'Em breve'}
             selected={selected === 'vinti4'}
             onClick={() => setSelected('vinti4')}
-            disabled={!vinti4Enabled}
+            disabled={!vinti4Available}
           />
         </div>
       )}
@@ -105,6 +107,21 @@ export function PaymentOptions({
             {isPending ? 'A abrir pagamento…' : `Pagar ${formatCVE(totalCve)} agora`}
           </button>
           {error && <p className="mt-2 text-[12px] text-red-600">{error}</p>}
+        </div>
+      )}
+
+      {selected === 'vinti4' && !vinti4Enabled && simulationEnabled && (
+        <div className="mt-3 rounded-xl bg-white p-3">
+          <p className="text-[12px] text-text-2">
+            Serás reencaminhado para a página de pagamento. Após pagares, a
+            reserva fica imediatamente garantida.
+          </p>
+          <a
+            href={`/pay/simulate?booking=${bookingId}`}
+            className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-full bg-ink px-5 py-3 text-sm font-medium text-paper hover:bg-ink-deep sm:w-auto"
+          >
+            Pagar {formatCVE(totalCve)} agora
+          </a>
         </div>
       )}
 
