@@ -1,6 +1,6 @@
 import { redirect, notFound } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
-import { SimulatePayButton } from '@/components/simulate-pay-button'
+import { SimulatePayForm } from '@/components/simulate-pay-form'
 
 export const metadata = { robots: { index: false, follow: false } }
 export const dynamic = 'force-dynamic'
@@ -73,7 +73,7 @@ export default async function SimulatePayPage({
 
           <div className="mt-6">
             {payable ? (
-              <SimulatePayButton bookingId={b.id} amountLabel={formatCVE(due)} />
+              <SimulatePayForm bookingId={b.id} amountLabel={formatCVE(due)} />
             ) : (
               <p className="rounded-xl bg-paper-soft px-4 py-3 text-sm text-text-2">
                 Esta reserva não está pagável neste momento (estado: {b.status}).
@@ -81,9 +81,10 @@ export default async function SimulatePayPage({
             )}
           </div>
 
-          <p className="mt-4 text-[12px] leading-relaxed text-text-3">
-            Quando o Vinti4 estiver ativo, esta página é substituída pela página segura
-            da rede vinti4 (Vinti4, Visa e Mastercard).
+          <p className="mt-4 text-[11px] leading-relaxed text-text-3">
+            Ambiente de teste: usa qualquer número de cartão (ex.: 4242 4242 4242 4242).
+            Nenhum valor é cobrado. Quando as credenciais da SISP forem introduzidas,
+            esta página é substituída pela página segura oficial da rede vinti4.
           </p>
         </div>
       </div>

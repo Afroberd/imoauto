@@ -3,8 +3,8 @@
 import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
 
-/** Simulation mode is on only while Vinti4 credentials don't exist yet. */
-export const PAYMENT_SIMULATION = process.env.PAYMENT_SIMULATION === 'true'
+// NOTE: a "use server" file may only export async functions. The simulation
+// flag is read directly from process.env.PAYMENT_SIMULATION where needed.
 
 export type SimulatePayResult = { ok: true } | { ok: false; error: string }
 
