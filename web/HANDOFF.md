@@ -5,27 +5,26 @@ O site está **100% funcional em produção**. Lê isto de cima a baixo antes de
 
 ## 🚀 PLANO DE LANÇAMENTO — 25 DE JULHO DE 2026 (prioridade máxima)
 
-### ⚡ SESSÃO 2026-07-10 (emails+pagamento) — ESTADO EXATO
-User testou o fluxo: cliente/proprietário SEM emails (só admin). CAUSA
-ENCONTRADA (logs Vercel): EMAIL_FROM não tinha assentado → Resend em modo
-teste. ✅ CORRIGIDO: EMAIL_FROM recriado NÃO-sensitive, valor confirmado no
-ecrã (`IMOAUTO <noreply@imoauto.cv>`) + redeploy. 
-FEITO TAMBÉM: migração 016 escrita (boas-vindas no registo · "pedido enviado"
-ao hóspede · "pagamento recebido" ao proprietário · record_simulated_payment)
-+ fluxo de PAGAMENTO SIMULADO no código (deployed, dormente):
-PAYMENT_SIMULATION=true → botão Vinti4 "modo teste" → /pay/simulate → paga →
-booking 'paid' → emails. Vinti4 real substitui depois (mesmo caminho).
-**FALTA (por ordem, retomar aqui):**
-1. Aplicar migração 016 no SQL editor (extensão Chrome desligou — religar).
-2. Vercel: criar env PAYMENT_SIMULATION=true (não-secreta, posso eu) + redeploy.
-3. PROVAR emails: inserir notificação de teste p/ yanickdrs via SQL → logs
-   Vercel devem dizer "sent OK to yanickdrs" (antes dizia resend_403).
-4. Verificar/ativar "Confirm email" (Supabase Auth → Sign In/Providers →
-   Email) — user criou conta SEM receber email nenhum e conseguiu entrar ⇒
-   toggle provavelmente OFF apesar do HANDOFF dizer ativado. SMTP já configurado.
-5. Testar ciclo completo: registo (email boas-vindas + confirmação) → reserva
-   ("pedido enviado") → aceitar → pagar simulado → 'paga' → emails a todos.
+### ⚡ SESSÃO 2026-07-14 — EMAILS + PAGAMENTO SIMULADO + FILTRO (TUDO FEITO/TESTADO)
+✅ Emails a TODOS resolvidos: EMAIL_FROM recriado visível (IMOAUTO
+<noreply@imoauto.cv>) — logs confirmam "sent OK to yanickdrs" (antes resend_403).
+✅ Migração 016 APLICADA: boas-vindas no registo · "pedido enviado" ao hóspede ·
+"pagamento recebido" ao proprietário · record_simulated_payment().
+✅ Pagamento SIMULADO ponta-a-ponta: env PAYMENT_SIMULATION=true no Vercel +
+página /pay/simulate com FORMULÁRIO DE CARTÃO realista (nº+validade+CVV+nome,
+deteta VISA/MC/Vinti4; não cobra). Fluxo: escolher Vinti4 (modo teste) → cartão
+→ paga → booking 'paid' → emails. Trocar pelas credenciais SISP depois (mesmo
+caminho). Confirm email JÁ estava ON no Supabase.
+✅ Painel anfitrião: filtro Todos/🏠Imóveis/🚗Automóveis em Estadias/Pedidos/
+Pagamentos (components/dashboard/kind-filter.tsx). Bug corrigido: reserva paga
+com check-in já passado deixava de aparecer → agora "Check-in disponível"
+(check_in <= hoje). Carros mostram "dias" (não "noites").
+✅ TESTE GERAL 2026-07-14: público 200, apex→www 308, sitemap 21 URLs, 404 em
+anúncio falso, dashboards OK, comissão 10% certa. Tudo a funcionar.
 
+FALTA p/ lançamento 25/07: mais anúncios reais (user) · Google Search Console ·
+auto-renew Namecheap · Vinti4 real (SISP — user envia contrato) · verificação
+de identidade (manter manual; decisão adiada pelo user).
 
 O user marcou lançamento público para **25/07/2026**. Checklist até lá:
 
