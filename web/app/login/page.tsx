@@ -7,10 +7,20 @@ export const metadata = { robots: { index: false, follow: false } }
 export default async function LoginPage({
   searchParams,
 }: {
-  searchParams: Promise<{ registered?: string; error?: string; next?: string }>
+  searchParams: Promise<{ registered?: string; confirmed?: string; error?: string; next?: string }>
 }) {
   const sp = await searchParams
   const next = sp.next && sp.next.startsWith('/') && !sp.next.startsWith('//') ? sp.next : '/profile'
+
+  const errorMessages: Record<string, string> = {
+    confirmation_expired: 'O link de confirmação expirou ou já foi utilizado. Pede um novo email.',
+    confirmation_invalid: 'O link de confirmação não é válido.',
+    callback_exchange_failed: 'Não foi possível concluir a confirmação. Tenta novamente ou pede um novo link.',
+    access_denied: 'Não foi possível concluir a confirmação. Tenta novamente ou pede um novo link.',
+  }
+  const errorText = sp.error
+    ? errorMessages[sp.error] ?? 'Falha na autenticação. Tenta novamente.'
+    : null
 
   return (
     <main className="min-h-screen bg-paper">
@@ -49,14 +59,19 @@ export default async function LoginPage({
               Acede à tua conta IMOAUTO.
             </p>
 
-            {sp.registered && (
+            {sp.confirmed && (
               <div className="mt-6 rounded-md border border-success/30 bg-success-soft px-3 py-2 text-sm text-success">
-                Conta criada. Entra para continuar.
+                Email confirmado com sucesso. Já podes entrar.
               </div>
             )}
-            {sp.error && (
+            {sp.registered && !sp.confirmed && (
+              <div className="mt-6 rounded-md border border-success/30 bg-success-soft px-3 py-2 text-sm text-success">
+                Conta criada. Confirma o email que te enviámos e depois entra.
+              </div>
+            )}
+            {errorText && (
               <div className="mt-6 rounded-md border border-coral/30 bg-coral-soft px-3 py-2 text-sm text-coral-deep">
-                Falha na autenticação. Tenta novamente.
+                {errorText}
               </div>
             )}
 
