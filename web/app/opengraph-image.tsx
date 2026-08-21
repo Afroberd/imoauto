@@ -37,7 +37,7 @@ export default function OpengraphImage() {
         <div style={{ fontSize: 42, marginTop: 28, color: '#D7E3E8', maxWidth: 950 }}>
           Imóveis e automóveis — comprar, vender e alugar em todas as nove ilhas.
         </div>
-        <div style={{ fontSize: 28, marginTop: 'auto', color: '#9FB9C4' }}>
+        <div style={{ fontSize: 28, marginTop: 40, color: '#9FB9C4' }}>
           www.imoauto.cv
         </div>
       </div>
