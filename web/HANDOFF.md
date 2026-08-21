@@ -61,6 +61,20 @@ O user marcou lançamento público para **25/07/2026**. Checklist até lá:
 
 ---
 
+## ✅ PREPARAÇÃO DE LANÇAMENTO (2026-08-21)
+- SEO técnico completo + Google Search Console VERIFICADO (ficheiro
+  public/google76ee26ea645ae1b5.html — NÃO apagar) + sitemap submetido.
+  JSON-LD (Organization/WebSite/Product+Breadcrumb), títulos/keywords por página.
+- Logótipo novo (carro+casa) em Wordmark + favicon (app/icon.svg) + OG image.
+- Registo: checkbox obrigatório "Aceito os Termos".
+- Menu/painel: Dashboard, "As minhas reservas" e Verificação escondidos com
+  DAILY_RENTALS off (dados intactos).
+- Termos + Privacidade: secções de reserva/pagamento/comissão/verificação/
+  documentos gated por DAILY_RENTALS_ENABLED (voltam ao reativar o diário).
+- Email confirmação cross-device: user confirmou que funcionava no último teste.
+  Domínio: auto-renew ok (6 meses). Falta: mais anúncios (user) + Google
+  Business Profile (pós-lançamento, alto impacto p/ "imobiliária").
+
 ## ⭐ DECISÃO DE LANÇAMENTO (2026-07-14): LANÇAR SÓ COM CLASSIFICADOS
 O user decidiu lançar **sem aluguer diário** (venda + aluguer mensal apenas).
 Todo o produto de reserva diária (booking, pagamento, verificação, Stripe/SISP,
