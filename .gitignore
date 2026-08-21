@@ -53,3 +53,6 @@ next-env.d.ts
 
 # OneDrive sync artefacts
 ~$*
+
+# Marketing docs (local only — nao faz parte do codigo)
+/marketing/
