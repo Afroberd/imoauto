@@ -74,6 +74,22 @@ export function RegisterForm({ next = '/profile' }: { next?: string }) {
           <p className="text-[11px] text-text-3">Mínimo 8 caracteres.</p>
         </div>
 
+        <label className="flex items-start gap-2.5 text-[13px] leading-snug text-text-2">
+          <input
+            type="checkbox"
+            name="acceptTerms"
+            value="1"
+            required
+            className="mt-0.5 h-4 w-4 flex-shrink-0 rounded border-shell text-ink focus:ring-ink"
+          />
+          <span>
+            Li e aceito os{' '}
+            <a href="/termos" target="_blank" className="text-ink underline underline-offset-2">Termos de Utilização</a>
+            {' '}e a{' '}
+            <a href="/privacidade" target="_blank" className="text-ink underline underline-offset-2">Política de Privacidade</a>.
+          </span>
+        </label>
+
         {state?.error && (
           <p className="text-sm text-coral-deep">{state.error}</p>
         )}

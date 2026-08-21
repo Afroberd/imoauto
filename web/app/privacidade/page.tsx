@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { DAILY_RENTALS_ENABLED } from '@/lib/config'
 
 export const metadata: Metadata = {
   title: 'Política de Privacidade — IMOAUTO',
@@ -18,7 +19,7 @@ export default function PrivacidadePage() {
           <h1 className="mt-2 font-display text-3xl font-medium tracking-[-0.022em] text-ink sm:text-4xl md:text-5xl">
             Política de Privacidade
           </h1>
-          <p className="mt-3 text-sm text-text-3">Última atualização: 24 de junho de 2026.</p>
+          <p className="mt-3 text-sm text-text-3">Última atualização: 21 de agosto de 2026.</p>
         </div>
       </section>
 
@@ -37,9 +38,11 @@ export default function PrivacidadePage() {
           <ul className="list-disc space-y-1.5 pl-5">
             <li><strong>Conta:</strong> nome, email e (se fornecida) palavra-passe ou login Google.</li>
             <li><strong>Anúncios:</strong> texto, fotos, preço, localização e contacto que escolhes publicar.</li>
-            <li><strong>Mensagens e reservas:</strong> conversas e dados das reservas entre utilizadores.</li>
-            <li><strong>Verificação de identidade:</strong> tipo e número de documento (BI/passaporte),
-              foto do documento e, se aplicável, carta de condução e telefone.</li>
+            <li><strong>Mensagens:</strong> conversas entre utilizadores{DAILY_RENTALS_ENABLED ? ' e dados das reservas' : ''}.</li>
+            {DAILY_RENTALS_ENABLED && (
+              <li><strong>Verificação de identidade:</strong> tipo e número de documento (BI/passaporte),
+                foto do documento e, se aplicável, carta de condução e telefone.</li>
+            )}
             <li><strong>Técnicos:</strong> dados de sessão e de utilização necessários para o site funcionar.</li>
           </ul>
         </Block>
@@ -47,60 +50,60 @@ export default function PrivacidadePage() {
         <Block n="2" title="Para que usamos os dados">
           <p>
             Usamos os teus dados para criar e gerir a tua conta, mostrar os teus anúncios, permitir
-            mensagens e reservas, confirmar a tua identidade quando necessário, e enviar-te avisos
-            (por exemplo, um novo pedido de reserva). Não vendemos os teus dados a terceiros.
+            as mensagens entre utilizadores{DAILY_RENTALS_ENABLED ? ', gerir reservas e confirmar a tua identidade quando necessário' : ''}, e enviar-te
+            avisos (por exemplo, uma nova mensagem). Não vendemos os teus dados a terceiros.
           </p>
         </Block>
 
-        <Block n="3" title="Os teus documentos de identidade">
-          <p>
-            Os documentos que envias para verificação ficam num <strong>armazenamento privado</strong> e
-            não são públicos. Só conseguem aceder a eles:
-          </p>
-          <ul className="mt-3 list-disc space-y-1.5 pl-5">
-            <li>tu próprio;</li>
-            <li>o anfitrião de uma reserva que faças com ele, quando a reserva o justifica;</li>
-            <li>a equipa do IMOAUTO, exclusivamente para confirmar a tua identidade.</li>
-          </ul>
-          <p className="mt-3">
-            Tratamos estes documentos com especial cuidado e usamo-los apenas para o fim da verificação.
-          </p>
-        </Block>
+        {DAILY_RENTALS_ENABLED && (
+          <Block n="3" title="Os teus documentos de identidade">
+            <p>
+              Os documentos que envias para verificação ficam num <strong>armazenamento privado</strong> e
+              não são públicos. Só conseguem aceder a eles:
+            </p>
+            <ul className="mt-3 list-disc space-y-1.5 pl-5">
+              <li>tu próprio;</li>
+              <li>a equipa do IMOAUTO, exclusivamente para confirmar a tua identidade.</li>
+            </ul>
+            <p className="mt-3">
+              Tratamos estes documentos com especial cuidado e usamo-los apenas para o fim da verificação.
+            </p>
+          </Block>
+        )}
 
-        <Block n="4" title="Onde os dados são guardados">
+        <Block n={DAILY_RENTALS_ENABLED ? '4' : '3'} title="Onde os dados são guardados">
           <p>
             O IMOAUTO assenta em fornecedores de infraestrutura cloud (nomeadamente Supabase, para
             base de dados e armazenamento, e Vercel, para alojamento). Os dados podem ser processados
             em servidores fora de Cabo Verde, com medidas técnicas de segurança como controlo de acesso
-            por utilizador e armazenamento privado dos documentos.
+            por utilizador.
           </p>
         </Block>
 
-        <Block n="5" title="Quem vê o quê">
+        <Block n={DAILY_RENTALS_ENABLED ? '5' : '4'} title="Quem vê o quê">
           <p>
             O teu nome de utilizador e os teus anúncios publicados são públicos. As tuas mensagens só
-            são visíveis para ti e para o outro participante da conversa. Os dados de identidade são
-            privados, conforme o ponto 3.
+            são visíveis para ti e para o outro participante da conversa.
           </p>
         </Block>
 
-        <Block n="6" title="Os teus direitos">
+        <Block n={DAILY_RENTALS_ENABLED ? '6' : '5'} title="Os teus direitos">
           <p>
             Podes aceder, corrigir ou apagar os teus dados, incluindo a tua conta. A maior parte
-            faz-se diretamente no site (perfil, anúncios, verificação). Para pedidos adicionais — como
+            faz-se diretamente no site (perfil, anúncios). Para pedidos adicionais — como
             apagar a conta e todos os dados associados — contacta-nos pela página de{' '}
             <a href="/contacto" className="text-ink underline underline-offset-2">Contacto</a>.
           </p>
         </Block>
 
-        <Block n="7" title="Cookies">
+        <Block n={DAILY_RENTALS_ENABLED ? '7' : '6'} title="Cookies">
           <p>
             Usamos apenas os cookies necessários para te manter com sessão iniciada e para o site
             funcionar em segurança. Não usamos cookies de publicidade.
           </p>
         </Block>
 
-        <Block n="8" title="Alterações">
+        <Block n={DAILY_RENTALS_ENABLED ? '8' : '7'} title="Alterações">
           <p>
             Podemos atualizar esta Política; a data acima indica a versão em vigor. Mudanças
             relevantes serão comunicadas no site.

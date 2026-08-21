@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { DAILY_RENTALS_ENABLED } from '@/lib/config'
 
 export const metadata: Metadata = {
   title: 'Termos de Utilização — IMOAUTO',
@@ -18,7 +19,7 @@ export default function TermosPage() {
           <h1 className="mt-2 font-display text-3xl font-medium tracking-[-0.022em] text-ink sm:text-4xl md:text-5xl">
             Termos de Utilização
           </h1>
-          <p className="mt-3 text-sm text-text-3">Última atualização: 24 de junho de 2026.</p>
+          <p className="mt-3 text-sm text-text-3">Última atualização: 21 de agosto de 2026.</p>
         </div>
       </section>
 
@@ -32,17 +33,24 @@ export default function TermosPage() {
           <p>
             O IMOAUTO é uma plataforma online que liga quem anuncia imóveis e automóveis
             (para venda ou aluguer) a quem procura, em todas as ilhas de Cabo Verde.
-            <strong> Publicar anúncios é gratuito.</strong> Para venda e aluguer mensal, o
-            IMOAUTO é apenas o intermediário tecnológico e o negócio é feito diretamente
-            entre as partes. Para o aluguer diário, o IMOAUTO disponibiliza a reserva e o
-            pagamento online e cobra uma comissão de serviço sobre o valor da reserva
-            (ver ponto 4).
+            <strong> Publicar anúncios é gratuito.</strong>{' '}
+            {DAILY_RENTALS_ENABLED ? (
+              <>Na venda e no aluguer mensal, o IMOAUTO é apenas o intermediário tecnológico e o
+              negócio é feito diretamente entre as partes. No aluguer diário, o IMOAUTO
+              disponibiliza a reserva e o pagamento online e cobra uma comissão de serviço sobre
+              o valor da reserva (ver ponto seguinte).</>
+            ) : (
+              <>O IMOAUTO funciona como um quadro de anúncios (classificados): é apenas o
+              intermediário tecnológico e o contacto e o negócio são feitos <strong>diretamente
+              entre as partes</strong>. O IMOAUTO não processa pagamentos nem cobra comissão
+              sobre as transações.</>
+            )}
           </p>
         </Block>
 
         <Block n="2" title="Conta de utilizador">
           <p>
-            Para anunciar, reservar ou enviar mensagens precisas de criar uma conta. És
+            Para anunciar ou enviar mensagens precisas de criar uma conta. És
             responsável por manter a tua palavra-passe segura e por toda a atividade na tua
             conta. Os dados que forneces devem ser verdadeiros e atualizados. Podemos suspender
             ou encerrar contas que violem estes Termos ou a lei.
@@ -62,29 +70,44 @@ export default function TermosPage() {
           </p>
         </Block>
 
-        <Block n="4" title="Reservas e pagamentos">
-          <p>
-            No aluguer diário, a reserva é confirmada e <strong>paga online através da
-            plataforma</strong>, por Vinti4 ou cartão (Visa/Mastercard). O IMOAUTO não guarda
-            dados de cartão — o pagamento é processado por fornecedores certificados.
-          </p>
-          <p>
-            Sobre cada reserva paga, o IMOAUTO retém uma <strong>comissão de serviço de 10%</strong>{' '}
-            do valor da reserva; o restante é transferido para o anunciante. Cancelamentos e
-            reembolsos seguem a política indicada em cada anúncio.
-          </p>
-        </Block>
+        {!DAILY_RENTALS_ENABLED && (
+          <Block n="4" title="Pagamentos e negócios">
+            <p>
+              De momento, <strong>o IMOAUTO não processa pagamentos</strong>. O pagamento e a
+              entrega são combinados e feitos <strong>diretamente entre o anunciante e o
+              interessado</strong>, fora da plataforma. Por segurança, confirma o bem
+              pessoalmente antes de pagar e desconfia de pedidos de adiantamento invulgares.
+            </p>
+          </Block>
+        )}
 
-        <Block n="5" title="Verificação de identidade">
-          <p>
-            Alguns anúncios (sobretudo aluguer diário) podem exigir identidade verificada. Ao
-            submeteres documentos, autorizas o IMOAUTO a tratá-los apenas para confirmar a tua
-            identidade, conforme a{' '}
-            <a href="/privacidade" className="text-ink underline underline-offset-2">Política de Privacidade</a>.
-          </p>
-        </Block>
+        {DAILY_RENTALS_ENABLED && (
+          <Block n="4" title="Reservas e pagamentos">
+            <p>
+              No aluguer diário, a reserva é confirmada e <strong>paga online através da
+              plataforma</strong>, por Vinti4 ou cartão (Visa/Mastercard). O IMOAUTO não guarda
+              dados de cartão — o pagamento é processado por fornecedores certificados.
+            </p>
+            <p>
+              Sobre cada reserva paga, o IMOAUTO retém uma <strong>comissão de serviço de 10%</strong>{' '}
+              do valor da reserva; o restante é transferido para o anunciante. Cancelamentos e
+              reembolsos seguem a política indicada em cada anúncio.
+            </p>
+          </Block>
+        )}
 
-        <Block n="6" title="Responsabilidade">
+        {DAILY_RENTALS_ENABLED && (
+          <Block n="5" title="Verificação de identidade">
+            <p>
+              Alguns anúncios (sobretudo aluguer diário) podem exigir identidade verificada. Ao
+              submeteres documentos, autorizas o IMOAUTO a tratá-los apenas para confirmar a tua
+              identidade, conforme a{' '}
+              <a href="/privacidade" className="text-ink underline underline-offset-2">Política de Privacidade</a>.
+            </p>
+          </Block>
+        )}
+
+        <Block n={DAILY_RENTALS_ENABLED ? '6' : '5'} title="Responsabilidade">
           <p>
             O IMOAUTO disponibiliza a plataforma &quot;tal como está&quot; e não garante a veracidade
             dos anúncios nem o comportamento dos utilizadores. Recomendamos prudência: confirma o
@@ -94,7 +117,7 @@ export default function TermosPage() {
           </p>
         </Block>
 
-        <Block n="7" title="Alterações e lei aplicável">
+        <Block n={DAILY_RENTALS_ENABLED ? '7' : '6'} title="Alterações e lei aplicável">
           <p>
             Podemos atualizar estes Termos; a data acima indica a última versão. Estes Termos
             regem-se pela lei da República de Cabo Verde. Em caso de dúvida, contacta-nos pela

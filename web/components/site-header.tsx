@@ -6,6 +6,7 @@ import { Wordmark } from '@/components/wordmark'
 import { PlusIcon, HeartIcon, MessageIcon, CalendarIcon } from '@/components/icons'
 import { MobileNav } from '@/components/mobile-nav'
 import { NotificationBell } from '@/components/notification-bell'
+import { DAILY_RENTALS_ENABLED } from '@/lib/config'
 
 const baseLinks = [
   { href: '/listings', label: 'Anúncios' },
@@ -47,9 +48,14 @@ export async function SiteHeader() {
     userIsAdmin = !!adminRow
   }
 
+  // With daily rentals hidden, drop the booking/verification entry points.
+  const dailyOnlyHrefs = ['/dashboard', '/dashboard/reservas', '/verificacao']
+  const activeLoggedInLinks = DAILY_RENTALS_ENABLED
+    ? loggedInLinks
+    : loggedInLinks.filter((l) => !dailyOnlyHrefs.includes(l.href))
   const mobileLoggedInLinks = userIsAdmin
-    ? [...loggedInLinks, { href: '/admin', label: 'Admin' }]
-    : loggedInLinks
+    ? [...activeLoggedInLinks, { href: '/admin', label: 'Admin' }]
+    : activeLoggedInLinks
 
   return (
     <header className="sticky top-0 z-30 border-b border-shell/70 bg-paper/85 backdrop-blur">
@@ -87,15 +93,19 @@ export async function SiteHeader() {
                   className="inline-flex items-center rounded-full px-3 py-2 text-text-2 transition-colors hover:bg-shell-soft hover:text-ink">
                   <MessageIcon className="h-4 w-4" />
                 </Link>
-                <Link href="/dashboard/reservas" aria-label="As minhas reservas"
-                  className="inline-flex items-center rounded-full px-3 py-2 text-text-2 transition-colors hover:bg-shell-soft hover:text-ink">
-                  <CalendarIcon className="h-4 w-4" />
-                </Link>
+                {DAILY_RENTALS_ENABLED && (
+                  <Link href="/dashboard/reservas" aria-label="As minhas reservas"
+                    className="inline-flex items-center rounded-full px-3 py-2 text-text-2 transition-colors hover:bg-shell-soft hover:text-ink">
+                    <CalendarIcon className="h-4 w-4" />
+                  </Link>
+                )}
                 <NotificationBell userId={user.id} initialUnread={unread} />
-                <Link href="/dashboard"
-                  className="rounded-full px-3 py-2 text-text-2 transition-colors hover:bg-shell-soft hover:text-ink">
-                  Dashboard
-                </Link>
+                {DAILY_RENTALS_ENABLED && (
+                  <Link href="/dashboard"
+                    className="rounded-full px-3 py-2 text-text-2 transition-colors hover:bg-shell-soft hover:text-ink">
+                    Dashboard
+                  </Link>
+                )}
                 {userIsAdmin && (
                   <Link href="/admin"
                     className="rounded-full px-3 py-2 text-text-2 transition-colors hover:bg-shell-soft hover:text-ink">

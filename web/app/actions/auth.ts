@@ -36,6 +36,8 @@ export async function signUp(
 
   if (!email || !password) return { error: 'Email e password obrigatórios.' }
   if (password.length < 8) return { error: 'Password tem de ter pelo menos 8 caracteres.' }
+  if (formData.get('acceptTerms') !== '1')
+    return { error: 'Tens de aceitar os Termos de Utilização e a Política de Privacidade.' }
 
   const supabase = await createClient()
   const h = await headers()
