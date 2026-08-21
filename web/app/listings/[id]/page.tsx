@@ -141,8 +141,48 @@ export default async function ListingDetailPage({
     reviewer: { display_name: string | null; email: string } | null
   }[]
 
+  // Structured data (JSON-LD) so this listing can show price/photo in Google.
+  const SITE = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.imoauto.cv'
+  const listingUrl = `${SITE}/listings/${l.id}`
+  const images = [l.cover_image_url, ...photos.map((p) => p.url)].filter(Boolean).slice(0, 6)
+  const productJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': isProperty ? 'Product' : 'Car',
+    name: l.title,
+    description: (l.description ?? `${purposeLabel(l.purpose)} em ${l.location_island}, Cabo Verde.`).slice(0, 300),
+    ...(images.length ? { image: images } : {}),
+    ...(l.location_island ? { areaServed: `${l.location_municipality ? l.location_municipality + ', ' : ''}${l.location_island}, Cabo Verde` } : {}),
+    offers: {
+      '@type': 'Offer',
+      price: l.price_cve,
+      priceCurrency: 'CVE',
+      availability: 'https://schema.org/InStock',
+      url: listingUrl,
+    },
+    ...(l.rating_count > 0
+      ? { aggregateRating: { '@type': 'AggregateRating', ratingValue: l.rating_avg, reviewCount: l.rating_count } }
+      : {}),
+  }
+  const breadcrumbJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Início', item: SITE },
+      { '@type': 'ListItem', position: 2, name: isProperty ? 'Imóveis' : 'Automóveis', item: `${SITE}/listings?kind=${l.kind}` },
+      { '@type': 'ListItem', position: 3, name: l.title, item: listingUrl },
+    ],
+  }
+
   return (
     <main className="bg-paper">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+      />
       <div className="mx-auto max-w-6xl px-4 pt-6 sm:px-5 sm:pt-8">
         <Link
           href="/listings"

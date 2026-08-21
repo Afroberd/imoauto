@@ -8,7 +8,14 @@ import { DAILY_RENTALS_ENABLED } from '@/lib/config'
 
 export const dynamic = 'force-dynamic'
 
-export const metadata = { alternates: { canonical: '/' } }
+export const metadata = {
+  title: {
+    absolute: 'Imóveis e Automóveis em Cabo Verde — Comprar, Vender e Alugar | IMOAUTO',
+  },
+  description:
+    'IMOAUTO é o marketplace de imóveis e automóveis de Cabo Verde. Casas, apartamentos, terrenos e carros à venda e para alugar em todas as nove ilhas. Anunciar é grátis.',
+  alternates: { canonical: '/' },
+}
 
 export default async function Home() {
   const supabase = await createClient()

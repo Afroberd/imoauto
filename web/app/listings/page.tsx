@@ -14,7 +14,26 @@ import { DAILY_RENTALS_ENABLED } from '@/lib/config'
 
 export const dynamic = 'force-dynamic'
 
-export const metadata = { alternates: { canonical: '/listings' } }
+export async function generateMetadata({
+  searchParams,
+}: {
+  searchParams: Promise<{ kind?: string; island?: string }>
+}) {
+  const sp = await searchParams
+  const island = (CV_ISLANDS as readonly string[]).includes(sp.island ?? '') ? sp.island : null
+  const where = island ? ` em ${island}` : ' em Cabo Verde'
+  const title =
+    sp.kind === 'property'
+      ? `Imóveis à venda e para alugar${where}`
+      : sp.kind === 'vehicle'
+        ? `Automóveis à venda e para alugar${where}`
+        : `Anúncios de imóveis e automóveis${where}`
+  const description =
+    sp.kind === 'vehicle'
+      ? `Carros, motas e comerciais à venda e para alugar${where}. Compra e vende no IMOAUTO — preços em escudo.`
+      : `Casas, apartamentos, terrenos e automóveis à venda e para alugar${where}. Encontra o teu no IMOAUTO — preços em escudo.`
+  return { title, description, alternates: { canonical: '/listings' } }
+}
 
 /**
  * Clean a free-text search term before it goes into a PostgREST `.or()` filter.
