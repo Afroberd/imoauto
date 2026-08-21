@@ -23,6 +23,7 @@ import { ReviewForm } from '@/components/review-form'
 import { StarRatingDisplay } from '@/components/star-rating'
 import { getUnavailableRanges } from '@/app/actions/bookings'
 import { checkReviewEligibility } from '@/app/actions/reviews'
+import { DAILY_RENTALS_ENABLED } from '@/lib/config'
 
 function buildWhatsAppLink(phone: string, listingTitle: string): string {
   const digits = phone.replace(/\D/g, '')
@@ -344,8 +345,8 @@ export default async function ListingDetailPage({
             </p>
           </div>
 
-          {/* Booking form — rent_daily only, non-owners only */}
-          {l.purpose === 'rent_daily' && !isOwner && (
+          {/* Booking form — rent_daily only, non-owners only, feature on */}
+          {DAILY_RENTALS_ENABLED && l.purpose === 'rent_daily' && !isOwner && (
             <div className="mt-4">
               <BookingForm
                 listingId={l.id}

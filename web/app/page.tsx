@@ -40,7 +40,7 @@ export default async function Home() {
           </h1>
 
           <p className="rise rise-delay-2 mt-8 max-w-xl text-[17px] leading-relaxed text-text-2">
-            O marketplace atlântico para comprar, vender e alugar — diário ou mensal —
+            O marketplace atlântico para comprar, vender e alugar
             em todas as nove ilhas. Preços em escudo cabo-verdiano.
           </p>
 
@@ -102,7 +102,7 @@ export default async function Home() {
           <CategoryBlock
             num="01"
             title="Imóveis"
-            blurb="Apartamentos, moradias, terrenos. Para comprar ou alugar — do diário ao mensal, tipo estadia."
+            blurb="Apartamentos, moradias, terrenos. Para comprar ou alugar."
             href="/listings?kind=property"
             icon={<HouseIcon className="h-5 w-5" />}
           />

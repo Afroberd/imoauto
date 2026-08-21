@@ -1,6 +1,7 @@
 import { redirect, notFound } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { isCurrentUserVerified } from '@/app/actions/verification'
+import { DAILY_RENTALS_ENABLED } from '@/lib/config'
 import { ListingWizard } from '@/app/listings/new/listing-wizard'
 import type { Listing } from '@/lib/listings/types'
 import type { WizardData } from '@/components/wizard/fields'
@@ -70,6 +71,7 @@ export default async function EditListingPage({
           listingId={l.id}
           initial={{ kind: l.kind, purpose: l.purpose, data }}
           isVerified={isVerified}
+          dailyEnabled={DAILY_RENTALS_ENABLED}
         />
       </section>
     </main>

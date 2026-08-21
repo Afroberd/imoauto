@@ -10,6 +10,7 @@ import {
 } from '@/lib/listings/constants'
 import type { Listing } from '@/lib/listings/types'
 import { getFavoriteIds } from '@/app/actions/favorites'
+import { DAILY_RENTALS_ENABLED } from '@/lib/config'
 
 export const dynamic = 'force-dynamic'
 
@@ -51,9 +52,10 @@ export default async function ListingsPage({
   const islandFilter = (CV_ISLANDS as readonly string[]).includes(sp.island ?? '')
     ? sp.island
     : null
-  const purposeFilter = ['sale', 'rent_monthly', 'rent_daily'].includes(sp.purpose ?? '')
-    ? sp.purpose
-    : null
+  const allowedPurposes = DAILY_RENTALS_ENABLED
+    ? ['sale', 'rent_monthly', 'rent_daily']
+    : ['sale', 'rent_monthly']
+  const purposeFilter = allowedPurposes.includes(sp.purpose ?? '') ? sp.purpose : null
   const q = sanitizeSearch(sp.q ?? '')
   const minPrice = sp.min ? Number(sp.min) : null
   const maxPrice = sp.max ? Number(sp.max) : null
@@ -66,6 +68,8 @@ export default async function ListingsPage({
     .eq('status', 'published')
     .order('created_at', { ascending: false })
 
+  // Hide daily rentals from the public catalogue while the feature is off.
+  if (!DAILY_RENTALS_ENABLED) query = query.neq('purpose', 'rent_daily')
   if (kindFilter) query = query.eq('kind', kindFilter)
   if (islandFilter) query = query.eq('location_island', islandFilter)
   if (purposeFilter) query = query.eq('purpose', purposeFilter)
@@ -206,7 +210,9 @@ export default async function ListingsPage({
               { value: 'all', label: 'Todas', paramValue: null },
               { value: 'sale', label: 'Venda', paramValue: 'sale' },
               { value: 'rent_monthly', label: 'Mensal', paramValue: 'rent_monthly' },
-              { value: 'rent_daily', label: 'Diário', paramValue: 'rent_daily' },
+              ...(DAILY_RENTALS_ENABLED
+                ? [{ value: 'rent_daily', label: 'Diário', paramValue: 'rent_daily' }]
+                : []),
             ]}
             paramName="purpose"
           />

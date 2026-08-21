@@ -3,6 +3,7 @@
 import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
+import { DAILY_RENTALS_ENABLED } from '@/lib/config'
 import type { ListingAttributes, ListingInput } from '@/lib/listings/types'
 import {
   CV_ISLANDS,
@@ -225,6 +226,11 @@ export async function createListing(input: ListingInput): Promise<SaveListingRes
 
   const v = validate(input)
   if (!v.ok) return v
+
+  // Daily rentals hidden at launch: block creating new ones via the API too.
+  if (input.purpose === 'rent_daily' && !DAILY_RENTALS_ENABLED) {
+    return { ok: false, error: 'O aluguer diário ainda não está disponível.' }
+  }
 
   // Daily rentals: only verified hosts may publish houses/cars for the night.
   if (input.purpose === 'rent_daily' && !(await isUserVerified(supabase, user.id))) {

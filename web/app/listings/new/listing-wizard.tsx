@@ -60,12 +60,14 @@ export function ListingWizard({
   listingId,
   initial,
   isVerified,
+  dailyEnabled = false,
 }: {
   userId: string
   mode: Mode
   listingId?: string
   initial?: Initial
   isVerified: boolean
+  dailyEnabled?: boolean
 }) {
   const router = useRouter()
   const [kind, setKind] = useState<ListingKind | null>(initial?.kind ?? null)
@@ -251,6 +253,7 @@ export function ListingWizard({
         {step === 'tipo' && (
           <StepTipo
             kind={kind} purpose={purpose} isVerified={isVerified}
+            dailyEnabled={dailyEnabled || initial?.purpose === 'rent_daily'}
             onKind={(k) => { setKind(k); setPurpose(null) }}
             onPurpose={setPurpose}
           />
@@ -357,11 +360,12 @@ function stepName(s: string): string {
 
 /* — Step 1: Tipo — */
 function StepTipo({
-  kind, purpose, isVerified, onKind, onPurpose,
+  kind, purpose, isVerified, dailyEnabled, onKind, onPurpose,
 }: {
   kind: ListingKind | null
   purpose: ListingPurpose | null
   isVerified: boolean
+  dailyEnabled: boolean
   onKind: (k: ListingKind) => void
   onPurpose: (p: ListingPurpose) => void
 }) {
@@ -387,7 +391,7 @@ function StepTipo({
         <div>
           <h2 className="font-display text-xl font-medium text-ink">Para quê?</h2>
           <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-3">
-            {PURPOSES_FOR[kind].map((p) => (
+            {PURPOSES_FOR[kind].filter((p) => p.value !== 'rent_daily' || dailyEnabled).map((p) => (
               <button
                 key={p.value}
                 type="button"
