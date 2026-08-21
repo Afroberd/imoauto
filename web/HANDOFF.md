@@ -61,6 +61,19 @@ O user marcou lançamento público para **25/07/2026**. Checklist até lá:
 
 ---
 
+## ⭐ DECISÃO DE LANÇAMENTO (2026-07-14): LANÇAR SÓ COM CLASSIFICADOS
+O user decidiu lançar **sem aluguer diário** (venda + aluguer mensal apenas).
+Todo o produto de reserva diária (booking, pagamento, verificação, Stripe/SISP,
+pagamento simulado) fica **INTACTO no código e na base de dados**, apenas
+**ESCONDIDO** via a flag `DAILY_RENTALS` (lib/config.ts, OFF por defeito).
+Reativar quando houver movimento: **DAILY_RENTALS=true no Vercel + redeploy**.
+Esconde: homepage/destaques · /listings (browse+filtro+chip) · wizard (não cria)
+· createListing (recusa via API) · BookingForm no anúncio · sitemap. Copy da
+homepage ficou neutra. Dashboards de anfitrião (Estadias/Pedidos/etc.) ainda
+aparecem para quem está logado (só o user vê; dá para esconder depois se quiser).
+Stripe: código pronto e dormente; irmão do user (em Portugal) tem conta Stripe —
+ligar dá chave sk_+webhook whsec_ (adiado; ele ainda não enviou). SISP em pausa.
+
 ## 1. COMO TRABALHAR COM O USER (regras)
 
 - User = **Yanick** (zero-code). Responder **em português**; código em inglês.
