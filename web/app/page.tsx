@@ -4,6 +4,7 @@ import { ListingCard } from '@/components/listing-card'
 import { ArrowRightIcon, SearchIcon, HouseIcon, CarIcon } from '@/components/icons'
 import { CV_ISLANDS } from '@/lib/listings/constants'
 import type { Listing } from '@/lib/listings/types'
+import { DAILY_RENTALS_ENABLED } from '@/lib/config'
 
 export const dynamic = 'force-dynamic'
 
@@ -11,10 +12,12 @@ export const metadata = { alternates: { canonical: '/' } }
 
 export default async function Home() {
   const supabase = await createClient()
-  const { data } = await supabase
+  let featuredQuery = supabase
     .from('listings')
     .select('*')
     .eq('status', 'published')
+  if (!DAILY_RENTALS_ENABLED) featuredQuery = featuredQuery.neq('purpose', 'rent_daily')
+  const { data } = await featuredQuery
     .order('created_at', { ascending: false })
     .limit(6)
   const featured = (data ?? []) as Listing[]

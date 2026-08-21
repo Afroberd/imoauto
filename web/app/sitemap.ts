@@ -1,5 +1,6 @@
 import type { MetadataRoute } from 'next'
 import { createClient } from '@supabase/supabase-js'
+import { DAILY_RENTALS_ENABLED } from '@/lib/config'
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.imoauto.cv'
 
@@ -30,10 +31,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
       { auth: { persistSession: false } },
     )
-    const { data } = await supabase
+    let q = supabase
       .from('listings')
       .select('id, created_at')
       .eq('status', 'published')
+    if (!DAILY_RENTALS_ENABLED) q = q.neq('purpose', 'rent_daily')
+    const { data } = await q
       .order('created_at', { ascending: false })
       .limit(2000)
     listingPages = (data ?? []).map((l: { id: string; created_at: string | null }) => ({
