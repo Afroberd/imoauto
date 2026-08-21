@@ -95,14 +95,6 @@ export default async function Home() {
             </button>
           </form>
 
-          {/* Decorative numerals — coordinates */}
-          <div
-            aria-hidden
-            className="numeral pointer-events-none absolute right-6 top-6 hidden text-right text-text-3 md:block"
-          >
-            <div className="text-[11px] uppercase tracking-[0.22em]">N° atlântico</div>
-            <div className="mt-1 text-2xl text-ink-soft tnum">14°55′ / 23°31′</div>
-          </div>
         </div>
       </section>
 
