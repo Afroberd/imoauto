@@ -112,7 +112,7 @@ export default async function Home() {
           <CategoryBlock
             num="02"
             title="Automóveis"
-            blurb="Carros, motas, comerciais. Venda directa ou aluguer por dias — pronto a circular nas ilhas."
+            blurb="Carros, motas, comerciais. Para comprar ou alugar — prontos a circular nas ilhas."
             href="/listings?kind=vehicle"
             icon={<CarIcon className="h-5 w-5" />}
           />

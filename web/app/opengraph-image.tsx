@@ -22,10 +22,18 @@ export default function OpengraphImage() {
           fontFamily: 'sans-serif',
         }}
       >
-        <div style={{ fontSize: 30, letterSpacing: 6, color: '#9FB9C4' }}>
+        <svg width="230" height="153" viewBox="0 0 120 80" fill="none"
+          stroke="#FAF7F0" strokeWidth="3.6" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M66 40 L92 14 L114 36 L114 62" />
+          <path d="M104 25 L104 16 L109 16 L109 29" />
+          <path d="M8 62 L8 53 Q8 47.5 13.5 45.5 L25 42 Q28 39 32 39 L50 38 L58 30 Q61.5 28 67 28 L84 30 Q99 33 104 62" />
+          <line x1="8" y1="62" x2="114" y2="62" />
+          <circle cx="34" cy="56" r="6.4" />
+        </svg>
+        <div style={{ fontSize: 30, letterSpacing: 6, color: '#9FB9C4', marginTop: 30 }}>
           CABO VERDE
         </div>
-        <div style={{ fontSize: 110, fontWeight: 700, marginTop: 18 }}>ImoAuto</div>
+        <div style={{ fontSize: 110, fontWeight: 700, marginTop: 14 }}>ImoAuto</div>
         <div style={{ fontSize: 42, marginTop: 28, color: '#D7E3E8', maxWidth: 950 }}>
           Imóveis e automóveis — comprar, vender e alugar em todas as nove ilhas.
         </div>
